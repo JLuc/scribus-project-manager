@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# script : checkimages
+# version : 0.0.1
+# author : JLuc (at) no-log.org
+# Licence : GPL
+#
+# Files > "Collect for Output" creates an 'images' subfolder and copies all used images there
+# BUT the scribus file can still be edited and some outside images can be imported
+# thus, a risk of being lost when later moving the SLA file.
+# This script checks for each scribus file that all its used images are stored in the 'images' subfolder
+# it does so for the currend folder or for another folder, and possibly for its subfolders
+#
+
+if [ "$1" = "-?" ] || [ "$1" = "?" ] || [ "$1" = "-h" ] || [ "$1" = "h" ] 
+then 
+	echo usage : checkimages [-r] [-v] [folder]
+	echo -r : recurse subfolder
+	# echo -v : verbose (displays full pathes)
+	echo folder : working folder
+	echo Check that all scribus in folder (and optionnaly subfolder) have their images in 'images' subfolder(s)
+	echo Vérifie que les fichiers SLA ont bien toutes leurs images chacun dans leur sous dossier images
+	
+	exit
+fi
+
+
+# unused as for now
+if [ "$1" = "-v" ] 
+then
+	desactivesed="XXXAAAZZZ"
+	shift
+fi
+
+if [ "$1" = "-r" ] || [ "$1" = "r" ]
+then 
+	grep -H PFILE= */*.sla | grep -v "PFILE=\"images" | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
+	done="ok"
+	shift
+fi
+
+if [ "$1" = "" ]
+then 
+	count=`ls -1 *.sla 2>/dev/null | wc -l`
+	if [ $count != 0 ]
+	then
+		grep -H PFILE= *.sla | grep -v "PFILE=\"images" | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
+	else
+		if [ "$done" = "" ]
+		then
+			echo "il n'y a pas de .sla ici"
+			echo "usage : slacheck  [-r] [folder]"
+			echo "vérifie que les images des sla sont bien dans le sous répertoire 'images'"
+		fi
+	fi
+else
+	grep -H PFILE= $1/*.sla | grep -v "PFILE=\"images" | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
+fi
