@@ -1,0 +1,84 @@
+#!/bin/sh
+
+# Checks all relevant attributes of SLA depending of a config profile
+# 
+
+# ====================================================================
+# config to edit to fit project
+
+# configs relating SLA file attributes
+RGBprof=sRGB		# RGB color profile
+CMYKprof='ISO Coated v2 300% (ECI)'		# CMYK color profile
+resolution=300		# images and eps resolution
+embedPDF=1			# 1:embed pdf ; 0:dont embed
+PDFversion=15		# PDF output version
+
+# configs for default features
+pdf="check" 		# check pdf exists and is recent ; set to "dontcheck" to not check
+
+# todo : config for other SLA attributes : 
+# - limit image resolution
+# - compression activée + method and quality 
+# - bleeds and marks
+# - embeded and vectorized fonts
+
+# end of config
+# =====================================================================
+
+while [ "$stopoptions" = "" ] 
+do
+	stopoptions=true
+	if [ "$1" = "-v" ]
+	then
+		shift
+		verbose='-v'
+		stopoptions=''
+	fi
+
+	if [ "$1" = "-notpdf" ]
+	then
+		shift
+		pdf='dontcheck'
+		stopoptions=''
+	fi
+done
+
+[ ! -f $1.sla ] && echo Error : missing $1.sla file && exit
+
+# As for color profiles, the correct values to be checked are :
+# <DOCUMENT ... DPMo="sRGB" DPPr="ISO Coated v2 300% (ECI)" DPIn="sRGB" DPInCMYK="ISO Coated v2 300% (ECI)" DPIn2="sRGB" DPIn3="ISO Coated v2 300% (ECI)" ...>
+# <PDF ... SolidP="sRGB" ImageP="sRGB" PrintP="ISO Coated v2 300% (ECI)"  ...>
+
+slacheckattr $verbose $1 DOCUMENT 	DPMo 		"$RGBprof" 		"RGB color profile"
+slacheckattr $verbose $1 DOCUMENT 	DPIn 		"$RGBprof" 		"RGB color profile"
+slacheckattr $verbose $1 DOCUMENT 	DPIn2		"$RGBprof"		"RGB color profile"
+
+slacheckattr $verbose $1 DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
+slacheckattr $verbose $1 DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
+slacheckattr $verbose $1 DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
+
+slacheckattr $verbose $1 PDF		SolidP 		"$RGBprof"		"RGBcolor profile"
+slacheckattr $verbose $1 PDF		ImageP 		"$RGBprof"		"RGB color profile"
+
+slacheckattr $verbose $1 PDF		PrintP		"$CMYKprof"		"CMYK color profile"
+
+# other PDF output checks
+
+slacheckattr $verbose $1 PDF		PicRes		"$resolution"	"Résolution des images"
+slacheckattr $verbose $1 PDF		Resolution	"$resolution"	"Résolution des images"
+slacheckattr $verbose $1 PDF		EmbedPDF	"$embedPDF"		"Embed PDFs"
+slacheckattr $verbose $1 PDF		Version		"$PDFversion"	"Version PDF - eg 15 for 1.5"
+
+if [ "$pdf" = "check" ]
+then
+	# on vérifie qu'il y a un PDF et qu'il a été généré APRÈS l'édition du SLA
+	# stat -c %y n54.pdf : date de modif de n54.pdf
+	
+	if [ ! -f $1.pdf ]
+	then
+		echo Missing $1.pdf
+	elif [ $1.sla -nt $1.pdf ]
+	then
+		echo "Warning : $1.sla might have been edited since last PDF output : $1.sla = $(stat -c %y $1.sla) ; $1.pdf = $(stat -c %y $1.pdf)"
+	fi
+fi
