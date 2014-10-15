@@ -1,0 +1,51 @@
+#!/bin/sh
+
+#
+# use : slacheckattr slafile tag attribute value [comment]
+# Checks the the value of some attribute for a specified tag in scribus file
+# 
+# todo : use xmlstarlet to update value of an attribute 
+# cf http://xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html#d0e461
+# xml ed -u "/xml/table/rec[@id=3]/@id" -v 5 xml/tab-obj.xml
+#
+
+if [ "$1" = "-h" ] || [ "$1" = "-?" ]
+then
+	shift
+	echo Usage : slacheckattr [-h] [-v] slafile tag attribute value [comment]
+	echo Action : looks in \'slafile\'.SLA for \'tag\'\'s \'attribute\' value
+	echo and issues a warning begining with \'comment\' when the found value is different than \'value\'.
+	echo Options :
+	echo -h, -? : display this help
+	echo -v : verbose
+fi
+
+if [ "$1" = "" ] || [ "$2" = "" ] || [ "$3" = "" ]
+then 
+	echo error : missing parameter\(s\). See with -h option first.
+	exit
+fi
+
+if [ "$1" = "-v" ]
+then
+	shift
+	verbose=oui
+fi
+
+found=`xmllint --xpath "//$2/@$3" $1.sla | sed -e 's/^ *//' -e 's/ *$//'`
+
+if [ "$verbose" = "oui" ]
+then
+	echo 
+	echo In $1.sla, check whether \<$2 $3=\"$4\"  
+	echo Found : $found
+fi
+
+# echo compare "$found"
+# echo avec... "$3=\"$4\""
+# echo 
+
+if [ "$found" != "$3=\"$4\"" ]
+	then echo $5 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" $1.sla`\> \(expected value is $4\)
+fi
+	
