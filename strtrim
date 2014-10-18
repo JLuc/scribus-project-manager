@@ -1,0 +1,3 @@
+# hopefully portable trim string
+
+echo `sed -e 's/^ *//' -e 's/ *$//' $1`
