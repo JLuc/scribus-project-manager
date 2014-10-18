@@ -18,11 +18,6 @@ then
 	echo Options :
 	echo -h, -? : display this help
 	echo -v : verbose
-fi
-
-if [ "$1" = "" ] || [ "$2" = "" ] || [ "$3" = "" ]
-then 
-	echo error : missing parameter\(s\). See with -h option first.
 	exit
 fi
 
@@ -32,20 +27,47 @@ then
 	verbose=oui
 fi
 
-found=`xmllint --xpath "//$2/@$3" $1.sla | sed -e 's/^ *//' -e 's/ *$//'`
+if [ "$1" = "-all" ]
+then 
+	shift
+	all=oui
+fi
 
+if [ "$1" = "" ] || [ "$2" = "" ] || [ "$3" = "" ]
+then 
+	echo error : missing parameter\(s\). See with -h option first.
+	exit
+fi
+
+# found=`xmllint --xpath "//$2/@$3" $1.sla | sed -e 's/^ *//' -e 's/ *$//'`
+found=`xmllint --xpath "//$2/@$3" $1.sla | strtrim`
+
+expected="$3=\"$4\""
 if [ "$verbose" = "oui" ]
 then
-	echo 
-	echo In $1.sla, check whether \<$2 $3=\"$4\"  
-	echo Found : $found
+	echo \* In $1.sla, check whether \<$2 $expected
+	echo \* xmllint renvoie `xmllint --xpath "//$2/@$3" $1.sla`
+	echo \* Found : $found
 fi
 
 # echo compare "$found"
 # echo avec... "$3=\"$4\""
 # echo 
 
-if [ "$found" != "$3=\"$4\"" ]
-	then echo $5 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" $1.sla`\> \(expected value is $4\)
+if [ "$found" = "" ]
+then
+	echo 
+	echo Error \<$2 $3=\"$4\" not found in $1.sla \(xmllint renvoie  `xmllint --xpath "//$2/@$3" $1.sla`\)
+	exit
+elif [ "$all" = "oui" ]
+then
+	for one in $found
+	do
+		echo $one
+		if [ $one != $expected ]
+		then echo $3 NOT OK ! In $1.sla, found \<$2 $one\> \(expected value for $3 is $expected\)
+		fi
+	done
+elif [ "$found" != "$expected" ]
+	then echo $3 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" $1.sla`\> \(expected value for $3 is $4\)
 fi
-	
