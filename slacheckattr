@@ -63,7 +63,9 @@ elif [ "$all" = "oui" ]
 then
 	for one in $found
 	do
-		echo $one
+		if [ "$verbose" = "oui" ]
+		then echo found : $one
+		fi
 		if [ $one != $expected ]
 		then echo $3 NOT OK ! In $1.sla, found \<$2 $one\> \(expected value for $3 is $expected\)
 		fi
