@@ -16,6 +16,10 @@ PDFversion=15		# PDF output version
 # configs for default features
 pdf="check" 		# check pdf exists and is recent ; set to "dontcheck" to not check
 
+# All pages should be :
+pagewidth="420.944881889764"
+pageheight="595.275590551181"
+
 # todo : config for other SLA attributes : 
 # - limit image resolution
 # - compression activée + method and quality 
@@ -49,7 +53,6 @@ done
 # <DOCUMENT ... DPMo="sRGB" DPPr="ISO Coated v2 300% (ECI)" DPIn="sRGB" DPInCMYK="ISO Coated v2 300% (ECI)" DPIn2="sRGB" DPIn3="ISO Coated v2 300% (ECI)" ...>
 # <PDF ... SolidP="sRGB" ImageP="sRGB" PrintP="ISO Coated v2 300% (ECI)"  ...>
 
-slacheckattr $verbose $1 DOCUMENT 	DPMo 		"$RGBprof" 		"RGB color profile"
 slacheckattr $verbose $1 DOCUMENT 	DPIn 		"$RGBprof" 		"RGB color profile"
 slacheckattr $verbose $1 DOCUMENT 	DPIn2		"$RGBprof"		"RGB color profile"
 
@@ -68,6 +71,11 @@ slacheckattr $verbose $1 PDF		PicRes		"$resolution"	"Résolution des images"
 slacheckattr $verbose $1 PDF		Resolution	"$resolution"	"Résolution des images"
 slacheckattr $verbose $1 PDF		EmbedPDF	"$embedPDF"		"Embed PDFs"
 slacheckattr $verbose $1 PDF		Version		"$PDFversion"	"Version PDF - eg 15 for 1.5"
+
+# Check Pages attributes
+
+slacheckattr $verbose -all $1 PAGE 	PAGEWIDTH	"$pagewidth"	"Largeur de page A5=420.944881889764"
+slacheckattr $verbose -all $1 PAGE 	PAGEHEIGHT	"$pageheight"	"Hauteur de page A5=595.275590551181"
 
 if [ "$pdf" = "check" ]
 then
