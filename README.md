@@ -1,7 +1,9 @@
 scribus-shell-scripts
 ============
 
-Shell scripts for scribus use.
+Scribus Project management tools with shell scripts.
+
+Scribus doesnt provide any project management tools. These shell scripts mainly aim to compensate this.
 
 Scripts 
 * that help to use scribus in everyday or special uses.
