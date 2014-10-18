@@ -12,12 +12,14 @@
 if [ "$1" = "-h" ] || [ "$1" = "-?" ]
 then
 	shift
-	echo Usage : slacheckattr [-h] [-v] slafile tag attribute value [comment]
+	echo Usage : slacheckattr [-h] [-v] [-all] slafile tag attribute value [comment]
 	echo Action : looks in \'slafile\'.SLA for \'tag\'\'s \'attribute\' value
 	echo and issues a warning begining with \'comment\' when the found value is different than \'value\'.
 	echo Options :
 	echo -h, -? : display this help
 	echo -v : verbose
+	echo -all : all 'tag' tags should be checked and have the same stated attribute value. 
+	echo -all option is required to check PAGE attributes, since there are many PAGEs in a document.
 	exit
 fi
 
