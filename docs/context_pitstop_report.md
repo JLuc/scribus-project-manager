@@ -3,7 +3,9 @@
 I produce and edit a magazine and books. 
 So as to do so i create differents scribus files : one for each article / chapter.
 
-(Why not create a single big scribus file ? scribus becomes slow on long files havin linked text frames + scribus document becomes a mess when editing to much the styles or when importing pages or copy and pasting from a different document)
+Why not create a single big scribus file ? 
+* scribus becomes slow on long files havin linked text frames 
+* document's styles become a complete mess when importing pages out of another document, or when copy'n'oasting a piece of document out of a different document
 
 When editing is finished, i produce the PDF for each part, and i use pdftk to merge the PDFs into a single big PDF.
 I send this to the printer. Most of the time, the PDF is OK. 
