@@ -9,15 +9,15 @@ When editing is finished, i produce the PDF for each part, and i use pdftk to me
 I send this to the printer. Most of the time, the PDF is OK. 
 Sometime it isnt.
 
-```
 ## Pitstop report : Errors to avoid
 
 Sometime, the printer first refuses the book final pdf.
 Enfocus Pitstop is the software to diagnose the produced PDF.
 Here is the text out of a sample pitstop report :
 
-### Rapport de contrôle en amont ====
-#### Des erreurs ont été trouvées aux pages 1-68 ===
+```
+### Rapport de contrôle en amont
+#### Des erreurs ont été trouvées aux pages 1-68
 
 * Les pages du document n'ont pas toutes le même format (basé sur Zone de rogne) (42x aux pages 4-22,
 46-68)
