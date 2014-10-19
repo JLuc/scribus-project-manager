@@ -9,6 +9,7 @@ When editing is finished, i produce the PDF for each part, and i use pdftk to me
 I send this to the printer. Most of the time, the PDF is OK. 
 Sometime it isnt.
 
+```
 ## Pitstop report : Errors to avoid
 
 Sometime, the printer first refuses the book final pdf.
@@ -31,6 +32,7 @@ DejaVuSerifCondensed-Bold, LiberationSans-Bold, LiberationSansNarrow n'est pas i
 #### Avertissements
 * Gris RVB ou gris CMJN impur est utilisé(e) (44x à la page 7)
 * Noir RVB ou noir CMJN impur est utilisé(e) (327x aux pages 1-2)
+```
 
 All of these errors or warning were not fatal.
 * transparencies did not have to be fixed (PDF version 1.5)
