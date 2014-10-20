@@ -9,40 +9,68 @@
 # xml ed -u "/xml/table/rec[@id=3]/@id" -v 5 xml/tab-obj.xml
 #
 
-if [ "$1" = "-h" ] || [ "$1" = "-?" ]
-then
-	shift
-	echo Usage : slacheckattr [-h] [-v] [-all] slafile tag attribute value [comment]
-	echo Action : looks in \'slafile\'.SLA for \'tag\'\'s \'attribute\' value
-	echo and issues a warning begining with \'comment\' when the found value is different than \'value\'.
-	echo Options :
-	echo -h, -? : display this help
-	echo -v : verbose
-	echo -all : all 'tag' tags should be checked and have the same stated attribute value. 
-	echo -all option is required to check PAGE attributes, since there are many PAGEs in a document.
+while [ "$stopoptions" = "" ] 
+do
+	case $1 in 
+	"-h" | "-?" )
+		shift
+		echo Usage : slacheckattr [-h] [-v] [-all] slafile tag attribute value [comment]
+		echo Action : looks in \'slafile\'.SLA for \'tag\'\'s \'attribute\' value
+		echo and issues a warning begining with \'comment\' when the found value is different than \'value\'.
+		echo Options :
+		echo -h, -? : display this help
+		echo -v : verbose
+		echo -all : all 'tag' tags should be checked and have the same stated attribute value. 
+		echo -all option is required to check PAGE attributes, since there are many PAGEs in a document.
+		exit
+		;;
+
+	"-v")
+		shift
+		verbose=oui
+		;;
+
+	"-all")
+		shift
+		all=oui
+		;;
+		
+	"-get")
+		shift
+		get=oui
+		;;
+
+	*) stopoptions=true	;;
+	esac
+done
+
+if [ $# -lt 3 ]
+then 
+	echo error : missing document, tag or attribute parameter\(s\). See with -h option first.
 	exit
 fi
 
-if [ "$1" = "-v" ]
+if  [ "$4" = "" ] && [ "$get" = "" ]
+then 
+	echo error : missing value parameter\(s\). See with -h option first.
+	exit
+fi
+
+#  ext=${filename##*\.} donne l'extension si on voulait gérer $1 "avec ou sans" extension SLA
+if [ ! -f $1.sla ]
 then
-	shift
-	verbose=oui
-fi
-
-if [ "$1" = "-all" ]
-then 
-	shift
-	all=oui
-fi
-
-if [ "$1" = "" ] || [ "$2" = "" ] || [ "$3" = "" ]
-then 
-	echo error : missing parameter\(s\). See with -h option first.
+	echo "Error : file \"$3\" doesn't exist"
 	exit
 fi
 
 # found=`xmllint --xpath "//$2/@$3" $1.sla | sed -e 's/^ *//' -e 's/ *$//'`
 found=`xmllint --xpath "//$2/@$3" $1.sla | strtrim`
+
+if  [ "$get" = "oui" ]
+then
+	echo $found
+	exit
+fi
 
 expected="$3=\"$4\""
 if [ "$verbose" = "oui" ]
