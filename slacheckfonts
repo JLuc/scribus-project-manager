@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# v0.1
+# slacheckfonts : tests whether all used fonts are either embeded or subset=vectorized
+
+if [ "$1" = "-?" ] || [ "$1" = "-h" ]
+then
+	echo "usage : slacheckfont [-h] scribusfile.sla"
+	echo "checks whether all used fonts are either embeded or subset in scribusfile.sla"
+	echo options :
+	echo -h displays this help
+	echo -v displays details
+	exit
+fi
+
+if [ "$1" = "-v" ]
+then
+	verbose=oui
+	shift
+fi
+
+if [ "$1" = "" ]
+then
+	echo Error : scribus file argument missing
+	exit
+fi
+
+# used fonts uses are :
+#   <ITEXT FONT="Arimo Regular" CH=" "/>
+#	<CHARSTYLE CNAME="Default Character Style" DefaultStyle="1" FONT="Liberation Sans Regular" FONTSIZE="8.8" FCOLOR="Black"/>
+#	<STYLE NAME="NoteSignature" PARENT="Signature" PSHORTCUT="Ctrl+Alt+(" FONT="Liberation Sans Regular"/>
+#	<tab FONT="Wingdings Regular" FONTSIZE="15"/>
+
+# s/regexp/replacement/ ! The replacement may contain the special character & to refer to that portion of the pattern space which matched
+
+used=`grep " FONT=\"[^\"]*\"" $1.sla | sed -e 's/^.* FONT=\(\"[^\"]*\"\).*$/\1/'`
+
+# Embeded fonts
+# 	<Fonts Name="CC Icons Regular"/>
+# Subseted fonts (vectorized)
+# 	<Subset Name="Arimo Regular"/>
+
+known=`sed -n '/\(<Fonts \|Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
+
+if [ $verbose = oui ]
+then
+	echo Embeded or subset fonts are : $known
+fi
+
+
+IFS=$'\n'
+for usedfont in $used
+do 
+	recognised=""
+	for knownfont in $known
+	do
+		if [ "$usedfont" = "$knownfont" ]
+		then recognised=oui;
+		fi
+	done
+	if [ "$recognised" = "" ]
+	then echo "Error in $1.sla : $usedfont font is neither embeded nor subset"
+	fi
+done
+
+exit
