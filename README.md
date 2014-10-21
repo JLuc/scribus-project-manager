@@ -12,19 +12,17 @@ All have to be concatenated to create the whole book.
 All share some common properties like size of pages, styles or color profiles.
 
 ## What does a  Scribus project manager ?
-A Scribus project manager is a tool 
-* that help manage multiple scribus files that are parts of a same project
-* that make scribus even more powerfull
-* that compensate for scribus bugs or lack of features
+A Scribus project manager is a tool that help manage multiple scribus files that are parts of a same project.
 
 Particularly it helps
-[X] checking scribus produced files and PDFs before sending them to the printer
-[X] producing the concatenated PDF
-[ ] cleaning styles, sharing styles or objects accross files
+* checking scribus produced files and PDFs before sending them to the printer
+* producing the concatenated PDF
+
+Some day, it could bring help to clean styles and share styles or objects accross files (compensate for scribus bugs with styles).
 
 ## What is this repo
 
-This repo contains the scripts i use to create the Passerelle Eco magazine.
+This repo contains the scripts i use to create the quaterly Passerelle Eco magazine.
 This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, some parts being very differents.
 
 ## Rules when proposiing a script for this repo
