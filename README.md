@@ -30,7 +30,7 @@ This magazine is made of 8 to 20 parts with same page size, sharing lots of comm
 * slacheck : performs all possible checks and reports issues before sending PDF to printer
 * checkimages : checks that the used images are all stored in 'images' subfolder. This script is bound to be refactored and made more simple.
 * slacheckfonts : checks that the fonts are all embeded or subseted. 
-* makbook : call relevant tools on relevant files and create final PDF
+* makbook : call relevant tools on relevant files and create final PDF (not published yet)
 
 Lower level tools :
 * slacheckattr : checks the value of some xml attribute in the scribus file
