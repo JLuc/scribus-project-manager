@@ -15,9 +15,9 @@ do
 		echo "checks whether all used images are stored in scribusfile's 'images' subfolder"
 		echo options :
 		echo -h or -? : displays this help
-		echo -r : recurse folders
-		echo -e pattern : exclude files matching pattern
-		echo scribusfile : file to check
+		echo -r : recurse folders (default)
+		echo -e pattern : exclude files matching pattern (default : archives)
+		echo scribusfile : specific file to check. Dont use with -r
 #		echo -v displays more details
 		exit
 		;;
