@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# version 2 - 8 dec 2014
+
+filenameoption="--include=*.sla"
+folderexcludeoption="--exclude-dir=archives"
+recurseoption="-r"
+stopoption=""
+
+while [ "$stopoptions" = "" ] && [ "$1" != "" ]
+do
+	case $1 in 
+	"-h" | "-?" )
+		echo "usage : slacheckimages [-h] [-r] [-e pattern] scribusfile"
+		echo "checks whether all used images are stored in scribusfile's 'images' subfolder"
+		echo options :
+		echo -h or -? : displays this help
+		echo -r : recurse folders
+		echo -e : exclude files matching pattern
+#		echo -v displays more details
+		exit
+		;;
+
+	"-v")
+		shift
+		verbose=oui
+		;;
+		
+	"-r" )
+		shift
+		recurseoption="-r"
+		filenameoption="--include=*.sla"
+		;;
+
+	"-e" )
+		if [ "$2" = "" ]
+		then
+			echo Error : -e option without pattern to exclude folders
+			exit
+		fi
+		folderexcludeoption="--exclude-dir=$2"
+		shift
+		shift
+		;;
+	
+	*) 	if [ ! -f $1.sla ]
+		then
+			if [ ${filename##*\.}="sla"]
+			then
+				echo "Error : you should not specify the sla extension in the filename"
+			fi
+			echo "Error : file \"$1.sla\" doesn't exist"
+			exit
+		fi
+		filenameoption="--include=$1.sla"
+		recurseoption=""
+		stopoptions=true
+		shift
+		;;
+	esac
+done
+
+if [ "$1" != "" ]
+then
+	echo "Error : too many parameters"
+	exit
+fi
+
+# verbose shell + expand variables (set -v : verbose with no expand)
+set -x
+
+grep -H $recurseoption $filenameoption $folderexcludeoption -- PFILE= | grep -v -- "PFILE=\"images" | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
+
