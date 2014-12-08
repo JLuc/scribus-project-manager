@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# version 2 - 8 dec 2014
+# version 2.1 - 8 dec 2014
+# todo : option to detect inline images, option to detect empty image frames
 
 filenameoption="--include=*.sla"
 folderexcludeoption="--exclude-dir=archives"
@@ -70,5 +71,7 @@ fi
 # verbose shell + expand variables (set -v : verbose with no expand)
 set -x
 
-grep -H $recurseoption $filenameoption $folderexcludeoption -- PFILE= | grep -v -- "PFILE=\"images" | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
+# PFILES="images/ : image is stored in correct images subfolder
+# PFILES="" : empty image frame OR inline image
+grep -H $recurseoption $filenameoption $folderexcludeoption -- PFILE= | grep -v -- 'PFILE="images/"\|PFILE=""' | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
 
