@@ -11,12 +11,13 @@ while [ "$stopoptions" = "" ] && [ "$1" != "" ]
 do
 	case $1 in 
 	"-h" | "-?" )
-		echo "usage : slacheckimages [-h] [-r] [-e pattern] scribusfile"
+		echo "usage : slacheckimages [-h] [-r] [-e pattern] [scribusfile]"
 		echo "checks whether all used images are stored in scribusfile's 'images' subfolder"
 		echo options :
 		echo -h or -? : displays this help
 		echo -r : recurse folders
-		echo -e : exclude files matching pattern
+		echo -e pattern : exclude files matching pattern
+		echo scribusfile : file to check
 #		echo -v displays more details
 		exit
 		;;
