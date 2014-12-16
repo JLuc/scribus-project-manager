@@ -36,6 +36,10 @@ Lower level tools :
 * slacheckattr : checks the value of some xml attribute in the scribus file
 * strtrim : basic string trim
 
+Environnement tools :
+* sla_icon : adds specific icon on SLA file(s) for nautilus view
+* clean_icon : removes user-added icon on file or folder
+
 ## todo / could be done
 
 * more attributes checked in slacheck
