@@ -46,7 +46,8 @@ Environnement tools (for nautilus / ubuntu) :
 * separated config files to define 
 ** the checklist
 ** the list of files included in the project
-* sync of masterdocument's styles toward project files
+* smart sync of masterdocument's styles toward project files
+* smart merge of SLAs (manage styles, masterpages and other conflicts)
 
 ## Rules when proposiing a script for this repo
 * name of the script should be self-understandable and should give hints as what the script does
