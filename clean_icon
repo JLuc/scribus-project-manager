@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ "$1" = "" ] 
+then
+	echo "error : cant recurse yet"
+elif [ "$1" = "-?" ] || [ "$1" = "-h" ]
+then
+	echo "usage : 'clean_icon fileorfolder' : will unset the user-defined icon for fileorfolder"
+elif [ -d "$1" ] || [ -f "$1" ]
+then
+	gvfs-set-attribute "$1" -t unset metadata::custom-icon
+else
+	echo "argument when existing must be existing file or folder"
+fi
