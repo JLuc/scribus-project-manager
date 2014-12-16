@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ "$1" = "" ]
+then
+	python ~/bin/sla_icon.py "$1"
+elif [ -f "$1" ]
+then
+	gvfs-set-attribute "$1" metadata::custom-icon file:///home/jluc/dev/scribus/svn/resources/icons/other/scribus-icon.svg
+elif [ -d "$1" ]
+then
+	cd "$1"
+	sla_icon
+else
+	echo "S'il y a un argument, ce doit être un fichier existant ou un répertoire existant"
+fi
