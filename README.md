@@ -1,7 +1,7 @@
 A scribus project manager using shell scripts
 =============================================
 
-Scribus project management tools with shell scripts.
+Scribus project management tools with shell bash scripts.
 
 Scribus doesnt provide any project management tools. These shell scripts mainly aim to compensate this.
 
@@ -36,7 +36,7 @@ Lower level tools :
 * slacheckattr : checks the value of some xml attribute in the scribus file
 * strtrim : basic string trim
 
-Environnement tools :
+Environnement tools (for nautilus / ubuntu) :
 * sla_icon : adds specific icon on SLA file(s) for nautilus view
 * clean_icon : removes user-added icon on file or folder
 
