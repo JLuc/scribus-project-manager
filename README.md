@@ -42,6 +42,7 @@ Environnement tools (for nautilus / ubuntu) :
 
 ## todo / could be done
 
+* automatically updates start page-numbers for all documents in project
 * more attributes checked in slacheck
 * separated config files to define 
 ** the checklist
