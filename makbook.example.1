@@ -1,0 +1,32 @@
+#!/bin/sh
+
+####################################################################"
+# Paramétrages
+
+output=mybook
+
+####################################################################"
+
+listepdf=""
+for fic in couv/couv etangs/etangs_terre etangs/etangs_bache filtres/filtres editeau/editeau PA/PA laver/laver pendule/pendule chinampas/chinampas separettes/separettes
+do 
+	[ ! -f $fic.sla ] && echo Error : missing $fic.sla file && exit
+	slacheck $fic
+	slacheckfonts $fic
+	echo $fic.sla : checked
+	listepdf="$listepdf $fic.pdf"
+done
+
+if [ "$1" = "-test" ] || [ "$1" = "-t" ]
+    then 	exit
+fi
+
+if [ "$1" = "-nopdf" ] || [ "$1" = "nopdf" ]
+then
+	exit
+fi
+
+mv $output.pdf $output.pdf.bak
+listepdf="$listepdf separettes/p68-HR.pdf"
+pdftk $listepdf cat output $output.pdf
+[ -f $output.pdf  ] && evince $output.pdf & ls -ltr $output.pdf ; echo OK
