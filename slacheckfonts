@@ -3,6 +3,8 @@
 # v0.1
 # slacheckfonts : tests whether all used fonts are either embeded or subset=vectorized
 
+# TODO : detect fonts that are used in unused styles definitions and dont warn about them or with special message.
+
 if [ "$1" = "-?" ] || [ "$1" = "-h" ]
 then
 	echo "usage : slacheckfont [-h] scribusfile.sla"
