@@ -1,3 +1,4 @@
-# hopefully portable trim string
 
+#!/bin/bash
+# hopefully portable trim string
 echo `sed -e 's/^ *//' -e 's/ *$//' $1`
