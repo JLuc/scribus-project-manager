@@ -44,3 +44,7 @@ All of these errors or warning were not fatal.
 Main issues to be avoided are :
 * different sizes of pages. All pages were supposed to be same size, but there were 0.5 mm differences for some of them.
 * missing fonts, neither embeded not vectorized
+
+## Other report 
+
+see http://i.imgur.com/1iF1AqA.jpg
