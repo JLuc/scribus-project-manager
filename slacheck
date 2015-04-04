@@ -15,6 +15,7 @@ PDFversion=15		# PDF output version
 
 # configs for default features
 pdf="check" 		# check pdf exists and is recent ; set to "dontcheck" to not check
+img="check"
 
 # All pages should be :
 pagewidth="420.944881889764"
@@ -43,6 +44,13 @@ do
 	then
 		shift
 		pdf='dontcheck'
+		stopoptions=''
+	fi
+
+	if [ "$1" = "-notimg" ]
+	then
+		shift
+		img='dontcheck'
 		stopoptions=''
 	fi
 done
@@ -89,4 +97,9 @@ then
 	then
 		echo "Warning : $1.sla might have been edited since last PDF output : $1.sla = $(stat -c %y $1.sla) ; $1.pdf = $(stat -c %y $1.pdf)"
 	fi
+fi
+
+if [ "$img" = "check" ]
+then
+	slacheckimages $1
 fi
