@@ -33,6 +33,18 @@ pageheight="595.275590551181"
 while [ "$stopoptions" = "" ] 
 do
 	stopoptions=true
+	
+	if  [ "$1" = '-?' ]
+	then
+		echo "slacheck checks workflow validity of a scribus file"
+		echo "Options :"
+		echo "-? : get this help"
+		echo "-v : verbose output"
+		echo "-notpdf : dont compare PDF and SLA last edit dates"
+		echo "-notimg : dont check for correct included image files"
+		stopoptions=''
+	fi
+
 	if [ "$1" = "-v" ]
 	then
 		shift
