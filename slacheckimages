@@ -47,7 +47,7 @@ do
 	
 	*) 	if [ ! -f $1.sla ]
 		then
-			if [ ${filename##*\.}="sla"]
+			if [ ${1##*\.} = "sla" ] # ${parameter##pattern} : enleve le début jusqu'au dernier pattern
 			then
 				echo "Error : you should not specify the sla extension in the filename"
 			fi
@@ -69,8 +69,9 @@ then
 fi
 
 # verbose shell + expand variables (set -v : verbose with no expand)
-set -x
+# set -x
 
 # PFILES="images/ : image is stored in correct images subfolder
 # PFILES="" : empty image frame OR inline image
 grep -H $recurseoption $filenameoption $folderexcludeoption -- PFILE= | grep -v 'PFILE="images/\|PFILE=""' | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
+
