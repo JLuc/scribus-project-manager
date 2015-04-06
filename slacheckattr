@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# version 0.2.1 - 6 avril 2015
 #
 # use : slacheckattr slafile tag attribute value [comment]
 # Checks the the value of some attribute for a specified tag in scribus file
@@ -63,14 +64,14 @@ then
 fi
 
 #  ext=${filename##*\.} donne l'extension si on voulait gérer $1 "avec ou sans" extension SLA
-if [ ! -f $1.sla ]
+if [ ! -f "$1.sla" ]
 then
 	echo "Error in slacheckattr : file \"$3\" doesn't exist"
 	exit
 fi
 
-# found=`xmllint --xpath "//$2/@$3" $1.sla | sed -e 's/^ *//' -e 's/ *$//'`
-found=`xmllint --xpath "//$2/@$3" $1.sla | strtrim`
+# found=`xmllint --xpath "//$2/@$3" "$1.sla" | sed -e 's/^ *//' -e 's/ *$//'`
+found=`xmllint --xpath "//$2/@$3" "$1.sla" | strtrim`
 
 if  [ "$get" = "oui" ]
 then
@@ -82,7 +83,7 @@ expected="$3=\"$4\""
 if [ "$verbose" = "oui" ]
 then
 	echo \* In $1.sla, check whether \<$2 $expected
-	echo \* xmllint renvoie `xmllint --xpath "//$2/@$3" $1.sla`
+	echo \* xmllint renvoie `xmllint --xpath "//$2/@$3" "$1.sla"`
 	echo \* Found : $found
 fi
 
@@ -108,7 +109,7 @@ then
 	done
 elif [ "$found" != "$expected" ]
 	then
-		echo $3 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" $1.sla`\> \(expected value for $3 is $4\)
+		echo $3 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" "$1.sla"`\> \(expected value for $3 is $4\)
 		if [ "$action" = "-set" ]
 		then
 			slasetattr "$1" $2 $3 "$4"
