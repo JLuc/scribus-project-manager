@@ -1,19 +1,18 @@
 #!/bin/bash
 
-# trace detaillee
-set -x
-
 # use xmlstarlet to update value of an attribute 
+# ======================================================================
 # cf http://xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html#d0e461
 # xml ed -u "/xml/table/rec[@id=3]/@id" -v 5 xml/tab-obj.xml
 #
-# OR use sed
+# An alternative would be to use sed :
 # http://www.unix.com/shell-programming-and-scripting/141609-changing-attribute-value-xml-file-using-shell.html
 # sed -e 's/>myAsNode</>xxxxxx</' -e 's/>myAsNode2</>yyyyyy</' file > newfile
 # sed -i '/server/,/<\/server/{s/myAsNode\b/xxxxxx/;s/myAsNode2/yyyyyy/}' infile
-# ou combiner grep et sed :
+#
+# or combine grep and sed :
 # if [[ $(grep -E "Node Name=\"aaaaa\" Role=\"APPSERV" infile | sed 's/.*Role="\(.*\)"\/>/\1/') == "APPSERV,BACKEND,CLM" ]] ...
-
+# ======================================================================
 
 # $1 : fichier sla
 # $2 : <balise principale
@@ -47,7 +46,7 @@ else
 	cp -f $1.sla   $1.sla.last.bak
 fi
 
-# echo `xmlstarlet ed -u "//$2/@$3" -v "$4" $1.sla` > $1.sla # OK mais tout sur une seule ligne
-xmlstarlet ed -u "//$2/@$3" -v "$4"   $1.sla  >  $1.sla.tmp
-cp -f   $1.sla.tmp   $1.sla
+echo xmlstarlet ed -u //$2/@$3 -v $4 dans $1.sla
+xmlstarlet ed -u "//$2/@$3" -v "$4"   $1.sla  >  .$1.sla.tmp
+cp -f   .$1.sla.tmp   $1.sla
 
