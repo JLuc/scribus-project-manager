@@ -23,8 +23,7 @@ Some day, it could help to clean styles and share styles or objects accross file
 
 ## What is this repo
 
-This repo contains the scripts i use to create the quaterly Passerelle Eco magazine.
-This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, some parts being very differents.
+This repo contains the scripts i use to create the quaterly Passerelle Eco magazine. This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, some parts being very differents. Of course, the scripts can be used for other projects having differents characteristics.
 
 ### Main tools
 
