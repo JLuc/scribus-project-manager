@@ -22,7 +22,7 @@ do
 		echo -all : all 'tag' tags should be checked and have the same stated attribute value. 
 		echo "(-all option is required to check PAGE attributes, since there are many PAGEs in a document.)"
 		echo -get : echoes the found value
-		echo -set : will set tags in the sla file to the required value in case they are wrong (.bak are created)
+		echo "-set : will set tags in the sla file to the required value in case they are wrong (.bak are created)"
 		exit
 		;;
 
@@ -43,7 +43,7 @@ do
 		
 	"-set")
 		shift
-		action='set'
+		action='-set'
 		;;
 
 	*) stopoptions=true	;;
@@ -109,9 +109,9 @@ then
 elif [ "$found" != "$expected" ]
 	then
 		echo $3 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" $1.sla`\> \(expected value for $3 is $4\)
-		if [ "$action" = "set" ]
+		if [ "$action" = "-set" ]
 		then
-			slasetattr $1 $2 $3 $4
+			slasetattr "$1" $2 $3 "$4"
 		fi
 		exit
 fi
