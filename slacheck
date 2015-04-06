@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# version 0.2.1 6 avril 2015
 # trace détaillée
 # set -x
 
