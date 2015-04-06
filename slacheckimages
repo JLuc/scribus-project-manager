@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# version 2.1 - 8 dec 2014
+# version 0.2.1 - 6 avril 2015
 # todo : option to detect inline images, option to detect empty image frames
 
 filename=""
@@ -47,7 +47,7 @@ do
 		shift
 		;;
 	
-	*) 	if [ ! -f $1.sla ]
+	*) 	if [ ! -f "$1.sla" ]
 		then
 			if [ ${1##*\.} = "sla" ] # ${parameter##pattern} : enleve le début jusqu'au dernier pattern
 			then
@@ -80,5 +80,6 @@ fi
 
 # PFILES="images/ : image is stored in correct images subfolder
 # PFILES="" : empty image frame OR inline image
-grep -H $recurseoption $folderexcludeoption $filenameoption -- PFILE= $filename | grep -v 'PFILE="images/\|PFILE=""' | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
+alloptions="-H $recurseoption $folderexcludeoption $filenameoption"
+grep $alloptions -- PFILE= "$filename" | grep -v 'PFILE="images/\|PFILE=""' | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
 
