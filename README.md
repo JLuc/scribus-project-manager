@@ -36,6 +36,7 @@ This magazine is made of 8 to 20 parts with same page size, sharing lots of comm
 ### Lower level scripts
 * slacheckattr : checks the value of some xml attribute in the scribus file
 * slasetattr : set some XML attr in the SLA file to its correct value
+   - various backup are created : .sla.first.sla, .sla.last.sla and a hiden .filename.sla.tmp.bak
 * strtrim : basic string trim
 
 ### Environnement tools
@@ -54,7 +55,7 @@ Doing this requires editing a correct SLA that fit your standards, and look for 
 
 ## todo / could be done
 
-Blocking release :
+Blocking :
 * separated config files for :
  - the checklist and the values for each project-defining attribute. Probably using some table structure with attribute, value, message string, other options fot this attribute. This will enable to make slacheck script entirely generic.
  - the list of files included in the project. This will enable to release a generic makbook script.
