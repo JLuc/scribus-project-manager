@@ -15,10 +15,11 @@ All share some common properties like size of pages, styles or color profiles.
 A Scribus project manager is a tool that help manage multiple scribus files that are parts of a same project.
 
 Particularly it helps
-* checking scribus produced files and PDFs before sending them to the printer
-* producing the concatenated PDF
+* check scribus produced files and PDFs before sending them to the printer
+* edit SLAs so they conform to the project standard
+* produce the concatenated PDF
 
-Some day, it could bring help to clean styles and share styles or objects accross files (compensate for scribus bugs with styles).
+Some day, it could help to clean styles and share styles or objects accross files (compensate for scribus bugs with styles).
 
 ## What is this repo
 
@@ -30,6 +31,7 @@ This magazine is made of 8 to 20 parts with same page size, sharing lots of comm
 * slacheck : performs all possible checks and reports issues before sending PDF to printer
 * slacheckimages : checks that the used images are all stored in 'images' subfolder.
 * slacheckfonts : checks that the fonts are all embeded or subseted. 
+* slasetattr : set some XML attr in the SLA file to its correct value
 * makbook : call relevant tools on relevant files and create final PDF (not published yet)
 
 Lower level tools :
