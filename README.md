@@ -44,6 +44,14 @@ It includes the following tools, that might depend on the OS :
 * sla_icon : adds specific icon on SLA file(s) for nautilus view
 * clean_icon : removes user-added icon on file or folder
 
+## Configuration data
+
+Configuration is : page sizes, bleeds, marks, color profiles, etc
+
+As for now, the configuration values are set inside slacheck script file.
+You have to edit this file so as to adapt the values to your project's standard.
+Doing this requires editing a correct SLA that fit your standards, and look for the values there so as to set them as the "standard" goal for your project.
+
 ## todo / could be done
 
 * automatically updates start page-numbers for all documents in project
