@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# trace détaillée
+# set -x
+
 # Checks all relevant attributes of SLA depending of a config profile
 # 
 
@@ -9,23 +12,36 @@
 # configs relating SLA file attributes
 RGBprof=sRGB		# RGB color profile
 CMYKprof='ISO Coated v2 300% (ECI)'		# CMYK color profile
-resolution=300		# images and eps resolution
-embedPDF=1			# 1:embed pdf ; 0:dont embed
+resolution=300		# resolution pour attributs PicRes ET Resolution (de <PDF...>)
+RecalcPic=1			# limite vraiment les images à la résolution max
+Compress=1 			# compresser vectoriel
+CMethod=1 			# compresser images avec perte
+Quality=1 			# 1 : haute qualité (mais pas maximale)
+EmbedPDF=1			# 1 : embed pdf ("expérimental")
 PDFversion=15		# PDF output version
 
-# configs for default features
-pdf="check" 		# check pdf exists and is recent ; set to "dontcheck" to not check
-img="check"
+useDocBleeds=0 
+BTop='14.1732283464567'
+BLeft=0 
+BRight='14.1732283464567'
+BBottom='14.1732283464567'
+
+cropMarks=1 
+markLength='8.50393700787402'
+markOffset='8.50393700787402'
+
+bleedMarks=0 
+registrationMarks=0 
+colorMarks=0 
+docInfoMarks=0 
 
 # All pages should be :
 pagewidth="420.944881889764"
 pageheight="595.275590551181"
 
-# todo : config for other SLA attributes : 
-# - limit image resolution
-# - compression activée + method and quality 
-# - bleeds and marks
-# - embeded and vectorized fonts
+# configs for default features
+pdf="check" 		# check pdf exists and is recent ; set to "dontcheck" to not check
+img="check"			# check that used images are in images subfolder
 
 # end of config
 # =====================================================================
@@ -42,6 +58,7 @@ do
 		echo "-v : verbose output"
 		echo "-notpdf : dont compare PDF and SLA last edit dates"
 		echo "-notimg : dont check for correct included image files"
+		echo
 		stopoptions=''
 	fi
 
@@ -88,9 +105,27 @@ slacheckattr $verbose $1 PDF		PrintP		"$CMYKprof"		"CMYK color profile"
 # other PDF output checks
 
 slacheckattr $verbose $1 PDF		PicRes		"$resolution"	"Résolution des images"
-slacheckattr $verbose $1 PDF		Resolution	"$resolution"	"Résolution des images"
-slacheckattr $verbose $1 PDF		EmbedPDF	"$embedPDF"		"Embed PDFs"
+slacheckattr $verbose $1 PDF		Resolution	"$resolution"	"Résolution des EPS"
+slacheckattr $verbose $1 PDF		Compress	"$Compress"		"Compression des images"
+slacheckattr $verbose $1 PDF		RecalcPic	"$RecalcPic"	"Limiter la résolution des images"
+slacheckattr $verbose $1 PDF		CMethod		"$CMethod"		"Méthode de compression des images"
+slacheckattr $verbose $1 PDF		Quality		"$Quality"		"Qualité de la compression des images"
+slacheckattr $verbose $1 PDF		EmbedPDF	"$EmbedPDF"		"Embed PDFs"
 slacheckattr $verbose $1 PDF		Version		"$PDFversion"	"Version PDF - eg 15 for 1.5"
+
+slacheckattr $verbose $1 PDF	useDocBleeds 	"$useDocBleeds"	"Utiliser le fond perdu du document"
+slacheckattr $verbose $1 PDF		BTop		"$BTop"			"Fond perdu en haut"
+slacheckattr $verbose $1 PDF		BLeft		"$BLeft"		"Fond perdu intérieur (mais indiqué Left ?)"
+slacheckattr $verbose $1 PDF		BRight		"$BRight"		"Fond perdu extérieur (mais indiqué Right ?)"
+slacheckattr $verbose $1 PDF		BBottom		"$BBottom"		"Fond perdu en bas"
+
+slacheckattr $verbose $1 PDF		cropMarks	"$cropMarks"	"Traits de coupe"
+slacheckattr $verbose $1 PDF		markLength	"$markLength"	"Longueur des traits de coupe"
+slacheckattr $verbose $1 PDF		markOffset	"$markOffset"	"Décalage des traits de coupe"
+
+slacheckattr $verbose $1 PDF		bleedMarks	"$bleedMarks"	"Traits de fond perdu"
+slacheckattr $verbose $1 PDF	registrationMarks	"$registrationMarks"	"registrationMarks"
+slacheckattr $verbose $1 PDF	colorMarks		"$colorMarks"	"colorMarks"
 
 # Check Pages attributes
 
