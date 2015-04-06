@@ -26,26 +26,29 @@ Some day, it could help to clean styles and share styles or objects accross file
 This repo contains the scripts i use to create the quaterly Passerelle Eco magazine.
 This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, some parts being very differents.
 
-## Available scripts
+### Main tools
 
-* slacheck : performs all possible checks and reports issues before sending PDF to printer
+* slacheck : performs all possible checks and reports issues before sending PDF to printer. Optionnaly edit the SLA so it conforms to the defined standard
 * slacheckimages : checks that the used images are all stored in 'images' subfolder.
-* slacheckfonts : checks that the fonts are all embeded or subseted. 
-* slasetattr : set some XML attr in the SLA file to its correct value
+* slacheckfonts : checks that all used fonts are either embeded or subseted
 * makbook : call relevant tools on relevant files and create final PDF (not published yet)
 
-Lower level tools :
+### Lower level scripts
 * slacheckattr : checks the value of some xml attribute in the scribus file
+* slasetattr : set some XML attr in the SLA file to its correct value
 * strtrim : basic string trim
 
-Environnement tools (for nautilus / ubuntu) :
+### Environnement tools
+This project is primarily created and used on Ubuntu 14.04
+It includes the following tools, that might depend on the OS :
 * sla_icon : adds specific icon on SLA file(s) for nautilus view
 * clean_icon : removes user-added icon on file or folder
 
 ## todo / could be done
 
 * automatically updates start page-numbers for all documents in project
-* more attributes checked in slacheck
+* more attributes checked in slacheck : which ?
+* optionnaly state which attribut have to be corrected and which should remain unchanged
 * separated config files to define 
 ** the checklist
 ** the list of files included in the project
