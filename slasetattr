@@ -32,21 +32,21 @@ then
 fi
 
 #  ext=${filename##*\.} donne l'extension si on voulait gérer $1 "avec ou sans" extension SLA
-if [ ! -f $1.sla ]
+if [ ! -f "$1.sla" ]
 then
 	echo "Error in slasetattr : file \"$1.sla\" doesn't exist"
 	exit
 fi
 
 # rq : dans slacheckattr, xmlint teste xpath = "//$2/@$3"
-if [ ! -f $1.sla.bak ]
+if [ ! -f "$1.sla.bak" ]
 then 
-	cp $1.sla      $1.sla.first.bak
+	cp "$1.sla"      "$1.sla.first.bak"
 else
-	cp -f $1.sla   $1.sla.last.bak
+	cp -f "$1.sla"   "$1.sla.last.bak"
 fi
 
 echo Set //$2/@$3 to $4 in $1.sla
-xmlstarlet ed -u "//$2/@$3" -v "$4"   $1.sla  >  .$1.sla.tmp
-cp -f   .$1.sla.tmp   $1.sla
+xmlstarlet ed -u "//$2/@$3" -v "$4"   "$1.sla"  >  ".$1.sla.tmp"
+cp -f   ".$1.sla.tmp"   "$1.sla"
 
