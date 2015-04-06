@@ -146,7 +146,7 @@ slacheckattr $alloptions $1 PDF	colorMarks		"$colorMarks"	"colorMarks"
 slacheckattr $alloptions -all $1 PAGE 	PAGEWIDTH	"$pagewidth"	"Largeur de page A5=420.944881889764"
 slacheckattr $alloptions -all $1 PAGE 	PAGEHEIGHT	"$pageheight"	"Hauteur de page A5=595.275590551181"
 
-if [ "$action" = "-set" ]
+if [ "$actionoption" = "-set" ]
 then
 	exit;
 fi
