@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# version 0.2.1 6 avril 2015
 # trace détaillée
 # set -x
 
@@ -150,6 +149,8 @@ slacheckattr $alloptions -all "$1" PAGE 	PAGEHEIGHT	"$pageheight"	"Hauteur de pa
 if [ "$actionoption" = "-set" ]
 then
 	exit;
+else
+	echo "Attributes have been checked. In case there are mistakes you can fix them using -set option"
 fi
 
 if [ "$pdf" = "check" ]
@@ -162,7 +163,9 @@ then
 		echo Missing $1.pdf
 	elif [ "$1.sla" -nt "$1.pdf" ]
 	then
-		echo "Warning : $1.sla might have been edited since last PDF output : $1.sla = $(stat -c %y $1.sla) ; $1.pdf = $(stat -c %y $1.pdf)"
+		datesla=`stat -c %y "$1.sla"`
+		datepdf=`stat -c %y "$1.pdf"`
+		echo "Warning : $1.sla might have been edited since last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
 	fi
 fi
 
