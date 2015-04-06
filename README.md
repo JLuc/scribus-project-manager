@@ -39,10 +39,13 @@ This repo contains the scripts i use to create the quaterly Passerelle Eco magaz
 * strtrim : basic string trim
 
 ### Environnement tools
-This project is primarily created and used on Ubuntu 14.04
+This project is primarily created and used on Ubuntu 14.04.
+
 It includes the following tools, that might depend on the OS :
 * sla_icon : adds specific icon on SLA file(s) for nautilus view
 * clean_icon : removes user-added icon on file or folder
+
+These scripts can be made callable via nautilus action's menus.
 
 ## Configuration data
 
