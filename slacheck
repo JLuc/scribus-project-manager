@@ -96,7 +96,7 @@ do
 	fi
 done
 
-[ ! -f $1.sla ] && echo Error : missing $1.sla file && exit
+[ ! -f "$1.sla" ] && echo Error : missing $1.sla file && exit
 
 alloptions="$verboseoption $actionoption"
 
@@ -104,47 +104,47 @@ alloptions="$verboseoption $actionoption"
 # <DOCUMENT ... DPMo="sRGB" DPPr="ISO Coated v2 300% (ECI)" DPIn="sRGB" DPInCMYK="ISO Coated v2 300% (ECI)" DPIn2="sRGB" DPIn3="ISO Coated v2 300% (ECI)" ...>
 # <PDF ... SolidP="sRGB" ImageP="sRGB" PrintP="ISO Coated v2 300% (ECI)"  ...>
 
-slacheckattr $alloptions $1 DOCUMENT 	DPIn 		"$RGBprof" 		"RGB color profile"
-slacheckattr $alloptions $1 DOCUMENT 	DPIn2		"$RGBprof"		"RGB color profile"
+slacheckattr $alloptions "$1" DOCUMENT 	DPIn 		"$RGBprof" 		"RGB color profile"
+slacheckattr $alloptions "$1" DOCUMENT 	DPIn2		"$RGBprof"		"RGB color profile"
 
-slacheckattr $alloptions $1 DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
-slacheckattr $alloptions $1 DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
-slacheckattr $alloptions $1 DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
+slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
+slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
+slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
 
-slacheckattr $alloptions $1 PDF		SolidP 		"$RGBprof"		"RGBcolor profile"
-slacheckattr $alloptions $1 PDF		ImageP 		"$RGBprof"		"RGB color profile"
+slacheckattr $alloptions "$1" PDF		SolidP 		"$RGBprof"		"RGBcolor profile"
+slacheckattr $alloptions "$1" PDF		ImageP 		"$RGBprof"		"RGB color profile"
 
-slacheckattr $alloptions $1 PDF		PrintP		"$CMYKprof"		"CMYK color profile"
+slacheckattr $alloptions "$1" PDF		PrintP		"$CMYKprof"		"CMYK color profile"
 
 # other PDF output checks
 
-slacheckattr $alloptions $1 PDF		PicRes		"$resolution"	"Résolution des images"
-slacheckattr $alloptions $1 PDF		Resolution	"$resolution"	"Résolution des EPS"
-slacheckattr $alloptions $1 PDF		Compress	"$Compress"		"Compression des images"
-slacheckattr $alloptions $1 PDF		RecalcPic	"$RecalcPic"	"Limiter la résolution des images"
-slacheckattr $alloptions $1 PDF		CMethod		"$CMethod"		"Méthode de compression des images"
-slacheckattr $alloptions $1 PDF		Quality		"$Quality"		"Qualité de la compression des images"
-slacheckattr $alloptions $1 PDF		EmbedPDF	"$EmbedPDF"		"Embed PDFs"
-slacheckattr $alloptions $1 PDF		Version		"$PDFversion"	"Version PDF - eg 15 for 1.5"
+slacheckattr $alloptions "$1" PDF		PicRes		"$resolution"	"Résolution des images"
+slacheckattr $alloptions "$1" PDF		Resolution	"$resolution"	"Résolution des EPS"
+slacheckattr $alloptions "$1" PDF		Compress	"$Compress"		"Compression des images"
+slacheckattr $alloptions "$1" PDF		RecalcPic	"$RecalcPic"	"Limiter la résolution des images"
+slacheckattr $alloptions "$1" PDF		CMethod		"$CMethod"		"Méthode de compression des images"
+slacheckattr $alloptions "$1" PDF		Quality		"$Quality"		"Qualité de la compression des images"
+slacheckattr $alloptions "$1" PDF		EmbedPDF	"$EmbedPDF"		"Embed PDFs"
+slacheckattr $alloptions "$1" PDF		Version		"$PDFversion"	"Version PDF - eg 15 for 1.5"
 
-slacheckattr $alloptions $1 PDF	useDocBleeds 	"$useDocBleeds"	"Utiliser le fond perdu du document"
-slacheckattr $alloptions $1 PDF		BTop		"$BTop"			"Fond perdu en haut"
-slacheckattr $alloptions $1 PDF		BLeft		"$BLeft"		"Fond perdu intérieur (mais indiqué Left ?)"
-slacheckattr $alloptions $1 PDF		BRight		"$BRight"		"Fond perdu extérieur (mais indiqué Right ?)"
-slacheckattr $alloptions $1 PDF		BBottom		"$BBottom"		"Fond perdu en bas"
+slacheckattr $alloptions "$1" PDF	useDocBleeds 	"$useDocBleeds"	"Utiliser le fond perdu du document"
+slacheckattr $alloptions "$1" PDF		BTop		"$BTop"			"Fond perdu en haut"
+slacheckattr $alloptions "$1" PDF		BLeft		"$BLeft"		"Fond perdu intérieur (mais indiqué Left ?)"
+slacheckattr $alloptions "$1" PDF		BRight		"$BRight"		"Fond perdu extérieur (mais indiqué Right ?)"
+slacheckattr $alloptions "$1" PDF		BBottom		"$BBottom"		"Fond perdu en bas"
 
-slacheckattr $alloptions $1 PDF		cropMarks	"$cropMarks"	"Traits de coupe"
-slacheckattr $alloptions $1 PDF		markLength	"$markLength"	"Longueur des traits de coupe"
-slacheckattr $alloptions $1 PDF		markOffset	"$markOffset"	"Décalage des traits de coupe"
+slacheckattr $alloptions "$1" PDF		cropMarks	"$cropMarks"	"Traits de coupe"
+slacheckattr $alloptions "$1" PDF		markLength	"$markLength"	"Longueur des traits de coupe"
+slacheckattr $alloptions "$1" PDF		markOffset	"$markOffset"	"Décalage des traits de coupe"
 
-slacheckattr $alloptions $1 PDF		bleedMarks	"$bleedMarks"	"Traits de fond perdu"
-slacheckattr $alloptions $1 PDF	registrationMarks	"$registrationMarks"	"registrationMarks"
-slacheckattr $alloptions $1 PDF	colorMarks		"$colorMarks"	"colorMarks"
+slacheckattr $alloptions "$1" PDF		bleedMarks	"$bleedMarks"	"Traits de fond perdu"
+slacheckattr $alloptions "$1" PDF	registrationMarks	"$registrationMarks"	"registrationMarks"
+slacheckattr $alloptions "$1" PDF	colorMarks		"$colorMarks"	"colorMarks"
 
 # Check Pages attributes
 
-slacheckattr $alloptions -all $1 PAGE 	PAGEWIDTH	"$pagewidth"	"Largeur de page A5=420.944881889764"
-slacheckattr $alloptions -all $1 PAGE 	PAGEHEIGHT	"$pageheight"	"Hauteur de page A5=595.275590551181"
+slacheckattr $alloptions -all "$1" PAGE 	PAGEWIDTH	"$pagewidth"	"Largeur de page A5=420.944881889764"
+slacheckattr $alloptions -all "$1" PAGE 	PAGEHEIGHT	"$pageheight"	"Hauteur de page A5=595.275590551181"
 
 if [ "$actionoption" = "-set" ]
 then
@@ -156,10 +156,10 @@ then
 	# on vérifie qu'il y a un PDF et qu'il a été généré APRÈS l'édition du SLA
 	# stat -c %y n54.pdf : date de modif de n54.pdf
 	
-	if [ ! -f $1.pdf ]
+	if [ ! -f "$1.pdf" ]
 	then
 		echo Missing $1.pdf
-	elif [ $1.sla -nt $1.pdf ]
+	elif [ "$1.sla" -nt "$1.pdf" ]
 	then
 		echo "Warning : $1.sla might have been edited since last PDF output : $1.sla = $(stat -c %y $1.sla) ; $1.pdf = $(stat -c %y $1.pdf)"
 	fi
@@ -167,5 +167,5 @@ fi
 
 if [ "$img" = "check" ]
 then
-	slacheckimages $1
+	slacheckimages "$1"
 fi
