@@ -69,7 +69,9 @@ Other usefull features :
 * smart merge of SLAs (manage styles, masterpages and other conflicts)
 * more attributes checked in slacheck : which ?
 
-## Rules when proposiing a script for this repo
+## Rules when proposing a script or push request for this repo
 * name of the script should be self-understandable and should give hints as what the script does
 * you should provide a detailed description of the intent, required conditions and action of the script, as comments at the script's begining
+* same for the push requests
 * scripts should provide help on how to use them (-h option)
+
