@@ -58,7 +58,7 @@ fi
 
 if  [ "$4" = "" ] && [ "$get" = "" ]
 then 
-	echo "error in slachecattr : missing value parameter\(s\). See with -h option first."
+	echo "error in slacheckattr : missing value parameter\(s\). See with -h option first."
 	exit
 fi
 
