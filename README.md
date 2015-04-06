@@ -55,13 +55,13 @@ Doing this requires editing a correct SLA that fit your standards, and look for 
 ## todo / could be done
 
 * automatically updates start page-numbers for all documents in project
-* more attributes checked in slacheck : which ?
-* optionnaly state which attribut have to be corrected and which should remain unchanged
+* optionnaly state which attribut have to be corrected and which should remain unchanged when using -set option
 * separated config files to define 
-** the checklist
+** the checklist and the values for each project-defining attribute. Probably using some table structure with attribute, value, message string, other options fot this attribute
 ** the list of files included in the project
 * smart sync of masterdocument's styles toward project files
 * smart merge of SLAs (manage styles, masterpages and other conflicts)
+* more attributes checked in slacheck : which ?
 
 ## Rules when proposiing a script for this repo
 * name of the script should be self-understandable and should give hints as what the script does
