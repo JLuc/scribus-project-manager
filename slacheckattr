@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# version 0.2.1 - 6 avril 2015
 #
 # use : slacheckattr slafile tag attribute value [comment]
 # Checks the the value of some attribute for a specified tag in scribus file
@@ -104,7 +103,7 @@ then
 		then echo found : $one
 		fi
 		if [ $one != $expected ]
-		then echo $3 NOT OK ! In $1.sla, found \<$2 $one\> \(expected value for $3 is $expected\)
+		then echo "  " $3 NOT OK ! In $1.sla, found \<$2 $one\> \(expected value for $3 is $expected\)
 		fi
 	done
 elif [ "$found" != "$expected" ]
