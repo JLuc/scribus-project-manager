@@ -4,10 +4,9 @@
 # use : slacheckattr slafile tag attribute value [comment]
 # Checks the the value of some attribute for a specified tag in scribus file
 # 
-# todo : use xmlstarlet to update value of an attribute 
-# cf http://xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html#d0e461
-# xml ed -u "/xml/table/rec[@id=3]/@id" -v 5 xml/tab-obj.xml
-#
+# todo : update value of an attribute  with slasetattr
+
+action='donttouchsla'
 
 while [ "$stopoptions" = "" ] 
 do
@@ -21,7 +20,9 @@ do
 		echo -h, -? : display this help
 		echo -v : verbose
 		echo -all : all 'tag' tags should be checked and have the same stated attribute value. 
-		echo -all option is required to check PAGE attributes, since there are many PAGEs in a document.
+		echo "(-all option is required to check PAGE attributes, since there are many PAGEs in a document.)"
+		echo -get : echoes the found value
+		echo -set : will set tags in the sla file to the required value in case they are wrong (.bak are created)
 		exit
 		;;
 
@@ -39,6 +40,11 @@ do
 		shift
 		get=oui
 		;;
+		
+	"-set")
+		shift
+		action='set'
+		;;
 
 	*) stopoptions=true	;;
 	esac
@@ -46,20 +52,20 @@ done
 
 if [ $# -lt 3 ]
 then 
-	echo error : missing document, tag or attribute parameter\(s\). See with -h option first.
+	echo "error in slacheckattr : missing document, tag or attribute parameter\(s\). See with -h option first."
 	exit
 fi
 
 if  [ "$4" = "" ] && [ "$get" = "" ]
 then 
-	echo error : missing value parameter\(s\). See with -h option first.
+	echo "error in slachecattr : missing value parameter\(s\). See with -h option first."
 	exit
 fi
 
 #  ext=${filename##*\.} donne l'extension si on voulait gérer $1 "avec ou sans" extension SLA
 if [ ! -f $1.sla ]
 then
-	echo "Error : file \"$3\" doesn't exist"
+	echo "Error in slacheckattr : file \"$3\" doesn't exist"
 	exit
 fi
 
@@ -101,5 +107,11 @@ then
 		fi
 	done
 elif [ "$found" != "$expected" ]
-	then echo $3 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" $1.sla`\> \(expected value for $3 is $4\)
+	then
+		echo $3 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" $1.sla`\> \(expected value for $3 is $4\)
+		if [ "$action" = "set" ]
+		then
+			slasetattr $1 $2 $3 $4
+		fi
+		exit
 fi
