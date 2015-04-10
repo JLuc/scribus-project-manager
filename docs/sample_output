@@ -1,5 +1,5 @@
-mak56 calls slacheck on each file of the project
-some have bad settings
+# mak56 calls slacheck on each SLA file of the project
+# Some have bad settings !
 
 ./mak56
 Quality NOT OK ! In couv/couv.sla, found <PDF Quality="0"> (expected value for Quality is 1)
