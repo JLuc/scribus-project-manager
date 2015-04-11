@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# echo "$0 $1.sla <$2 $3=$4> ($5)"
+
 #
 # use : slacheckattr slafile tag attribute value [comment]
 # Checks the the value of some attribute for a specified tag in scribus file
@@ -90,6 +92,7 @@ fi
 # echo avec... "$3=\"$4\""
 # echo 
 
+wrong=false
 if [ "$found" = "" ]
 then
 	echo 
@@ -103,15 +106,22 @@ then
 		then echo found : $one
 		fi
 		if [ $one != $expected ]
-		then echo "  " $3 NOT OK ! In $1.sla, found \<$2 $one\> \(expected value for $3 is $expected\)
+		then 
+			echo "  " $3 NOT OK ! In $1.sla, found \<$2 $one\>
+			wrong=true
 		fi
 	done
-elif [ "$found" != "$expected" ]
+	if [ $wrong = "true" ]
 	then
-		echo $3 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" "$1.sla"`\> \(expected value for $3 is $4\)
-		if [ "$action" = "-set" ]
-		then
-			slasetattr "$1" $2 $3 "$4"
-		fi
-		exit
+		echo "      (expected value is $expected)"
+	fi
+elif [ "$found" != "$expected" ]
+then
+	echo "  " $3 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" "$1.sla"`\> \(expected value for $3 is $4\)
+	wrong=true
+fi
+
+if [ "$action" = "-set" -a "$wrong" = "true" ]
+then
+	slasetattr "$1" $2 $3 "$4"
 fi
