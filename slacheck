@@ -98,6 +98,13 @@ done
 
 [ ! -f "$1.sla" ] && echo Error : missing $1.sla file && exit
 
+# -H : affiche le nom de fichier
+# -o : n'affiche que la partie matchant le pattern et non toute la ligne
+# -i : case insensitif
+grep -H -o -i "\"[^\"]*aaa[^\"]*\"" "$1.sla"
+grep -H -o -i "\"[^\"]*ppp[^\"]*\"" "$1.sla"
+grep -H -o -i "\"[^\"]*xxx[^\"]*\"" "$1.sla"
+
 alloptions="$verboseoption $actionoption"
 
 # As for color profiles, the correct values to be checked are :
@@ -149,8 +156,8 @@ slacheckattr $alloptions -all "$1" PAGE 	PAGEHEIGHT	"$pageheight"	"Hauteur de pa
 if [ "$actionoption" = "-set" ]
 then
 	exit;
-else
-	echo "Attributes have been checked. In case there are mistakes you can fix them using -set option"
+# else
+#	echo "Attributes have been checked. In case there are mistakes you can fix them using -set option"
 fi
 
 if [ "$pdf" = "check" ]
@@ -165,7 +172,7 @@ then
 	then
 		datesla=`stat -c %y "$1.sla"`
 		datepdf=`stat -c %y "$1.pdf"`
-		echo "Warning : $1.sla might have been edited since last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
+		echo "Warning : $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
 	fi
 fi
 
