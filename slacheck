@@ -3,6 +3,20 @@
 # trace détaillée
 # set -x
 
+# configs for default check features
+pdf='check' 		 	# check pdf exists and is recent ; set to "dontcheck" to not check
+checkimg='check'		# check that used images are in images subfolder
+checkfonts='check'		# check that used fonts are either embeded or subset
+vecto=""				# leave fonts as declared in sla ; dont force all fonts vectorization 
+checkpagenums=''		# dont check startpage num
+pagenumval=''
+
+export GREP_OPTIONS='--color=auto' GREP_COLOR='1;37;41'
+
+# TODO : gérer les pages : Sections Section Start
+# <Sections>
+#    <Section Number="0" Name="0" From="0" To="3" Type="Type_1_2_3" Start="64" Reversed="0" Active="1" FillChar="0" FieldWidth="0"/>
+            
 # Checks all relevant attributes of SLA depending of a config profile
 # 
 
@@ -39,9 +53,33 @@ docInfoMarks=0
 pagewidth="420.944881889764"
 pageheight="595.275590551181"
 
-# configs for default features
-pdf="check" 		# check pdf exists and is recent ; set to "dontcheck" to not check
-img="check"			# check that used images are in images subfolder
+# config for preflight checker
+# NOT OK - not used
+# ne marche pas car il y a plusieurs <CheckProfile> : un pour chaque norme PDF
+# il faut complexifier le slacheckattr pour ne tester QUE celui avec le bon Name
+# goal = <CheckProfile Name="PDF 1.5" ignoreErrors="0" autoCheck="1" checkGlyphs="0" checkOrphans="1" checkOverflow="1" checkPictures="1" checkPartFilledImageFrames="0" checkResolution="1" checkTransparency="0" minResolution="144" maxResolution="2400" checkAnnotations="0" checkRasterPDF="1" checkForGIF="1" ignoreOffLayers="0" checkNotCMYKOrSpot="0" checkDeviceColorsAndOutputIntent="0" checkFontNotEmbedded="0" checkFontIsOpenType="0" checkAppliedMasterDifferentSide="1" checkEmptyTextFrames="1"/>
+preflight_Name="PDF 1.5" 
+preflight_ignoreErrors="0" 
+preflight_autoCheck="1" 
+preflight_checkGlyphs="1"
+preflight_checkOrphans="1" 
+preflight_checkOverflow="1" 
+preflight_checkPictures="1" 
+preflight_checkPartFilledImageFrames="0" 
+preflight_checkResolution="1" 
+preflight_checkTransparency="0" 
+preflight_minResolution="200"
+preflight_maxResolution="2400" 
+preflight_checkAnnotations="0" 
+preflight_checkRasterPDF="1" 
+preflight_checkForGIF="1" 
+preflight_ignoreOffLayers="1" 
+preflight_checkNotCMYKOrSpot="0" 
+preflight_checkDeviceColorsAndOutputIntent="0" 
+preflight_checkFontNotEmbedded="0" 
+preflight_checkFontIsOpenType="0" 
+preflight_checkAppliedMasterDifferentSide="1" 
+preflight_checkEmptyTextFrames="1"
 
 # end of config
 # =====================================================================
@@ -62,6 +100,8 @@ do
 		echo "-notpdf : dont compare PDF and SLA last edit dates"
 		echo "-notimg : dont check for correct included image files"
 		echo "-set : change the SLA so it conforms to project standards (save in .bak)"
+		echo "-vecto : all fonts must be vectorized"
+		echo "-pagenum PPP : check that section begins at page number PPP"
 		echo
 		stopoptions=''
 	fi
@@ -83,16 +123,36 @@ do
 	if [ "$1" = "-notimg" ]
 	then
 		shift
-		img='dontcheck'
+		checkimg='dontcheck'
 		stopoptions=''
 	fi
-	
+
 	if [ "$1" = "-set" ]
 	then
 		shift
-		actionoption='-set'
+		actionoption="$actionoption -set"
 		echo "Attention, le fichier $1.sla sera modifié."
 		stopoptions=''
+	fi
+
+	if [ "$1" = "-vecto" ]
+	then
+		shift
+		vecto="-vecto"
+		stopoptions=''
+	fi
+
+	if [ "$1" = "-pagenum" ]
+	then
+		shift
+		checkpagenums='check'
+		if [ "$1" = '' ]
+		then
+			echo "Error : missing page numer after -pagenum"
+			exit;
+		fi
+		pagenumval="$1"
+		shift
 	fi
 done
 
@@ -101,6 +161,7 @@ done
 # -H : affiche le nom de fichier
 # -o : n'affiche que la partie matchant le pattern et non toute la ligne
 # -i : case insensitif
+# -E : c'est une regexp (permettrait d'extraire plus de caractères environnant par ex)
 grep -H -o -i "\"[^\"]*aaa[^\"]*\"" "$1.sla"
 grep -H -o -i "\"[^\"]*ppp[^\"]*\"" "$1.sla"
 grep -H -o -i "\"[^\"]*xxx[^\"]*\"" "$1.sla"
@@ -150,8 +211,16 @@ slacheckattr $alloptions "$1" PDF	colorMarks		"$colorMarks"	"colorMarks"
 
 # Check Pages attributes
 
-slacheckattr $alloptions -all "$1" PAGE 	PAGEWIDTH	"$pagewidth"	"Largeur de page A5=420.944881889764"
-slacheckattr $alloptions -all "$1" PAGE 	PAGEHEIGHT	"$pageheight"	"Hauteur de page A5=595.275590551181"
+slacheckattr $alloptions -all "$1" PAGE 		PAGEWIDTH	"$pagewidth"	"Largeur de page A5=420.944881889764"
+slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEWIDTH	"$pagewidth"	"Largeur de page A5=420.944881889764"
+slacheckattr $alloptions -all "$1" PAGE 		PAGEHEIGHT	"$pageheight"	"Hauteur de page A5=595.275590551181"
+slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEHEIGHT	"$pageheight"	"Hauteur de page A5=595.275590551181"
+
+
+if [ "$checkpagenums" = 'check' ]
+then
+	slacheckattr $alloptions "$1" Section	Start 	$pagenumval		"La première page doit être la $pagenumval"
+fi
 
 if [ "$actionoption" = "-set" ]
 then
@@ -160,7 +229,7 @@ then
 #	echo "Attributes have been checked. In case there are mistakes you can fix them using -set option"
 fi
 
-if [ "$pdf" = "check" ]
+if [ "$pdf" = 'check' ]
 then
 	# on vérifie qu'il y a un PDF et qu'il a été généré APRÈS l'édition du SLA
 	# stat -c %y n54.pdf : date de modif de n54.pdf
@@ -176,7 +245,12 @@ then
 	fi
 fi
 
-if [ "$img" = "check" ]
+if [ "$checkimg" = 'check' ]
 then
 	slacheckimages "$1"
+fi
+
+if [ "$checkfonts" = 'check' ]
+then
+	slacheckfonts $vecto "$1"
 fi
