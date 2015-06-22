@@ -57,15 +57,15 @@ Doing this requires editing a correct SLA that fit your standards, and look for 
 
 ## todo / could be done
 
-Blocking :
+Blocking release :
 * separated config files for :
  - the checklist and the values for each project-defining attribute. Probably using some table structure with attribute, value, message string, other options fot this attribute. This will enable to make slacheck script entirely generic.
  - the list of files included in the project. This will enable to release a generic makbook script.
 
 Other usefull features :
-* automatically updates starting page-numbers for all documents in project
+* automatically updates starting page-numbers for all documents in project (WIP)
 * optionnaly state that some attribut should remain unchanged when using -set option
-* smart sync of masterdocument's styles toward project files
+* add masterdocument + smart sync of masterdocument's styles toward (some) project files
 * smart merge of SLAs (manage styles, masterpages and other conflicts)
 * more attributes checked in slacheck : which ?
 
