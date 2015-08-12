@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# v0.2
+# v0.2.1
 # slacheckfonts : tests whether all used fonts are either embeded or subset=vectorized
 
 # TODO : detect fonts that are used in unused styles definitions and dont warn about them or with special message.
@@ -34,6 +34,8 @@ then
 	echo Error : scribus file argument missing
 	exit
 fi
+
+[ ! -f "$1.sla" ] && echo Error : missing $1.sla file && exit
 
 # fonts possible uses are :
 #   <ITEXT FONT="Arimo Regular" CH=" "/>
