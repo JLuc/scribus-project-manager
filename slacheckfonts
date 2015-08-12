@@ -1,17 +1,18 @@
 #!/bin/bash
 
-# v0.1
+# v0.2
 # slacheckfonts : tests whether all used fonts are either embeded or subset=vectorized
 
 # TODO : detect fonts that are used in unused styles definitions and dont warn about them or with special message.
 
 if [ "$1" = "-?" ] || [ "$1" = "-h" ]
 then
-	echo "usage : slacheckfont [-h] scribusfile.sla"
+	echo "usage : slacheckfont [-h] [-v] [-vecto] scribusfile.sla"
 	echo "checks whether all used fonts are either embeded or subset in scribusfile.sla"
 	echo options :
 	echo -h displays this help
 	echo -v displays details
+	echo -vecto : check that fonts are all vectorised
 	exit
 fi
 
@@ -21,13 +22,20 @@ then
 	shift
 fi
 
+vecto=""
+if [ "$1" = "-vecto" ]
+then
+	vecto="-vecto"
+	shift
+fi
+
 if [ "$1" = "" ]
 then
-	echo Error : scribus file argument missing. Expecting filename without .sla extension
+	echo Error : scribus file argument missing
 	exit
 fi
 
-# used fonts uses are :
+# fonts possible uses are :
 #   <ITEXT FONT="Arimo Regular" CH=" "/>
 #	<CHARSTYLE CNAME="Default Character Style" DefaultStyle="1" FONT="Liberation Sans Regular" FONTSIZE="8.8" FCOLOR="Black"/>
 #	<STYLE NAME="NoteSignature" PARENT="Signature" PSHORTCUT="Ctrl+Alt+(" FONT="Liberation Sans Regular"/>
@@ -42,9 +50,18 @@ used=`grep " FONT=\"[^\"]*\"" $1.sla | sed -e 's/^.* FONT=\(\"[^\"]*\"\).*$/\1/'
 # Subseted fonts (vectorized)
 # 	<Subset Name="Arimo Regular"/>
 
-known=`sed -n '/\(<Fonts \|Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
+if [ "$vecto" != "-vecto" ]
+then
+	known=`sed -n '/\(<Fonts \|Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
+	errormessage="font is neither vectorized nor embeded"
+else
+	known=`sed -n '/\(<Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
+	errormessage="font is not vectorized"	
+fi
 
-if [ $verbose = oui ]
+# known=`sed -n '/\(<Fonts \|Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
+
+if [ "$verbose" = oui ]
 then
 	echo Embeded or subset fonts are : $known
 fi
@@ -61,7 +78,7 @@ do
 		fi
 	done
 	if [ "$recognised" = "" ]
-	then echo "Error in $1.sla : $usedfont font is neither embeded nor subset"
+	then echo "Error in $1.sla with '$usedfont' : $errormessage"
 	fi
 done
 
