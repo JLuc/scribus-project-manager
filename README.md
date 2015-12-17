@@ -27,7 +27,9 @@ This repo contains the scripts I use to create the quaterly [Passerelle Eco](htt
 
 ### Main tools
 
-* **slacheck** : performs all possible checks and reports issues before sending PDF to printer. Optionnaly edit the SLA so it conforms to the defined standard.  
+* **slacheck** : 
+*   - performs all possible checks and reports issues before sending PDF to printer. 
+*   - Optionnaly edit the SLA so it conforms to the defined standard.  
 * **slacheckimages** : checks that the used images are all stored in 'images' subfolder.  
 * **slacheckfonts** : checks that all used fonts are either embeded or subseted.  
 * **makbook** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  
@@ -49,25 +51,34 @@ These scripts can be made callable via nautilus action's menus.
 
 ## Configuration data
 
-Configuration is : **page sizes**, **bleeds**, **marks**, **color profiles**, etc...
+Configuration is value for **page sizes**, **bleeds**, **marks**, **color profiles**, etc...
 
 As for now, the configuration values are set inside the **slacheck** script file.
-**You have to edit this file** so as to adapt the values to your project's standard.
-Doing this requires editing a correct SLA that fit your standards, and look for the values there so as to set them as the "standard" goal for your project.
+
+**You have to edit `slacheck` file** so as to adapt the values to your project's standard.
+
+Doing this requires 
+- editing a correct SLA that fit your standards, 
+- look for the values there 
+- and (as for now :) set them as the "standard" goal for your project in the slacheck file
 
 ## todo / could be done
 
-Blocking release :
-* separated config files for :
- - the checklist and the values for each project-defining attribute. Probably using some table structure with attribute, value, message string, other options fot this attribute. This will enable to make slacheck script entirely generic.
- - the list of files included in the project. This will enable to release a generic makbook script.
-
+Next step and blocking release issue :
+* Create separated config files for :
+- the list of files included in the project. This will enable to release a generic makebook script.
+- the checklist and the values for each project-defining attribute. Probably using some table structure with attribute, value, message string, other options fot this attribute. This will enable to make slacheck script entirely generic.
+ 
 Other usefull features :
 * automatically updates starting page-numbers for all documents in project (WIP)
 * optionnaly state that some attribut should remain unchanged when using -set option
-* add masterdocument + smart sync of masterdocument's styles toward (some) project files
-* smart merge of SLAs (manage styles, masterpages and other conflicts)
-* more attributes checked in slacheck : which ?
+* use one of the document as the `masterdocument` and use it for smart synchronization for
+   - masterdocuments 
+   - styles (optionnaly state which styles should NOT be synced)
+
+Other not so usefull features :
+* smart merge of SLAs (manage styles, masterpages and other conflicts) (usefull since merge of SLA is one of scribus Most Annoying Bug, but complex and not so usefull with this project manager)
+
 
 ## Rules when proposing a script or push request for this repo
 * name of the script should be self-understandable and should give hints as what the script does
