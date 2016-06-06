@@ -1,18 +1,19 @@
 #!/bin/bash
 
-# v0.2.1
-# slacheckfonts : tests whether all used fonts are either embeded or subset=vectorized
+# slacheckfonts 
+
+# v0.3 : no more buggy -vecto option
+# v0.2 : tests whether all used fonts are either embeded or subset=vectorized
 
 # TODO : detect fonts that are used in unused styles definitions and dont warn about them or with special message.
 
-if [ "$1" = "-?" ] || [ "$1" = "-h" ]
+if [ "$1" = "-?" ] || [ "$1" = "-h" ] || [ "$1" = "" ]
 then
-	echo "Usage : slacheckfont [-h] [-v] [-vecto] scribusfile"
+	echo "Usage : slacheckfont [-h] [-v] scribusfile"
 	echo "Checks whether all used fonts are either embeded or subset in scribusfile.sla"
-	echo "Options :"
+	echo "Options (order matters) :"
 	echo -h displays this help
 	echo -v displays details
-	echo -vecto : check that fonts are all vectorised
 	exit
 fi
 
@@ -27,6 +28,10 @@ if [ "$1" = "-vecto" ]
 then
 	vecto="-vecto"
 	shift
+elif [ "$1" = "-novecto" ]
+then
+	vecto="-novecto"
+	shift
 fi
 
 if [ "$1" = "" ]
@@ -37,42 +42,36 @@ fi
 
 [ ! -f "$1.sla" ] && echo Error : missing $1.sla file && exit
 
-# fonts possible uses are :
+# Liste of all fonts uses
+#
+# Possible fonts uses are :
 #   <ITEXT FONT="Arimo Regular" CH=" "/>
 #	<CHARSTYLE CNAME="Default Character Style" DefaultStyle="1" FONT="Liberation Sans Regular" FONTSIZE="8.8" FCOLOR="Black"/>
-#	<STYLE NAME="NoteSignature" PARENT="Signature" PSHORTCUT="Ctrl+Alt+(" FONT="Liberation Sans Regular"/>
+#	<STYLE NAME="NoteSignature" PARENT="Signature" FONT="Liberation Sans Regular"/>
 #	<tab FONT="Wingdings Regular" FONTSIZE="15"/>
-
-# s/regexp/replacement/ ! The replacement may contain the special character & to refer to that portion of the pattern space which matched
-
+#
+# s/regexp/replacement/
+# ! The replacement may contain the special character & to refer to that portion of the pattern which matched
 used=`grep " FONT=\"[^\"]*\"" $1.sla | sed -e 's/^.* FONT=\(\"[^\"]*\"\).*$/\1/'`
-
-# Embeded fonts
-# 	<Fonts Name="CC Icons Regular"/>
-# Subseted fonts (vectorized)
-# 	<Subset Name="Arimo Regular"/>
-
-if [ "$vecto" != "-vecto" ]
-then
-	known=`sed -n '/\(<Fonts \|Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
-	errormessage="font is neither vectorized nor embeded"
-else
-	known=`sed -n '/\(<Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
-	errormessage="font is not vectorized"	
-fi
+#
+# Embeded fonts : 	<Fonts Name="CC Icons Regular"/>
+# Subseted fonts : 	<Subset Name="Arimo Regular"/>
+known=`sed -n '/\(<Fonts \|<Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
+errormessage="font is neither vectorized nor embeded"
 
 # known=`sed -n '/\(<Fonts \|Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
 
 if [ "$verbose" = oui ]
 then
 	echo Embeded or subset fonts are : $known
+	echo Used fonts are : $used
 fi
-
 
 IFS=$'\n'
 for usedfont in $used
 do 
 	recognised=""
+	errored=""
 	for knownfont in $known
 	do
 		if [ "$usedfont" = "$knownfont" ]
@@ -80,8 +79,14 @@ do
 		fi
 	done
 	if [ "$recognised" = "" ]
-	then echo "Error in $1.sla with '$usedfont' : $errormessage"
+	then 
+		echo "\033[1;31mError in $1.sla\033[0m with '$usedfont' : $errormessage"
+		errored=oui;
 	fi
 done
+
+if [ "$verbose" = "oui" ] && [ "$errored" = "" ]
+then echo "No font error has been found"
+fi
 
 exit
