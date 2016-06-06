@@ -2,15 +2,18 @@
 
 # set -x  # for a detailed trace
 
+# *****************************
 # configs for defaults features
-pdf='create' 		 	# pdf = create : checks pdf exists and is recent and recreate it when not 
-						# pdf = check : only checks
-						# pdf = ignore : neither checks nor (re)creates pdf
+scribuscommand="scribusok"	# command to call scribus 1.5
 checkimg='check'		# check that used images are in images subfolder
 checkfonts='check'		# check that used fonts are either embeded or subset
 vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
 checkpagenums=''		# dont check startpage num
 pagenumval=''
+pdf='create' 		 	# pdf = create : checks pdf exists and is recent and recreate it when not 
+						# pdf = check : only checks
+						# pdf = ignore : neither checks nor (re)creates pdf
+# *****************************
 
 export GREP_OPTIONS='--color=auto' GREP_COLOR='1;37;41'
 
@@ -102,7 +105,7 @@ do
 		echo "-pdfcheck : check pdf, but dont re-create it in case required"
 		echo "-notimg : dont check for correct included image files"
 		echo "-set : change the SLA so it conforms to project standards (save in .bak)"
-		echo "-vecto : all fonts must be vectorized - NOT IMPLEMENTED ANYMPRE - MIGHT COME BACK"
+		echo "-vecto : all fonts must be vectorized - NOT IMPLEMENTED"
 		echo "-pagenum PPP : check that section begins at page number PPP"
 		echo
 		stopoptions=''
@@ -149,6 +152,8 @@ do
 		shift
 		vecto="-vecto"
 		stopoptions=''
+		echo "Error : -vecto option IS NOT IMPLEMENTED"
+		exit
 	fi
 
 	if [ "$1" = "-pagenum" ]
@@ -266,7 +271,7 @@ then
 				fi
 			fi
 			echo "je (re)crée $1.pdf"
-			scribusok -g -ns -py slatopdf.py -- $1.sla 2> /dev/null
+			$scribuscommand -g -ns -py slatopdf.py -- $1.sla 2> /dev/null
 			if [ -f "$1.pdf" ]
 			then 
 				echo "OK $1.pdf a bien été recréé"
