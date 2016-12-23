@@ -74,6 +74,8 @@ done
 
 [ ! -f "$1.sla" ] && echo Error : missing $1.sla file && exit
 
+[ -f "./$1.config" ] && echo "Loading file config for $1.sla" && . "./$1.config"
+
 # -H : affiche le nom de fichier
 # -o : n'affiche que la partie matchant le pattern et non toute la ligne
 # -i : case insensitif
