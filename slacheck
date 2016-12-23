@@ -51,7 +51,7 @@ do
 		shift
 		actionoption="$actionoption -set"
 		setrequested="-set"
-		echo "Attention, le fichier .sla sera modifié."
+		echo "Warning : SLA file will be altered in case it doesnt fit config"
 		stopoptions=''
 	elif [ "$1" = "-vecto" ];	then
 		shift
