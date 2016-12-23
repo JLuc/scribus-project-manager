@@ -1,0 +1,91 @@
+#!/bin/sh
+
+# *****************************
+# configs for defaults features
+
+scribuscommand="scribusok"	# command to choose scribus 1.5 version to be called amongts various possible versions
+                            # enables to call specific versions to avoid scribus crashes
+                            
+checkimg='check'		        # check that used images are in images subfolder
+checkfonts='check'		      # check that used fonts are either embeded or subset
+vecto=''				            # leave fonts as declared in sla = dont force all fonts vectorization 
+checkpagenums=''		        # dont check startpage num
+pagenumval=''
+pdf='create' 	
+      # pdf = 'create' : checks pdf exists and is recent and recreate it when not 
+			# pdf = 'check' : only checks
+			# pdf = 'ignore' : neither checks nor (re)creates pdf
+      
+# *****************************
+
+actionoption='' 	
+# default : dont change SLAs
+# on peut y mettre "-set" pour ne pas avoir à le passer en ligne de commande
+
+verboseoption=''	
+# default : not verbose
+# '-v' for verbose
+
+# *****************************
+
+# configs relating SLA file attributes
+
+RGBprof=sRGB		# RGB color profile
+CMYKprof='ISO Coated v2 300% (ECI)'		# CMYK color profile
+resolution=300		# resolution pour attributs PicRes ET Resolution (de <PDF...>)
+RecalcPic=1			# limite vraiment les images à la résolution max
+Compress=1 			# compresser vectoriel
+CMethod=1 			# compresser images avec perte
+Quality=1 			# 1 : haute qualité (mais pas maximale)
+EmbedPDF=1			# 1 : embed pdf ("expérimental")
+PDFversion=15		# PDF output version
+
+useDocBleeds=0 
+BTop='14.1732283464567'
+BLeft=0 
+BRight='14.1732283464567'
+BBottom='14.1732283464567'
+
+cropMarks=1 
+markLength='8.50393700787402'
+markOffset='8.50393700787402'
+
+bleedMarks=0 
+registrationMarks=0 
+colorMarks=0 
+docInfoMarks=0 
+
+# All pages should be :
+pagewidth="420.944881889764"
+pageheight="595.275590551181"
+
+# config for preflight checker
+# NOT OK - not used
+# ne marche pas car il y a plusieurs <CheckProfile> : un pour chaque norme PDF
+# il faut complexifier le slacheckattr pour ne tester QUE celui avec le bon Name
+# goal = <CheckProfile Name="PDF 1.5" ignoreErrors="0" autoCheck="1" checkGlyphs="0" checkOrphans="1" checkOverflow="1" checkPictures="1" checkPartFilledImageFrames="0" checkResolution="1" checkTransparency="0" minResolution="144" maxResolution="2400" checkAnnotations="0" checkRasterPDF="1" checkForGIF="1" ignoreOffLayers="0" checkNotCMYKOrSpot="0" checkDeviceColorsAndOutputIntent="0" checkFontNotEmbedded="0" checkFontIsOpenType="0" checkAppliedMasterDifferentSide="1" checkEmptyTextFrames="1"/>
+preflight_Name="PDF 1.5" 
+preflight_ignoreErrors="0" 
+preflight_autoCheck="1" 
+preflight_checkGlyphs="1"
+preflight_checkOrphans="1" 
+preflight_checkOverflow="1" 
+preflight_checkPictures="1" 
+preflight_checkPartFilledImageFrames="0" 
+preflight_checkResolution="1" 
+preflight_checkTransparency="0" 
+preflight_minResolution="200"
+preflight_maxResolution="2400" 
+preflight_checkAnnotations="0" 
+preflight_checkRasterPDF="1" 
+preflight_checkForGIF="1" 
+preflight_ignoreOffLayers="1" 
+preflight_checkNotCMYKOrSpot="0" 
+preflight_checkDeviceColorsAndOutputIntent="0" 
+preflight_checkFontNotEmbedded="0" 
+preflight_checkFontIsOpenType="0" 
+preflight_checkAppliedMasterDifferentSide="1" 
+preflight_checkEmptyTextFrames="1"
+
+# end of config
+# =====================================================================
