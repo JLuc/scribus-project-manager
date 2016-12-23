@@ -4,99 +4,22 @@
 
 # *****************************
 # configs for defaults features
-scribuscommand="scribusok"	# command to call scribus 1.5
-checkimg='check'		# check that used images are in images subfolder
-checkfonts='check'		# check that used fonts are either embeded or subset
-vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
-checkpagenums=''		# dont check startpage num
-pagenumval=''
-pdf='create' 		 	# pdf = create : checks pdf exists and is recent and recreate it when not 
-						# pdf = check : only checks
-						# pdf = ignore : neither checks nor (re)creates pdf
-# *****************************
 
-export GREP_OPTIONS='--color=auto' GREP_COLOR='1;37;41'
+. slacheck.defaultconfig
 
-# TODO : gérer les pages : Sections Section Start
-# <Sections>
-#    <Section Number="0" Name="0" From="0" To="3" Type="Type_1_2_3" Start="64" Reversed="0" Active="1" FillChar="0" FieldWidth="0"/>
-            
-# Checks all relevant attributes of SLA depending of a config profile
-# 
+[ -f "./slacheck.config" ] && . ./slacheck.config
 
-# ====================================================================
-# config to edit to fit project
+[ ! -f "./slacheck.config" ] && echo No local config, using default
 
-# configs relating SLA file attributes
-RGBprof=sRGB		# RGB color profile
-CMYKprof='ISO Coated v2 300% (ECI)'		# CMYK color profile
-resolution=300		# resolution pour attributs PicRes ET Resolution (de <PDF...>)
-RecalcPic=1			# limite vraiment les images à la résolution max
-Compress=1 			# compresser vectoriel
-CMethod=1 			# compresser images avec perte
-Quality=1 			# 1 : haute qualité (mais pas maximale)
-EmbedPDF=1			# 1 : embed pdf ("expérimental")
-PDFversion=15		# PDF output version
-
-useDocBleeds=0 
-BTop='14.1732283464567'
-BLeft=0 
-BRight='14.1732283464567'
-BBottom='14.1732283464567'
-
-cropMarks=1 
-markLength='8.50393700787402'
-markOffset='8.50393700787402'
-
-bleedMarks=0 
-registrationMarks=0 
-colorMarks=0 
-docInfoMarks=0 
-
-# All pages should be :
-pagewidth="420.944881889764"
-pageheight="595.275590551181"
-
-# config for preflight checker
-# NOT OK - not used
-# ne marche pas car il y a plusieurs <CheckProfile> : un pour chaque norme PDF
-# il faut complexifier le slacheckattr pour ne tester QUE celui avec le bon Name
-# goal = <CheckProfile Name="PDF 1.5" ignoreErrors="0" autoCheck="1" checkGlyphs="0" checkOrphans="1" checkOverflow="1" checkPictures="1" checkPartFilledImageFrames="0" checkResolution="1" checkTransparency="0" minResolution="144" maxResolution="2400" checkAnnotations="0" checkRasterPDF="1" checkForGIF="1" ignoreOffLayers="0" checkNotCMYKOrSpot="0" checkDeviceColorsAndOutputIntent="0" checkFontNotEmbedded="0" checkFontIsOpenType="0" checkAppliedMasterDifferentSide="1" checkEmptyTextFrames="1"/>
-preflight_Name="PDF 1.5" 
-preflight_ignoreErrors="0" 
-preflight_autoCheck="1" 
-preflight_checkGlyphs="1"
-preflight_checkOrphans="1" 
-preflight_checkOverflow="1" 
-preflight_checkPictures="1" 
-preflight_checkPartFilledImageFrames="0" 
-preflight_checkResolution="1" 
-preflight_checkTransparency="0" 
-preflight_minResolution="200"
-preflight_maxResolution="2400" 
-preflight_checkAnnotations="0" 
-preflight_checkRasterPDF="1" 
-preflight_checkForGIF="1" 
-preflight_ignoreOffLayers="1" 
-preflight_checkNotCMYKOrSpot="0" 
-preflight_checkDeviceColorsAndOutputIntent="0" 
-preflight_checkFontNotEmbedded="0" 
-preflight_checkFontIsOpenType="0" 
-preflight_checkAppliedMasterDifferentSide="1" 
-preflight_checkEmptyTextFrames="1"
-
-# end of config
 # =====================================================================
 
-actionoption='' 	# default : dont change SLAs
-verboseoption=''	# default : not verbose
+setrequested=''
 
 while [ "$stopoptions" = "" ] 
 do
 	stopoptions=true
 	
-	if  [ "$1" = '-?' ]
-	then
+	if  [ "$1" = '-?' ]; then
 		echo "slacheck checks workflow validity of a scribus file"
 		echo "Options :"
 		echo "-? : get this help"
@@ -108,65 +31,44 @@ do
 		echo "-vecto : all fonts must be vectorized - NOT IMPLEMENTED"
 		echo "-pagenum PPP : check that section begins at page number PPP"
 		echo
-		stopoptions=''
-	fi
-
-	if [ "$1" = "-v" ]
-	then
+	elif [ "$1" = "-v" ]; then
 		shift
 		verboseoption='-v'
 		stopoptions=''
-	fi
-
-	if [ "$1" = "-pdfignore" ]
-	then
+	elif [ "$1" = "-pdfignore" ]; then
 		shift
 		pdf='ignore'
 		stopoptions=''
-	fi
-
-	if [ "$1" = "-pdfcheck" ]
-	then
+	elif [ "$1" = "-pdfcheck" ]; then
 		shift
 		pdf='check'
 		stopoptions=''
-	fi
-
-	if [ "$1" = "-notimg" ]
-	then
+	elif [ "$1" = "-notimg" ]; then
 		shift
 		checkimg='dontcheck'
 		stopoptions=''
-	fi
-
-	if [ "$1" = "-set" ]
-	then
+	elif [ "$1" = "-set" ]; then
 		shift
 		actionoption="$actionoption -set"
+		setrequested="-set"
 		echo "Attention, le fichier $1.sla sera modifié."
 		stopoptions=''
-	fi
-
-	if [ "$1" = "-vecto" ]
-	then
+	elif [ "$1" = "-vecto" ];	then
 		shift
 		vecto="-vecto"
 		stopoptions=''
 		echo "Error : -vecto option IS NOT IMPLEMENTED"
 		exit
-	fi
-
-	if [ "$1" = "-pagenum" ]
-	then
+	elif [ "$1" = "-pagenum" ]; then
 		shift
 		checkpagenums='check'
-		if [ "$1" = '' ]
-		then
+		if [ "$1" = '' ]; then
 			echo "Error : missing page numer after -pagenum"
 			exit;
 		fi
 		pagenumval="$1"
 		shift
+		stopoptions=''
 	fi
 done
 
@@ -176,9 +78,10 @@ done
 # -o : n'affiche que la partie matchant le pattern et non toute la ligne
 # -i : case insensitif
 # -E : c'est une regexp (permettrait d'extraire plus de caractères environnant par ex)
-grep -H -o -i "\"[^\"]*aaa[^\"]*\"" "$1.sla"
-grep -H -o -i "\"[^\"]*ppp[^\"]*\"" "$1.sla"
-grep -H -o -i "\"[^\"]*xxx[^\"]*\"" "$1.sla"
+# -v : élimine les lignes vérifiant le pattern
+grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*aaa[^\"]*\"" 
+grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*ppp[^\"]*\"" 
+grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*xxx[^\"]*\"" 
 
 alloptions="$verboseoption $actionoption"
 
@@ -236,7 +139,7 @@ then
 	slacheckattr $alloptions "$1" Section	Start 	$pagenumval		"La première page doit être la $pagenumval"
 fi
 
-if [ "$actionoption" = "-set" ]
+if [ "$setrequested" = "-set" ]
 then
 	exit;
 # else
