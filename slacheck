@@ -51,7 +51,7 @@ do
 		shift
 		actionoption="$actionoption -set"
 		setrequested="-set"
-		echo "Attention, le fichier $1.sla sera modifié."
+		echo "Attention, le fichier .sla sera modifié."
 		stopoptions=''
 	elif [ "$1" = "-vecto" ];	then
 		shift
