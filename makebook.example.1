@@ -3,18 +3,117 @@
 ####################################################################"
 # Paramétrages
 
-output=mybook
+output=mybookexample
+pdfwithimages=oui
+
+# set to "-vecto" to use "-vecto" version of files and config
+vectoopt=""
+
+# other user options
+setopt=""
+
+#checkpagenum=''
+checkpagenum='check'
+
+# On ne met pas la couv dedans car imprimée sur carton
+sources="p_3 p0ApresCouv		p_2 p0Sommaire		n_6 p0Suite	n_14 p2 	n_12 p16 	n_16 p_30 	n_8 p46		n_28 p80 	n_18 p_92 	n_12 p112	n_14 p124	n_12 p138 	n_10 p152	n_4 p162 	n_4 p166	n_16 p171	n_10 p186_Annexes"
+
+sourcespattern=1
+# 0 : no change to filename in sources
+# 1 : nomfich stands for filename/filename(.sla)
+# 2 : nomfich stands for filename/PAO/filename(.sla)
+
+# Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
+
+####################################################################
+
+while [ "$stopoptions" = "" ]
+do
+	stopoptions=true
+
+	if  [ "$1" = '-?' ]
+	then
+		echo "mak makes the global PDF"
+		echo "due to inline config, name of produced PDF is $output.pdf"
+		echo 
+		echo "Options :"
+		echo "-? : get this help"
+		echo "-vecto : uses -vecto version of each file (sla and pdf)"
+		echo "-set : set value to correct value"
+		echo "-pagenum : also checks the first page number  of each doc"
+		echo "-nopagenum : dont check the first page number of each doc"
+		echo
+		stopoptions=''
+	fi
+
+	if [ "$1" = "-set" ]
+	then
+		shift
+		setopt='-set'
+		stopoptions=''
+	fi
+
+	if [ "$1" = "-vecto" ]
+	then
+		shift
+		vectoopt='-vecto'
+		stopoptions=''
+	fi
+
+	if [ "$1" = "-nopagenum" ]
+	then
+		shift
+		checkpagenum=''
+		stopoptions=''
+	fi
+done
 
 ####################################################################"
 
 listepdf=""
-for fic in couv/couv etangs/etangs_terre etangs/etangs_bache filtres/filtres editeau/editeau PA/PA laver/laver pendule/pendule chinampas/chinampas separettes/separettes
+pagenumopt=''
+
+numpagecourant=1
+for fic in $sources
 do 
+	if [ "${fic#p_}" != "$fic" ] && [ $checkpagenum = 'check' ]
+	then
+		numpagecourant=${fic#p_}
+		pagenumopt="-pagenum $numpagecourant"
+		continue
+	fi
+
+	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
+	then
+		pagenumopt="-pagenum $numpagecourant"
+		echo "N° page = $numpagecourant"
+		numpagecourant=$(( $numpagecourant+${fic#n_} ))
+		continue
+	fi
+
+	if [ "$sourcespattern" = 1 ]
+	then
+		fic="$fic/$fic"
+	elif [ "$sourcespattern" = 2 ]
+	then 
+		fic="$fic/PAO/$fic"
+	fi
+
+	fic="$fic$vecto"
 	[ ! -f $fic.sla ] && echo Error : missing $fic.sla file && exit
-	slacheck $fic
-	slacheckfonts $fic
+
+	echo
+	echo ====
+	echo slacheck $vectoopt $setopt $pagenumopt $fic
+	slacheck $vectoopt $setopt $pagenumopt $fic
+
 	echo $fic.sla : checked
+
 	listepdf="$listepdf $fic.pdf"
+	if [ "$pdfwithimages" = "no" ]
+	then
+		mv -b "$fic/images" "$fic/images.bak"
+	fi
 done
 
 if [ "$1" = "-test" ] || [ "$1" = "-t" ]
@@ -26,7 +125,24 @@ then
 	exit
 fi
 
+
 mv $output.pdf $output.pdf.bak
-listepdf="$listepdf separettes/p68-HR.pdf"
+
+# add some special file as a last page cover
+# listepdf="$listepdf separettes/p68-HR.pdf"
+
 pdftk $listepdf cat output $output.pdf
-[ -f $output.pdf  ] && evince $output.pdf & ls -ltr $output.pdf ; echo OK
+[ -f $output.pdf  ] && evince $output.pdf & ls -ltr $output.pdf ; echo $output.pdf created OK
+
+# création d'une version sans marge (marges enlevées à l'arrache pour l'instant) : un peu utile pour impression un peu plus grand en pleine page
+# pdfcrop --margins '-25 -25 -25 -25' $output.pdf normargin_$output.pdf
+# [ -f normargin_$output.pdf  ] && evince normargin_$output.pdf & ls -ltr normargin_$output.pdf ; echo normargin_$output.pdf created OK
+
+if [ "$pdfwithimages" = "no" ]
+then
+	for fic in $sources
+	do 
+		fic=$fic$vecto
+		mv -b "$fic/images.bak" "$fic/images"
+	done
+fi
