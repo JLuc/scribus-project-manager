@@ -51,30 +51,33 @@ These scripts can be made callable via nautilus action's menus.
 
 ## Configuration data
 
-Configuration is value for **page sizes**, **bleeds**, **marks**, **color profiles**, etc...
+Configuration is value for **page sizes**, **bleeds**, **marks**, **color profiles** and all other book creation issues etc...
 
-As for now, the configuration values are set inside the **slacheck** script file.
+The configuration values are parmeters for slacheck script and can be set
+- at global tool level in the slacheck.defaultconfig file
+- at project level in the project related local slacheck.config file
+- at file level in the file-related local filename.config file
 
-**You have to edit `slacheck` file** so as to adapt the values to your project's standard.
+You have to edit the defaultconfig file or create a project config file so as to adapt the values to your project's standard. In case some of the file of your project requires different settings, then you have to create the required file-related restricted settings.
 
 Doing this requires 
-- editing a correct SLA that fit your standards, 
-- look for the values there 
-- and (as for now :) set them as the "standard" goal for your project in the slacheck file
+- edit a correct SLA that fit your standards, 
+- look for all the attributes names and values there 
+- and set them as the goal for your project or file in the corresponding config file
 
 ## todo / could be done
 
-Next step and blocking release issue :
+Next step and blocking release issues :
 * Create separated config files for :
 - the list of files included in the project. This will enable to release a generic makebook script.
-- the checklist and the values for each project-defining attribute. Probably using some table structure with attribute, value, message string, other options fot this attribute. This will enable to make slacheck script entirely generic.
+- DONE the checklist and the values for each project-defining attribute. Probably using some table structure with attribute, value, message string, other options fot this attribute. This will enable to make slacheck script entirely generic.
  
 Other usefull features :
-* automatically updates starting page-numbers for all documents in project (WIP)
+* DONE automatically updates starting page-numbers for all documents in project (WIP)
 * optionnaly state that some attribut should remain unchanged when using -set option
 * use one of the document as the `masterdocument` and use it for smart synchronization for
-   - masterdocuments 
-   - styles (optionnaly state which styles should NOT be synced)
+   * masterdocuments 
+   * styles (optionnaly state which styles should NOT be synced)
 
 Other not so usefull features :
 * smart merge of SLAs (manage styles, masterpages and other conflicts) (usefull since merge of SLA is one of scribus Most Annoying Bug, but complex and not so usefull with this project manager)
@@ -85,12 +88,3 @@ Other not so usefull features :
 * you should provide a detailed description of the intent, required conditions and action of the script, as comments at the script's begining
 * same for the push requests
 * scripts should provide help on how to use them (-h option)
-
-# Changelog  
-#### Version .03  
-+ add -vecto option  
-
-#### Version .02  
-+ new -pagenum option 
-
-#### Version .01
