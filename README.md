@@ -124,17 +124,17 @@ it checks that all used images are stored into the local images/ folder
 slacheck checks that the fonts are either embeded or subset
 An option also exists also to use vectorized versions of the PDFs
 
-## todo / could be done
+## could be done
 
-Next step and blocking release issues :
-* Create separated config files for :
-- the list of files included in the project. This will enable to release a generic makebook script.
+Next step :
+* Create separated config files for the list of files included in the project so as to release a generic makebook script (easy !)
  
 Other usefull features :
-* optionnaly state that some attribut should remain unchanged when using -set option
+* import or overwrite some specific style in all parts of the project
 * use one of the document as the `masterdocument` and use it for smart synchronization for
    * masterdocuments 
    * styles (optionnaly state which styles should NOT be synced)
+* optionnaly state that some attribut should remain unchanged when using -set option
 
 Other not so usefull features :
 * smart merge of SLAs (manage styles, masterpages and other conflicts) (usefull since merge of SLA is one of scribus Most Annoying Bug, but complex and not so usefull with this project manager)
