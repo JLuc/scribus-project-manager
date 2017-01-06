@@ -98,6 +98,9 @@ slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
 
+slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 		"PDF output to grayscale"
+slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
+
 slacheckattr $alloptions "$1" PDF		SolidP 		"$RGBprof"		"RGBcolor profile"
 slacheckattr $alloptions "$1" PDF		ImageP 		"$RGBprof"		"RGB color profile"
 
