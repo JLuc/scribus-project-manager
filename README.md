@@ -65,15 +65,72 @@ Doing this requires
 - look for all the attributes names and values there 
 - and set them as the goal for your project or file in the corresponding config file
 
+So as to check the correct values, just launch the script
+So as to set the SLA parameters to the project specified values, use the -set options
+
+## Set of files composing the project ##
+
+The set of files is described in a string made out of all filenames.
+
+3 possible standard organisation of files in the project folder are proposed and make project description more easy :
+* 0 : no change to filename in sources
+* 1 : nomfich stands for filename/filename(.sla)
+* 2 : nomfich stands for filename/PAO/filename(.sla)
+
+Simple example : 
+```
+# 5 files project
+sources="CoverBegin		Inside/Summary  Inside/InsidePages		Ads/Adverts  CoverEnd"
+sourcespattern=0
+```
+
+Example where all SLA files are stored in filename/filename.sla :
+```
+sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
+sourcespattern=1
+```
+
+Example where all SLA files are stored in filename/PAO/filename.sla, so other subfolders exist in filename/ :
+```
+sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
+sourcespattern=2
+```
+## Page numbering ##
+
+The project can check and set the correct numberging of pages in each file of the project.
+2 ways to do so for each file of the project : 
+- specify the number of pages of the file, using n_6 (for a 6 pages document)
+- specify the starting page number for the file, using p_13 (for a document starting on page 13)
+
+Equivalent examples :
+* ```sources="p_1 CoverBegin		p_3 Summary  p_7 InsidePages	p_15	Notes  p_20 CoverEnd"```
+* ```sources="n_2 CoverBegin		n_4 Summary  n_8 InsidePages	n_5	Notes  p_20 CoverEnd"```
+
+So as to set the correct numbering, use -set option
+
+## Checking PDF files validity ##
+
+slacheck checks that the previously created PDF are uptodate. 
+When the PDF is older than the SLA, then it creates a newer PDF (saving the previously existing one as .bak)
+It's possible to avoid this automatic behaviour using -pdfignore or -pdfcheck options :
+- -pdfignore : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
+- -pdfcheck : check pdf, but dont re-create it in case required"
+
+## Ensuring project sanity and safety ##
+
+slacheck checks that the project has been correctly collected for output : 
+it checks that all used images are stored into the local images/ folder
+
+slacheck checks that the fonts are either embeded or subset
+An option also exists also to use vectorized versions of the PDFs
+
 ## todo / could be done
 
 Next step and blocking release issues :
 * Create separated config files for :
 - the list of files included in the project. This will enable to release a generic makebook script.
-- DONE the checklist and the values for each project-defining attribute. Probably using some table structure with attribute, value, message string, other options fot this attribute. This will enable to make slacheck script entirely generic.
  
 Other usefull features :
-* DONE automatically updates starting page-numbers for all documents in project (WIP)
 * optionnaly state that some attribut should remain unchanged when using -set option
 * use one of the document as the `masterdocument` and use it for smart synchronization for
    * masterdocuments 
