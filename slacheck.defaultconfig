@@ -38,7 +38,10 @@ Compress=1 			# compresser vectoriel
 CMethod=1 			# compresser images avec perte
 Quality=1 			# 1 : haute qualité (mais pas maximale)
 EmbedPDF=1			# 1 : embed pdf ("expérimental")
-PDFversion=15		# PDF output version
+PDFversion=15			# PDF output version
+Grayscale=0			# No greyscale PDF (but full colors)
+RGBMode=0			# CMYK PDF for printers rather than RGB for screen
+
 
 useDocBleeds=0 
 BTop='14.1732283464567'
