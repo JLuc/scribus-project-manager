@@ -30,6 +30,10 @@ verboseoption=''
 
 # configs relating SLA file attributes
 
+rangeSel=0 			# Export to PDF : All pages or only some pages
+# In case rangeSel is "1", rangeTxt has to be specified in the specific file config
+# rangeTxt="1-4"		# set of exported pages (when rangeSel="1")
+
 RGBprof=sRGB		# RGB color profile
 CMYKprof='ISO Coated v2 300% (ECI)'		# CMYK color profile
 resolution=300		# resolution pour attributs PicRes ET Resolution (de <PDF...>)
