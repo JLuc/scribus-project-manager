@@ -15,8 +15,9 @@ setopt=""
 #checkpagenum=''
 checkpagenum='check'
 
-# On ne met pas la couv dedans car imprimée sur carton
-sources="p_3 p0ApresCouv		p_2 p0Sommaire		n_6 p0Suite	n_14 p2 	n_12 p16 	n_16 p_30 	n_8 p46		n_28 p80 	n_18 p_92 	n_12 p112	n_14 p124	n_12 p138 	n_10 p152	n_4 p162 	n_4 p166	n_16 p171	n_10 p186_Annexes"
+# doesnt include the cover because printed on thicker paper
+# list of [p_start] chaptername [n_nbpage]
+sources="p_3 aftercover n_2	summary n_4	intro n_14	realstart n_12		maincontent n_50	conclusion n_10"
 
 sourcespattern=1
 # 0 : no change to filename in sources
