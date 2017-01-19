@@ -89,8 +89,8 @@ do
 	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
 	then
 		numpagecourant=$(( $numpagecourant+${fic#n_} ))
+		echo "${fic#n_} pages"
 		pagenumopt="-pagenum $numpagecourant"
-		echo "$numpagecourant pages"
 		continue
 	fi
 
