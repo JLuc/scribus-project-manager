@@ -80,14 +80,16 @@ do
 	then
 		numpagecourant=${fic#p_}
 		pagenumopt="-pagenum $numpagecourant"
+		echo ====
+		echo "Page n° = $numpagecourant"
 		continue
 	fi
 
 	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
 	then
-		pagenumopt="-pagenum $numpagecourant"
-		echo "N° page = $numpagecourant"
 		numpagecourant=$(( $numpagecourant+${fic#n_} ))
+		pagenumopt="-pagenum $numpagecourant"
+		echo "$numpagecourant pages"
 		continue
 	fi
 
@@ -104,6 +106,7 @@ do
 
 	echo
 	echo ====
+	[ "$pagenumopt" != "" ] && echo "Page $numpagecourant"
 	echo slacheck $vectoopt $setopt $pagenumopt $fic
 	slacheck $vectoopt $setopt $pagenumopt $fic
 
