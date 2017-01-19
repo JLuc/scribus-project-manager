@@ -132,7 +132,7 @@ mv $output.pdf $output.pdf.bak
 # listepdf="$listepdf separettes/p68-HR.pdf"
 
 pdftk $listepdf cat output $output.pdf
-[ -f $output.pdf  ] && evince $output.pdf & ls -ltr $output.pdf ; echo $output.pdf created OK
+[ -f $output.pdf  ] && evince $output.pdf & ls -ltr $output.pdf && echo $output.pdf created OK
 
 # création d'une version sans marge (marges enlevées à l'arrache pour l'instant) : un peu utile pour impression un peu plus grand en pleine page
 # pdfcrop --margins '-25 -25 -25 -25' $output.pdf normargin_$output.pdf
