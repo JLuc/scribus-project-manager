@@ -52,18 +52,20 @@ fi
 #
 # s/regexp/replacement/
 # ! The replacement may contain the special character & to refer to that portion of the pattern which matched
-used=`grep " FONT=\"[^\"]*\"" $1.sla | sed -e 's/^.* FONT=\(\"[^\"]*\"\).*$/\1/'`
+
+# looking for fontnames contained in all FONT="..."
+# excluding <STYLE and <STYLENAME uses that are style definitions, not uses
+used=`grep -v '^\s*<CHARSTYLE ' $1.sla | grep -v '^\s*<STYLE ' | grep " \(FONT\|DFONT\)=\"[^\"]*\"" | sed -e 's/^.* FONT=\(\"[^\"]*\"\).*$/\1/' | sed -e 's/^.* DFONT=\(\"[^\"]*\"\).*$/\1 in <DOCUMENT ...>/'`
 #
 # Embeded fonts : 	<Fonts Name="CC Icons Regular"/>
 # Subseted fonts : 	<Subset Name="Arimo Regular"/>
-known=`sed -n '/\(<Fonts \|<Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
-errormessage="font is neither vectorized nor embeded"
+managed=`sed -n '/\(<Fonts \|<Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
 
-# known=`sed -n '/\(<Fonts \|Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\).*$/\1/'`
+errormessage="font is neither vectorized nor embeded"
 
 if [ "$verbose" = oui ]
 then
-	echo Embeded or subset fonts are : $known
+	echo Embeded or subset fonts are : $managed
 	echo Used fonts are : $used
 fi
 
@@ -72,21 +74,21 @@ for usedfont in $used
 do 
 	recognised=""
 	errored=""
-	for knownfont in $known
+	for managedfont in $managed
 	do
-		if [ "$usedfont" = "$knownfont" ]
+		if [ "$usedfont" = "$managedfont" ]
 		then recognised=oui;
 		fi
 	done
 	if [ "$recognised" = "" ]
 	then 
-		echo "\033[1;31mError in $1.sla\033[0m with '$usedfont' : $errormessage"
+		echo -e "${ESC_error} in $1.sla with $usedfont : $errormessage${ESC_normal}"
 		errored=oui;
 	fi
 done
 
 if [ "$verbose" = "oui" ] && [ "$errored" = "" ]
-then echo "No font error has been found"
+then echo "${ESC_green}No font error has been found${ESC_normal}"
 fi
 
 exit
