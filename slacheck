@@ -6,10 +6,11 @@
 # configs for defaults features
 
 . slacheck.defaultconfig
+. shellcolors
 
 [ -f "./slacheck.config" ] && . ./slacheck.config
 
-[ ! -f "./slacheck.config" ] && echo No local config, using default
+[ ! -f "./slacheck.config" ] && echo No local config for project, using default
 
 # =====================================================================
 
@@ -51,19 +52,19 @@ do
 		shift
 		actionoption="$actionoption -set"
 		setrequested="-set"
-		echo "Warning : SLA file will be altered in case it doesnt fit config"
+		echo "${ESC_color_warning}Warning${ESC_color_normal} : SLA file will be altered in case it doesnt fit config"
 		stopoptions=''
 	elif [ "$1" = "-vecto" ];	then
 		shift
 		vecto="-vecto"
 		stopoptions=''
-		echo "Error : -vecto option IS NOT IMPLEMENTED"
+		echo "${ESC_color_error}Error${ESC_color_normal} : -vecto option IS NOT IMPLEMENTED"
 		exit
 	elif [ "$1" = "-pagenum" ]; then
 		shift
 		checkpagenums='check'
 		if [ "$1" = '' ]; then
-			echo "Error : missing page numer after -pagenum"
+			echo "${ESC_color_error}Error${ESC_color_normal} : missing page numer after -pagenum"
 			exit;
 		fi
 		pagenumval="$1"
@@ -72,18 +73,20 @@ do
 	fi
 done
 
-[ ! -f "$1.sla" ] && echo Error : missing $1.sla file && exit
+[ ! -f "$1.sla" ] && echo "${ESC_color_error}Error${ESC_color_normal} : missing $1.sla file" && exit
 
 [ -f "./$1.config" ] && echo "Loading file config for $1.sla" && . "./$1.config"
 
 # -H : affiche le nom de fichier
 # -o : n'affiche que la partie matchant le pattern et non toute la ligne
 # -i : case insensitif
-# -E : c'est une regexp (permettrait d'extraire plus de caractères environnant par ex)
+# -E : c'est une regexp (permettrait d'extraire plus de caractères environnants par ex)
 # -v : élimine les lignes vérifiant le pattern
+echo $ESC_blue 
 grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*aaa[^\"]*\"" 
 grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*ppp[^\"]*\"" 
 grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*xxx[^\"]*\"" 
+echo $ESC_normal
 
 alloptions="$verboseoption $actionoption"
 
@@ -98,9 +101,8 @@ slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
 
-slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 		"PDF output to grayscale"
+slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
 slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
-
 slacheckattr $alloptions "$1" PDF 		rangeSel 	"$rangeSel"		"PDF for a selection of pages (or for all pages) ?"
 # In case rangeSel is "1", rangeTxt has to be specified in the specific file config
 # slacheckattr $alloptions "$1" PDF 		rangeTxt 	"$rangeSel"		"PDF for a selection of pages (or for all pages) ?"
@@ -166,7 +168,7 @@ then
 	then
 		datesla=`stat -c %y "$1.sla"`
 		datepdf=`stat -c %y "$1.pdf"`
-		echo "\033[1;31mWarning :\033[0m $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
+		echo "${ESC_color_warning}Warning :${ESC_color_normal} $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
 	fi
 
 	if [ ! -f "$1.pdf" ] || [ "$1.sla" -nt "$1.pdf" ]
@@ -183,7 +185,7 @@ then
 				fi
 			fi
 			echo "je (re)crée $1.pdf"
-			$scribuscommand -g -ns -py slatopdf.py -- $1.sla 2> /dev/null
+			$scribuscommand -g -ns -py `which slatopdf.py` -- $1.sla 2> /dev/null
 			if [ -f "$1.pdf" ]
 			then 
 				echo "OK $1.pdf a bien été recréé"
