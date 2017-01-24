@@ -52,19 +52,19 @@ do
 		shift
 		actionoption="$actionoption -set"
 		setrequested="-set"
-		echo "${ESC_color_warning}Warning${ESC_color_normal} : SLA file will be altered in case it doesnt fit config"
+		echo "${ESC_warning}Warning${ESC_normal} : SLA file will be altered in case it doesnt fit config"
 		stopoptions=''
 	elif [ "$1" = "-vecto" ];	then
 		shift
 		vecto="-vecto"
 		stopoptions=''
-		echo "${ESC_color_error}Error${ESC_color_normal} : -vecto option IS NOT IMPLEMENTED"
+		echo "${ESC_error}Error${ESC_normal} : -vecto option IS NOT IMPLEMENTED"
 		exit
 	elif [ "$1" = "-pagenum" ]; then
 		shift
 		checkpagenums='check'
 		if [ "$1" = '' ]; then
-			echo "${ESC_color_error}Error${ESC_color_normal} : missing page numer after -pagenum"
+			echo "${ESC_error}Error${ESC_normal} : missing page numer after -pagenum"
 			exit;
 		fi
 		pagenumval="$1"
@@ -73,7 +73,7 @@ do
 	fi
 done
 
-[ ! -f "$1.sla" ] && echo "${ESC_color_error}Error${ESC_color_normal} : missing $1.sla file" && exit
+[ ! -f "$1.sla" ] && echo "${ESC_error}Error${ESC_normal} : missing $1.sla file" && exit
 
 [ -f "./$1.config" ] && echo "Loading file config for $1.sla" && . "./$1.config"
 
@@ -168,7 +168,7 @@ then
 	then
 		datesla=`stat -c %y "$1.sla"`
 		datepdf=`stat -c %y "$1.pdf"`
-		echo "${ESC_color_warning}Warning :${ESC_color_normal} $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
+		echo "${ESC_warning}Warning :${ESC_normal} $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
 	fi
 
 	if [ ! -f "$1.pdf" ] || [ "$1.sla" -nt "$1.pdf" ]
