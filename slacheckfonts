@@ -1,7 +1,13 @@
 #!/bin/bash
-# slacheckfonts 
 
 . shellcolors
+
+# slacheckfonts 
+
+# v0.3 : no more buggy -vecto option
+# v0.2 : tests whether all used fonts are either embeded or subset=vectorized
+
+# TODO : detect fonts that are used in unused styles definitions and dont warn about them or with special message.
 
 if [ "$1" = "-?" ] || [ "$1" = "-h" ] || [ "$1" = "" ]
 then
@@ -51,7 +57,8 @@ fi
 
 # looking for fontnames contained in all FONT="..."
 # excluding <STYLE and <STYLENAME uses that are style definitions, not uses
-used=`grep -v '^\s*<CHARSTYLE ' $1.sla | grep -v '^\s*<STYLE ' | grep " \(FONT\|DFONT\)=\"[^\"]*\"" | sed -e 's/^.* FONT=\(\"[^\"]*\"\).*$/\1/' | sed -e 's/^.* DFONT=\(\"[^\"]*\"\).*$/\1 in <DOCUMENT ...>/'`
+used=`grep -v '^\s*<CHARSTYLE ' $1.sla | grep -v '^\s*<STYLE ' | grep " \(FONT\|DFONT\)=\"[^\"]*\"" | sed -e 's/^.* FONT=\(\"[^\"]*\"\).*$/\1/' | sed -e 's/^.* DFONT=\(\"[^\"]*\"\).*$/\1/'`
+
 #
 # Embeded fonts : 	<Fonts Name="CC Icons Regular"/>
 # Subseted fonts : 	<Subset Name="Arimo Regular"/>
@@ -59,11 +66,6 @@ managed=`sed -n '/\(<Fonts \|<Subset \)/p' $1.sla | sed 's/.*Name=\(\"[^\"]*\"\)
 
 errormessage="font is neither vectorized nor embeded"
 
-if [ "$verbose" = oui ]
-then
-	echo Embeded or subset fonts are : $managed
-	echo Used fonts are : $used
-fi
 
 IFS=$'\n'
 for usedfont in $used
@@ -82,6 +84,15 @@ do
 		errored=oui;
 	fi
 done
+
+if [ "$verbose" = oui ] || [ "$errored" = "oui" ]
+then
+	echo ${ESC_green}Embeded or subset fonts are :$ESC_normal 
+	echo $managed
+	echo ${ESC_green}Used fonts are :$ESC_normal 
+	echo $used
+fi
+
 
 if [ "$verbose" = "oui" ] && [ "$errored" = "" ]
 then echo "${ESC_green}No font error has been found${ESC_normal}"
