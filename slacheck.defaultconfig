@@ -2,7 +2,9 @@
 
 # *****************************
 # SHELL configs for defaults features
-scribuscommand="scribusok"	# command to call scribus 1.5
+scribuscommand="scribusok"	# command to choose scribus 1.5 version to be called amongts various possible versions
+                          # can be changed for some of the files configs so as to avoid scribus crashes
+
 checkimg='check'		# check that used images are in images subfolder
 checkfonts='check'		# check that used fonts are either embeded or subset
 vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
@@ -58,7 +60,7 @@ docInfoMarks=0
 # All pages should be :
 PAGEWIDTH="420.944881889764"
 PAGEHEIGHT="595.275590551181"
-DFONT="(no Document default font specified !)"
+DFONT="(no Document default font specified !)" # DFONT *HAS* to be specified in project config
 
 # config for preflight checker
 # NOT OK - not used
