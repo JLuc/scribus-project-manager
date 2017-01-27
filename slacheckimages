@@ -1,6 +1,6 @@
 #!/bin/bash
-
-# version 0.2.1 - 6 avril 2015
+# set -x
+# version 2.1 - 8 dec 2014
 # todo : option to detect inline images, option to detect empty image frames
 
 filename=""
@@ -8,6 +8,8 @@ filenameoption="--include=*.sla"
 folderexcludeoption="--exclude-dir=archives"
 recurseoption="-r"
 stopoption=""
+
+. shellcolors
 
 while [ "$stopoptions" = "" ] && [ "$1" != "" ]
 do
@@ -68,7 +70,7 @@ done
 
 if [ "$1" != "" ]
 then
-	echo "Error : too many parameters"
+	echo "${ESC_error} too many parameters$ESC_normal"
 	exit
 fi
 
@@ -81,5 +83,9 @@ fi
 # PFILES="images/ : image is stored in correct images subfolder
 # PFILES="" : empty image frame OR inline image
 alloptions="-H $recurseoption $folderexcludeoption $filenameoption"
-grep $alloptions -- PFILE= "$filename" | grep -v 'PFILE="images/\|PFILE=""' | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'
+err=`grep $alloptions -- PFILE= "$filename" | grep -v 'PFILE="images/\|PFILE=""' | sed 's/^\(.*\.sla\).* PFILE="\([^"]*\)".*$/In \1, image has source file outside \/images : \2/'`
+if [ "$err" != "" ]
+then
+	echo -e "${ESC_error}$err$ESC_normal"
+fi
 
