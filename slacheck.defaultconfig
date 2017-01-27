@@ -1,38 +1,27 @@
 #!/bin/sh
 
 # *****************************
-# configs for defaults features
-
-scribuscommand="scribusok"	# command to choose scribus 1.5 version to be called amongts various possible versions
-                            # enables to call specific versions to avoid scribus crashes
-                            
-checkimg='check'		        # check that used images are in images subfolder
-checkfonts='check'		      # check that used fonts are either embeded or subset
-vecto=''				            # leave fonts as declared in sla = dont force all fonts vectorization 
-checkpagenums=''		        # dont check startpage num
+# SHELL configs for defaults features
+scribuscommand="scribusok"	# command to call scribus 1.5
+checkimg='check'		# check that used images are in images subfolder
+checkfonts='check'		# check that used fonts are either embeded or subset
+vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
+checkpagenums=''		# dont check startpage num
 pagenumval=''
-pdf='create' 	
-      # pdf = 'create' : checks pdf exists and is recent and recreate it when not 
-			# pdf = 'check' : only checks
-			# pdf = 'ignore' : neither checks nor (re)creates pdf
-      
-# *****************************
+pdf='create' 		 	# pdf = create : checks pdf exists and is recent and recreate it when not 
+						# pdf = check : only checks
+						# pdf = ignore : neither checks nor (re)creates pdf
+# *********
 
-actionoption='' 	
-# default : dont change SLAs
+actionoption='' 	# default : dont change SLAs
 # on peut y mettre "-set" pour ne pas avoir à le passer en ligne de commande
 
-verboseoption=''	
-# default : not verbose
+verboseoption=''	# default : not verbose
 # '-v' for verbose
 
 # *****************************
-
+# *****************************
 # configs relating SLA file attributes
-
-rangeSel=0 			# Export to PDF : All pages or only some pages
-# In case rangeSel is "1", rangeTxt has to be specified in the specific file config
-# rangeTxt="1-4"		# set of exported pages (when rangeSel="1")
 
 RGBprof=sRGB		# RGB color profile
 CMYKprof='ISO Coated v2 300% (ECI)'		# CMYK color profile
@@ -42,10 +31,13 @@ Compress=1 			# compresser vectoriel
 CMethod=1 			# compresser images avec perte
 Quality=1 			# 1 : haute qualité (mais pas maximale)
 EmbedPDF=1			# 1 : embed pdf ("expérimental")
-PDFversion=15			# PDF output version
-Grayscale=0			# No greyscale PDF (but full colors)
-RGBMode=0			# CMYK PDF for printers rather than RGB for screen
+PDFversion=15		# PDF output version	
+Grayscale=0			# No greyscale PDF	
+RGBMode=0			# PDF for printers rather than screen
 
+rangeSel=0 			# Export to PDF : only some pages (1) or all pages (0)
+# In case rangeSel is "1", rangeTxt has to be specified in the specific file config
+# rangeTxt="1-4"	# set of exported pages (when rangeSel="1")
 
 useDocBleeds=0 
 BTop='14.1732283464567'
@@ -62,9 +54,11 @@ registrationMarks=0
 colorMarks=0 
 docInfoMarks=0 
 
+# MAIN <DOCUMENT...> properties
 # All pages should be :
-pagewidth="420.944881889764"
-pageheight="595.275590551181"
+PAGEWIDTH="420.944881889764"
+PAGEHEIGHT="595.275590551181"
+DFONT="(no Document default font specified !)"
 
 # config for preflight checker
 # NOT OK - not used
