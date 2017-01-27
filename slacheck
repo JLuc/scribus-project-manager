@@ -1,6 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 # set -x  # for a detailed trace
+
+# note for future updates
+# ${parameter=default}, ${parameter:=default} # If parameter not set, set it to default.
 
 # *****************************
 # configs for defaults features
@@ -52,7 +55,7 @@ do
 		shift
 		actionoption="$actionoption -set"
 		setrequested="-set"
-		echo "${ESC_warning}Warning${ESC_normal} : SLA file will be altered in case it doesnt fit config"
+		echo "${ESC_warning}${ESC_normal} : SLA file will be altered in case it doesnt fit config"
 		stopoptions=''
 	elif [ "$1" = "-vecto" ];	then
 		shift
@@ -82,11 +85,11 @@ done
 # -i : case insensitif
 # -E : c'est une regexp (permettrait d'extraire plus de caractères environnants par ex)
 # -v : élimine les lignes vérifiant le pattern
-echo $ESC_blue 
+echo -e $ESC_blue 
 grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*aaa[^\"]*\"" 
 grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*ppp[^\"]*\"" 
 grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*xxx[^\"]*\"" 
-echo $ESC_normal
+echo -e $ESC_normal
 
 alloptions="$verboseoption $actionoption"
 
@@ -101,11 +104,14 @@ slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
 
+slacheckattr $alloptions "$1" DOCUMENT 	DFONT		"$DFONT"		"DOCUMENT's default font"
+
 slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
 slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
-slacheckattr $alloptions "$1" PDF 		rangeSel 	"$rangeSel"		"PDF for a selection of pages (or for all pages) ?"
-# In case rangeSel is "1", rangeTxt has to be specified in the specific file config
-# slacheckattr $alloptions "$1" PDF 		rangeTxt 	"$rangeSel"		"PDF for a selection of pages (or for all pages) ?"
+
+slacheckattr $alloptions "$1" PDF 		rangeSel 	"$rangeSel"		"PDF selected pages : 1 for a selection of pages / 0 for all pages"
+# In case rangeSel is "1", rangeTxt has to be specified in each document's file config
+# slacheckattr $alloptions "$1" PDF 	rangeTxt 	"$rangeSel"		"PDF for a selection of pages (or for all pages) ?"
 
 slacheckattr $alloptions "$1" PDF		SolidP 		"$RGBprof"		"RGBcolor profile"
 slacheckattr $alloptions "$1" PDF		ImageP 		"$RGBprof"		"RGB color profile"
@@ -139,10 +145,10 @@ slacheckattr $alloptions "$1" PDF	colorMarks		"$colorMarks"	"colorMarks"
 
 # Check Pages attributes
 
-slacheckattr $alloptions -all "$1" PAGE 		PAGEWIDTH	"$pagewidth"	"Largeur de page A5=420.944881889764"
-slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEWIDTH	"$pagewidth"	"Largeur de page A5=420.944881889764"
-slacheckattr $alloptions -all "$1" PAGE 		PAGEHEIGHT	"$pageheight"	"Hauteur de page A5=595.275590551181"
-slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEHEIGHT	"$pageheight"	"Hauteur de page A5=595.275590551181"
+slacheckattr $alloptions -all "$1" PAGE 		PAGEWIDTH	"$PAGEWIDTH"	"Largeur de page A5=420.944881889764"
+slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEWIDTH	"$PAGEWIDTH"	"Largeur de page A5=420.944881889764"
+slacheckattr $alloptions -all "$1" PAGE 		PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
+slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
 
 
 if [ "$checkpagenums" = 'check' ]
@@ -168,7 +174,7 @@ then
 	then
 		datesla=`stat -c %y "$1.sla"`
 		datepdf=`stat -c %y "$1.pdf"`
-		echo "${ESC_warning}Warning :${ESC_normal} $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
+		echo "${ESC_warning}${ESC_normal} $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
 	fi
 
 	if [ ! -f "$1.pdf" ] || [ "$1.sla" -nt "$1.pdf" ]
