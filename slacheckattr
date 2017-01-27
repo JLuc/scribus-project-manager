@@ -8,6 +8,8 @@
 # 
 # todo : update value of an attribute  with slasetattr
 
+. shellcolors
+
 action='donttouchsla'
 
 while [ "$stopoptions" = "" ] 
@@ -54,20 +56,20 @@ done
 
 if [ $# -lt 3 ]
 then 
-	echo "error in slacheckattr : missing document, tag or attribute parameter\(s\). See with -h option first."
+	echo -e "${ESC_error} in slacheckattr : missing document, tag or attribute parameter\(s\). See with -h option first.$ESC_normal"
 	exit
 fi
 
 if  [ "$4" = "" ] && [ "$get" = "" ]
 then 
-	echo "error in slacheckattr : missing value parameter\(s\). See with -h option first."
+	echo -e "${ESC_error} in slacheckattr : missing value parameter\(s\). See with -h option first.$ESC_normal"
 	exit
 fi
 
 #  ext=${filename##*\.} donne l'extension si on voulait gérer $1 "avec ou sans" extension SLA
 if [ ! -f "$1.sla" ]
 then
-	echo "Error in slacheckattr : file \"$3\" doesn't exist"
+	echo -e "${ESC_error} in slacheckattr : file \"$3\" doesn't exist$ESC_normal"
 	exit
 fi
 
@@ -96,7 +98,7 @@ wrong=false
 if [ "$found" = "" ]
 then
 	echo 
-	echo Error \<$2 $3=\"$4\" not found in $1.sla \(xmllint renvoie  `xmllint --xpath "//$2/@$3" $1.sla`\)
+	echo -e "${ESC_error}\<$2 $3=\"$4\" not found in $1.sla \(xmllint renvoie  `xmllint --xpath "//$2/@$3" $1.sla`\)$ESC_normal"
 	exit
 elif [ "$all" = "oui" ]
 then
@@ -107,17 +109,17 @@ then
 		fi
 		if [ $one != $expected ]
 		then 
-			echo "  " $3 NOT OK ! In $1.sla, found \<$2 $one\>
+			echo -e "${ESC_error}$3 NOT OK ! In $1.sla, found \<$2 $one\>$ESC_normal"
 			wrong=true
 		fi
 	done
 	if [ $wrong = "true" ]
 	then
-		echo "      (expected value is $expected)"
+		echo -e "${ESC_error} (expected value is $expected)$ESC_normal"
 	fi
 elif [ "$found" != "$expected" ]
 then
-	echo "  " $3 NOT OK ! In $1.sla, found \<$2 `xmllint --xpath "//$2/@$3" "$1.sla"`\> \(expected value for $3 is $4\)
+	echo -e "${ESC_error}$3 NOT OK ! In $1.sla, found <$2 `xmllint --xpath "//$2/@$3" "$1.sla"`\> (expected value for $3 is $4)$ESC_normal"
 	wrong=true
 fi
 
