@@ -1,13 +1,9 @@
 #!/bin/bash
 
-. shellcolors
-
 # slacheckfonts 
 
-# v0.3 : no more buggy -vecto option
-# v0.2 : tests whether all used fonts are either embeded or subset=vectorized
+. shellcolors
 
-# TODO : detect fonts that are used in unused styles definitions and dont warn about them or with special message.
 
 if [ "$1" = "-?" ] || [ "$1" = "-h" ] || [ "$1" = "" ]
 then
