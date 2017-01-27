@@ -1,7 +1,5 @@
 #!/bin/bash
 # set -x
-# version 2.1 - 8 dec 2014
-# todo : option to detect inline images, option to detect empty image frames
 
 filename=""
 filenameoption="--include=*.sla"
