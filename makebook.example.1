@@ -143,9 +143,8 @@ do
 	
 	if [ "$searched" != '' ]
 	then
-		echo verif nb results $(grep -i "<ITEXT CH=" "$fic.sla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\"")
 		count=`grep -i "<ITEXT CH=" "$fic.sla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""`
-		echo nb results $count
+		echo Search for '$searched' : $count results
 		if [ "$count" != "0" ]
 		then
 			echo $ESC_yellow
