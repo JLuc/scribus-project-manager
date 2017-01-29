@@ -55,7 +55,7 @@ do
 		shift
 		actionoption="$actionoption -set"
 		setrequested="-set"
-		echo "${ESC_warning}${ESC_normal} : SLA file will be altered in case it doesnt fit config"
+		echo -e "${ESC_warning}${ESC_normal} : SLA file will be altered in case it doesnt fit config"
 		stopoptions=''
 	elif [ "$1" = "-vecto" ];	then
 		shift
@@ -67,7 +67,7 @@ do
 		shift
 		checkpagenums='check'
 		if [ "$1" = '' ]; then
-			echo "${ESC_error}Error${ESC_normal} : missing page numer after -pagenum"
+			echo "${ESC_error}Error : missing page numer after -pagenum$ESC_normal"
 			exit;
 		fi
 		pagenumval="$1"
