@@ -84,7 +84,6 @@ done
 
 listepdf=""
 pagenumopt=''
-# new or changed for aranya
 numpagecourant=1
 for fic in $sources
 do 
@@ -143,8 +142,6 @@ if [ "$1" = "-nopdf" ] || [ "$1" = "nopdf" ]
 then
 	exit
 fi
-
-set -x
 
 mv $output.pdf $output.pdf.bak
 
