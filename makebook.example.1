@@ -27,7 +27,11 @@ sourcespattern=1
 # 2 : nomfich stands for filename/PAO/filename(.sla)
 
 # Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
-check='oui'
+
+check='oui'		# '' to not check (only merge chapter pdfs)
+
+searched=''	 	# searched string
+
 ####################################################################
 
 while [ "$stopoptions" = "" ]
@@ -55,6 +59,18 @@ do
 		shift
 		check=''
 		echo "Chapter PDFs will be merged. Other options will be ignored"
+		break
+	fi
+
+	if [ "$1" = "-find" ]
+	then
+		shift
+		if [ "$1" = "" ]
+		then
+			echo "${ESC_error}-find option must have additionnal parameter$ESC_normal"
+			exit
+		fi
+		searched="$1"
 		break
 	fi
 
@@ -119,6 +135,13 @@ do
 	echo
 	echo ====
 	[ "$pagenumopt" != "" ] && echo "${ESC_green}Page $numpagecourant : $fic${ESC_normal}"
+	
+	if [ "$searched" != '' ]
+	then
+		echo $ESC_yellow
+		grep -i "<ITEXT CH=" "$fic.sla" | grep -o -i "\"[^\"]*$searched[^\"]*\"" 
+		echo $ESC_normal
+	fi
 	
 	if [ "$check" = "oui" ] 
 	then
