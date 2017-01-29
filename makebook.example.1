@@ -27,7 +27,7 @@ sourcespattern=1
 # 2 : nomfich stands for filename/PAO/filename(.sla)
 
 # Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
-
+check='oui'
 ####################################################################
 
 while [ "$stopoptions" = "" ]
@@ -45,8 +45,17 @@ do
 		echo "-set : set value to correct value"
 		echo "-pagenum : also checks the first page number  of each doc"
 		echo "-nopagenum : dont check the first page number of each doc"
+		echo "-nocheck : dont check anything, just merge all chapter's pdfs"
 		echo
 		stopoptions=''
+	fi
+
+	if [ "$1" = "-nocheck" ]
+	then
+		shift
+		check=''
+		echo "Ready PDF concat only. Other options ignored"
+		goto 
 	fi
 
 	if [ "$1" = "-set" ]
@@ -75,6 +84,7 @@ done
 
 listepdf=""
 pagenumopt=''
+# new or changed for aranya
 numpagecourant=1
 for fic in $sources
 do 
@@ -110,10 +120,13 @@ do
 	echo
 	echo ====
 	[ "$pagenumopt" != "" ] && echo "${ESC_green}Page $numpagecourant : $fic${ESC_normal}"
-	echo slacheck $vectoopt $setopt $pagenumopt $fic
-	slacheck $vectoopt $setopt $pagenumopt $fic
-
-	echo $fic.sla : checked
+	
+	if [ "$check" = "oui" ] 
+	then
+		echo slacheck $vectoopt $setopt $pagenumopt $fic
+		slacheck $vectoopt $setopt $pagenumopt $fic
+		echo $fic.sla : checked
+	fi
 
 	listepdf="$listepdf $fic.pdf"
 	if [ "$pdfwithimages" = "no" ]
@@ -131,6 +144,7 @@ then
 	exit
 fi
 
+set -x
 
 mv $output.pdf $output.pdf.bak
 
