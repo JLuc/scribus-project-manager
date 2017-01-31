@@ -13,6 +13,7 @@ pagenumval=''
 pdf='create' 		 	# pdf = create : checks pdf exists and is recent and recreate it when not 
 						# pdf = check : only checks
 						# pdf = ignore : neither checks nor (re)creates pdf
+						# pdf = force : (re)create all pdf whether existing or recent or not
 # *********
 
 actionoption='' 	# default : dont change SLAs
