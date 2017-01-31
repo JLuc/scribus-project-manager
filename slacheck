@@ -191,7 +191,7 @@ then
 				mv "$1.pdf" "$1.pdf.bak"
 				if [ -f "$1.pdf" ]
 				then 
-					echo "${ESC_error}$1.pdf couldnt be moved$ESC_normal"
+					echo -e "${ESC_error}$1.pdf couldnt be moved$ESC_normal"
 				fi
 			fi
 			echo "Export to $1.pdf"
