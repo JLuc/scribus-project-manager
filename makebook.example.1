@@ -32,6 +32,9 @@ check='oui'		# '' to not check (only merge chapter pdfs)
 searched=''	 	# searched string
 nbfound=0
 
+nopdf=''
+pdfopt=''
+
 ####################################################################
 
 while [ "$stopoptions" = "" ]
@@ -50,6 +53,8 @@ do
 		echo "-pagenum : also checks the first page number  of each doc"
 		echo "-nopagenum : dont check the first page number of each doc"
 		echo "-nocheck : dont check anything, just merge all chapter's pdfs"
+		echo "-nopdf : dont create nor merge pdfs"
+		echo "-forcepdf : force all pdf (re)creation, even when it exists allready"
 		echo
 		stopoptions=''
 		continue
@@ -81,6 +86,22 @@ do
 		shift
 		setopt='-set'
 		stopoptions=''
+		nopdf='-nopdf'
+		continue
+	fi
+
+	if [ "$1" = "-nopdf" ]
+	then
+		shift
+		nopdf='-nopdf'
+		continue
+	fi
+
+	if [ "$1" = "-forcepdf" ]
+	then
+		shift
+		nopdf=''
+		pdfopt='-forcepdf'
 		continue
 	fi
 
@@ -158,8 +179,8 @@ do
 	
 	if [ "$check" = "oui" ] 
 	then
-		echo slacheck $vectoopt $setopt $pagenumopt $fic
-		slacheck $vectoopt $setopt $pagenumopt $fic
+		echo slacheck $vectoopt $setopt $pagenumopt $pdfopt $fic
+		slacheck $vectoopt $setopt $pagenumopt $pdfopt $fic
 		echo $fic.sla : checked
 	fi
 
@@ -179,13 +200,17 @@ then
 	exit
 fi
 
-mv $output.pdf $output.pdf.bak
 
-# add some special file as a last page cover
-# listepdf="$listepdf separettes/p68-HR.pdf"
+if [ "$nopdf" = "" ]
+then
+	mv $output.pdf $output.pdf.bak
 
-pdftk $listepdf cat output $output.pdf
-[ -f $output.pdf  ] && evince $output.pdf && ls -ltr $output.pdf && echo $output.pdf created OK
+	# add some special file as a last page cover
+	# listepdf="$listepdf separettes/p68-HR.pdf"
+
+	pdftk $listepdf cat output $output.pdf
+	[ -f $output.pdf  ] && evince $output.pdf && ls -ltr $output.pdf && echo $output.pdf created OK
+fi
 
 # création d'une version sans marge (marges enlevées à l'arrache pour l'instant) : un peu utile pour impression un peu plus grand en pleine page
 # pdfcrop --margins '-25 -25 -25 -25' $output.pdf normargin_$output.pdf
