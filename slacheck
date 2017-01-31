@@ -16,7 +16,7 @@
 [ ! -f "./slacheck.config" ] && echo No local config for project, using default
 
 # =====================================================================
-
+verboseoption=''
 setrequested=''
 
 while [ "$stopoptions" = "" ] 
@@ -30,6 +30,7 @@ do
 		echo "-v : verbose output"
 		echo "-pdfignore : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
 		echo "-pdfcheck : check pdf, but dont re-create it in case required"
+		echo "-forcepdf : (re)create pdf even when it exists allready"
 		echo "-notimg : dont check for correct included image files"
 		echo "-set : change the SLA so it conforms to project standards (save in .bak)"
 		echo "-vecto : all fonts must be vectorized - NOT IMPLEMENTED"
@@ -42,6 +43,10 @@ do
 	elif [ "$1" = "-pdfignore" ]; then
 		shift
 		pdf='ignore'
+		stopoptions=''
+	elif [ "$1" = "-forcepdf" ]; then
+		shift
+		pdf='force'
 		stopoptions=''
 	elif [ "$1" = "-pdfcheck" ]; then
 		shift
@@ -88,7 +93,7 @@ done
 echo -e $ESC_blue 
 grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*aaa[^\"]*\"" 
 grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*ppp[^\"]*\"" 
-grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*xxx[^\"]*\"" 
+grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*xxx[^\"]*\""  
 echo -e $ESC_normal
 
 alloptions="$verboseoption $actionoption"
@@ -163,7 +168,7 @@ then
 #	echo "Attributes have been checked. In case there are mistakes you can fix them using -set option"
 fi
 
-if [ "$pdf" = 'check' ] || [ "$pdf" = 'create' ]
+if [ "$pdf" = 'check' ] || [ "$pdf" = 'create' ] || [ "$pdf" = 'force' ]
 then
 	# on vérifie qu'il y a un PDF et qu'il a été généré APRÈS l'édition du SLA
 	# stat -c %y n54.pdf : date de modif de n54.pdf
@@ -177,28 +182,34 @@ then
 		echo -e "${ESC_warning}${ESC_normal} $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
 	fi
 
-	if [ ! -f "$1.pdf" ] || [ "$1.sla" -nt "$1.pdf" ]
+	if [ ! -f "$1.pdf" ] || [ "$1.sla" -nt "$1.pdf" ] || [ "$pdf" = 'force' ]
 	then
-		if [ "$pdf" = 'create' ]
+		if [ "$pdf" = 'create' ] || [ "$pdf" = 'force' ]
 		then
 			if [ -f "$1.pdf" ]
 			then 
-				rm "$1.pdf" 
-				echo "J'efface $1.pdf"
+				mv "$1.pdf" "$1.pdf.bak"
 				if [ -f "$1.pdf" ]
 				then 
-					echo "Erreur $1.pdf n'a pas été effacé"
+					echo "${ESC_error}$1.pdf couldnt be moved$ESC_normal"
 				fi
 			fi
-			echo "je (re)crée $1.pdf"
-			$scribuscommand -g -ns -py `which slatopdf.py` -- $1.sla 2> /dev/null
+			echo "Export to $1.pdf"
+			
+			if [ "$verboseoption" = '' ]
+			then 
+				$scribuscommand -g -ns -py `which slatopdf.py` -- $1.sla 2> /dev/null
+			else
+				echo $scribuscommand -g -ns -py `which slatopdf.py` -- $1.sla 
+				$scribuscommand -g -ns -py `which slatopdf.py` -- $1.sla 
+			fi
+
 			if [ -f "$1.pdf" ]
 			then 
-				echo "OK $1.pdf a bien été recréé"
+				echo "OK $1.pdf"
 			else
-				echo "Erreur : $1.pdf n'a pas été recréé"
+				echo -e "${ESC_error}$1.pdf could not be created$ESC_normal"
 			fi
-			
 		fi
 	fi
 fi
