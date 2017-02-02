@@ -27,6 +27,7 @@ sourcespattern=1
 # 2 : nomfich stands for filename/PAO/filename(.sla)
 
 # Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
+
 check='oui'		# '' to not check (only merge chapter pdfs)
 
 searched=''	 	# searched string
@@ -64,7 +65,7 @@ do
 	then
 		shift
 		check=''
-		echo "Chapter PDFs will be merged. Other options will be ignored"
+		echo "Chapter PDFs will be merged. No check will happen"
 		break
 	fi
 
@@ -77,7 +78,9 @@ do
 			exit
 		fi
 		searched="$1"
-		rm found.tmp
+		rm .found.tmp
+		check=''
+		nopdf='-nopdf'
 		continue
 	fi
 
@@ -168,12 +171,17 @@ do
 		echo Search for '$searched' : $count results
 		if [ "$count" != "0" ]
 		then
+			nbfound=$(( $nbfound+$count ))
+
 			echo $ESC_yellow
 			grep -i "<ITEXT CH=" "$fic.sla" | grep -o -i "\"[^\"]*$searched[^\"]*\""
 			echo $ESC_normal
-			echo $ESC_green$fic.sla$ESC_normal >> found.tmp 
-			grep -i "<ITEXT CH=" "$fic.sla" | grep -o -i "\"[^\"]*$searched[^\"]*\"" >> found.tmp
-			nbfound=$(( $nbfound+$count ))
+			echo $ESC_green$fic.sla$ESC_normal
+			
+			# -n : line number
+			# /dev/null is added so grep believes there is more than one file and outputs the filename
+			grep -ni "<ITEXT CH=\"[^\"]*$searched[^\"]*\"" "$fic.sla" /dev/null | sed -e 's/<ITEXT CH="//' | sed -e 's/"\/>//' >> .found.tmp
+
 		fi	
 	fi
 	
@@ -230,8 +238,6 @@ then
 	echo ${ESC_yellow}Searching \'$searched\' :  $nbfound results found$ESC_normal
 	if [ $nbfound != 0 ]
 	then
-		echo $ESC_yellow
-		cat found.tmp
-		echo $ESC_normal
+		cat .found.tmp
 	fi
 fi
