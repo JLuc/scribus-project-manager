@@ -83,9 +83,9 @@ done
 
 if [ "$verbose" = oui ] || [ "$errored" = "oui" ]
 then
-	echo ${ESC_green}Embeded or subset fonts are :$ESC_normal 
+	echo -e ${ESC_green}Embeded or subset fonts are :$ESC_normal 
 	echo $managed
-	echo ${ESC_green}Used fonts are :$ESC_normal 
+	echo -e ${ESC_green}Used fonts are :$ESC_normal 
 	echo $used
 fi
 
