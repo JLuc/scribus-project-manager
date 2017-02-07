@@ -1,29 +1,36 @@
-A scribus project manager using shell scripts
-=============================================
+A scribus project manager
+=========================
 
-Scribus project management tools with shell bash scripts.
+Scribus project management tools with shell scripts.
 
-**Scribus doesnt provide any project management tools. These shell scripts mainly aim to compensate this.**
+**Scribus doesnt provide any project management tools. These shell scripts mainly aims to compensate this.**
 
 ## What is a Scribus project
 A scribus project is a book or a magazine made out of multiple scribus files.
-Each scribus file is a chapter, an article, a part.
+Each scribus file is a chapter, an article, a part of the book.
 All have to be concatenated to create the whole book.
-All share some common properties like size of pages, styles or color profiles.
+All share some common properties like size of pages, styles or color profiles, but some of the chapters might have specific properties.
 
 ## What does a scribus-project-manager *manage* ?
 A Scribus project manager is a tool that help manage multiple scribus files that are parts of a same project.
 
 Particularly it helps
 * check scribus produced files and PDFs before sending them to the printer.
-* edit SLAs so they conform to the project standard.
-* produce the concatenated PDF.
+  - ensure that required fonts are embeded or subset
+  - ensure that used images are stored in the local `images` file so the project can be safely saved
+  - ensure all page dimensions and properties are conform to some project or chapter related settings
+  - ensure that page numbers follow each other depending on the page number in each chapter
+  - ensure PDF is updated when sla has been edited
+  - ensure backups are created before altering files
+* edit SLAs so they conform to the project standard or to the chapter specifics.
+* produce the concatenated updated PDF.
 
-Some day, it could help to clean styles and share styles or objects accross files (compensate for scribus bugs with styles).
+Some day, it could help clean styles and share styles or objects accross files (compensate for scribus bugs with styles).
 
 ## What is this repository
 
-This repo contains the scripts I use to create the quaterly [Passerelle Eco](http://www.passerelleco.info/) magazine. This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, some parts being very differents. Of course, the scripts can be used for other projects having differents characteristics.
+This repo contains the scripts I use to create the quaterly [Passerelle Eco](http://www.passerelleco.info/) magazine. This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, but some parts being very differents. 
+After creating dedicated config files, the scripts can be used for other projects having differents characteristics.
 
 ### Main tools
 
@@ -32,13 +39,15 @@ This repo contains the scripts I use to create the quaterly [Passerelle Eco](htt
 *   - Optionnaly edit the SLA so it conforms to the defined standard.  
 * **slacheckimages** : checks that the used images are all stored in 'images' subfolder.  
 * **slacheckfonts** : checks that all used fonts are either embeded or subseted.  
-* **makbook** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  
+
+Also :
+* **mak book script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  WARNING : not uptodate but see example with.
 
 ### Lower level scripts
-* **slacheckattr** : checks the value of some xml attribute in the scribus file.  
-* **slasetattr** : set some XML attr in the SLA file to its correct value.  
+* **slacheckattr** : checks the value of some xml attribute in the scribus file
+* **slasetattr** : set some XML attr in the SLA file to its correct value
    - various backup are created : .sla.first.sla, .sla.last.sla and a hiden .filename.sla.tmp.bak  
-* **strtrim** : basic string trim.  
+* **strtrim** : basic string trim
 
 ### Environnement tools
 This project is primarily created and used on Ubuntu 14.04.
@@ -48,6 +57,9 @@ It includes the following tools, that might depend on the OS :
 * **clean_icon** : removes user-added icon on file or folder
 
 These scripts can be made callable via nautilus action's menus.
+
+Also :
+* **shellcolors** : create variables to easily bring colors to console output using escape sequences
 
 ## Configuration data
 
