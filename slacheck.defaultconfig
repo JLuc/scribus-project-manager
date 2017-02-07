@@ -1,29 +1,5 @@
 #!/bin/sh
 
-# *****************************
-# SHELL configs for defaults features
-scribuscommand="scribusok"	# command to choose scribus 1.5 version to be called amongts various possible versions
-                          # can be changed for some of the files configs so as to avoid scribus crashes
-
-checkimg='check'		# check that used images are in images subfolder
-checkfonts='check'		# check that used fonts are either embeded or subset
-vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
-checkpagenums=''		# dont check startpage num
-pagenumval=''
-pdf='create' 		 	# pdf = create : checks pdf exists and is recent and recreate it when not 
-						# pdf = check : only checks
-						# pdf = ignore : neither checks nor (re)creates pdf
-						# pdf = force : (re)create all pdf whether existing or recent or not
-# *********
-
-actionoption='' 	# default : dont change SLAs
-# on peut y mettre "-set" pour ne pas avoir à le passer en ligne de commande
-
-verboseoption=''	# default : not verbose
-# '-v' for verbose
-
-# *****************************
-# *****************************
 # configs relating SLA file attributes
 
 RGBprof=sRGB		# RGB color profile
