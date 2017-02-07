@@ -1,11 +1,12 @@
 #!/bin/sh
-
-. shellcolors
+# doesnt include the cover because printed on thicker paper
+# list of [p_start] chaptername [n_nbpage]
+sources="p_3 aftercover n_2	summary n_4	intro n_14	realstart n_12		maincontent n_50	conclusion n_10"
 
 ####################################################################"
 # Paramétrages
 
-output=mybookexample
+output=aranya
 pdfwithimages=oui
 
 # set to "-vecto" to use "-vecto" version of files and config
@@ -16,19 +17,19 @@ setopt=""
 
 #checkpagenum=''
 checkpagenum='check'
-
-# doesnt include the cover because printed on thicker paper
-# list of [p_start] chaptername [n_nbpage]
-sources="p_3 aftercover n_2	summary n_4	intro n_14	realstart n_12		maincontent n_50	conclusion n_10"
+pagenumwhy='' # reason why start page is set : 'set' or 'computed'echo
 
 sourcespattern=1
 # 0 : no change to filename in sources
 # 1 : nomfich stands for filename/filename(.sla)
 # 2 : nomfich stands for filename/PAO/filename(.sla)
+# end new for aranya
 
 # Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
 
 check='oui'		# '' to not check (only merge chapter pdfs)
+vconfig=''
+vcheck=''
 
 searched=''	 	# searched string
 nbfound=0
@@ -37,6 +38,9 @@ nopdf=''
 pdfopt=''
 
 ####################################################################
+
+reset
+. shellcolors
 
 while [ "$stopoptions" = "" ]
 do
@@ -56,6 +60,8 @@ do
 		echo "-nocheck : dont check anything, just merge all chapter's pdfs"
 		echo "-nopdf : dont create nor merge pdfs"
 		echo "-forcepdf : force all pdf (re)creation, even when it exists allready"
+		echo "-vconfig : verbose output about config files"
+		echo "-vcheck : very verbose output about check"
 		echo
 		stopoptions=''
 		continue
@@ -66,6 +72,20 @@ do
 		shift
 		check=''
 		echo "Chapter PDFs will be merged. No check will happen"
+		break
+	fi
+
+	if [ "$1" = "-vconfig" ]
+	then
+		vconfig=$1
+		shift
+		break
+	fi
+
+	if [ "$1" = "-vcheck" ]
+	then
+		vcheck=$1
+		shift
 		break
 	fi
 
@@ -126,9 +146,11 @@ do
 done
 
 ####################################################################"
+verboseopt="$vconfig $vcheck"
 
 listepdf=""
 pagenumopt=''
+
 numpagecourant=1
 for fic in $sources
 do 
@@ -136,8 +158,8 @@ do
 	then
 		numpagecourant=${fic#p_}
 		pagenumopt="-pagenum $numpagecourant"
-		echo ====
-		echo "Page n° = $numpagecourant"
+		echo "Début page $numpagecourant"
+		pagenumwhy=set
 		continue
 	fi
 
@@ -146,6 +168,7 @@ do
 		numpagecourant=$(( $numpagecourant+${fic#n_} ))
 		pagenumopt="-pagenum $numpagecourant"
 		echo "${fic#n_} pages"
+		pagenumwhy=computed
 		continue
 	fi
 
@@ -156,19 +179,22 @@ do
 	then 
 		fic="$fic/PAO/$fic"
 	fi
-# end changed
 
 	fic="$fic$vecto"
 	[ ! -f $fic.sla ] && echo Error : missing $fic.sla file && exit
 
 	echo
-	echo ====
-	[ "$pagenumopt" != "" ] && echo "${ESC_green}Page $numpagecourant : $fic${ESC_normal}"
-	
+	echo -n $fic
+	[ "$pagenumopt" != "" ] && echo " : page $numpagecourant ($pagenumwhy)"
+	[ "$pagenumopt" = "" ] && echo "${ESC_error}no starting page ?$ESC_normal"
+	pagenumwhy=''
+
 	if [ "$searched" != '' ]
 	then
+		# todo : enlever d'abord les césures avant de chercher $searched
+		# fixme : malgré les -i ça n'a pas l'air case-insensitif (vérifier)
 		count=`grep -i "<ITEXT CH=" "$fic.sla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""`
-		echo Search for '$searched' : $count results
+		echo Search for "$searched" : $count results
 		if [ "$count" != "0" ]
 		then
 			nbfound=$(( $nbfound+$count ))
@@ -187,9 +213,8 @@ do
 	
 	if [ "$check" = "oui" ] 
 	then
-		echo slacheck $vectoopt $setopt $pagenumopt $pdfopt $fic
-		slacheck $vectoopt $setopt $pagenumopt $pdfopt $fic
-		echo $fic.sla : checked
+		# echo slacheck $vectoopt $setopt $pagenumopt $pdfopt $verboseopt $fic
+		slacheck $vectoopt $setopt $pagenumopt $pdfopt $verboseopt $fic
 	fi
 
 	listepdf="$listepdf $fic.pdf"
@@ -235,7 +260,7 @@ fi
 
 if [ "$searched" != '' ]
 then
-	echo ${ESC_yellow}Searching \'$searched\' :  $nbfound results found$ESC_normal
+	echo ${ESC_yellow}Searching \'$searched\' :  $nbfound results found in whole book$ESC_normal
 	if [ $nbfound != 0 ]
 	then
 		cat .found.tmp
