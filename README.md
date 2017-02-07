@@ -16,7 +16,8 @@ A Scribus project manager is a tool that help manage multiple scribus files that
 
 Particularly it helps
 * check scribus produced files and PDFs before sending them to the printer.
-  - ensure that required fonts are embeded or subset
+  - ensure that used fonts are embeded or subset or vectorized
+  - ensure that PDF format related constraints are satisfied (PDF version, color profiles, etc)
   - ensure that used images are stored in the local `images` file so the project can be safely saved
   - ensure all page dimensions and properties are conform to some project or chapter related settings
   - ensure that page numbers follow each other depending on the page number in each chapter
