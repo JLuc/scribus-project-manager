@@ -1,23 +1,41 @@
 #!/bin/bash
 
-# set -x  # for a detailed trace
+# shell memos :
+# 	set -x  # for a detailed trace
+# 	${parameter=default}, ${parameter:=default} # If parameter not set, set it to default.
 
-# note for future updates
-# ${parameter=default}, ${parameter:=default} # If parameter not set, set it to default.
-
-# *****************************
-# configs for defaults features
-
-. slacheck.defaultconfig
 . shellcolors
 
-[ -f "./slacheck.config" ] && . ./slacheck.config
+# *****************************
+# SHELL configs for defaults features
+scribuscommand="scribusok"	# command to choose scribus 1.5 version to be called amongts various possible versions
+						  # can be changed for some of the files configs so as to avoid scribus crashes
 
-[ ! -f "./slacheck.config" ] && echo No local config for project, using default
+checkimg='check'		# check that used images are in images subfolder
+checkfonts='check'		# check that used fonts are either embeded or subset
+vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
+checkpagenums='check'	# do check startpage num
+pdf='create' 		 	# pdf = create : checks pdf exists and is recent and recreate it when not 
+						# pdf = check : only checks
+						# pdf = ignore : neither checks nor (re)creates pdf
+						# pdf = force : (re)create all pdf whether existing or recent or not
+
+actionoption='' 	# default : dont change SLAs
+					# "-set" edit sla so it checks config specs
+
+verboseoption=''	# default : not verbose
+# '-v' for verbose
 
 # =====================================================================
-verboseoption=''
+vcheck=''
+vconfig=''
+pdf=''
+vecto=''
+checkimg=''
 setrequested=''
+actionoption=''
+checkpagenums=''
+pagenumval=''
 
 while [ "$stopoptions" = "" ] 
 do
@@ -27,7 +45,8 @@ do
 		echo "slacheck checks workflow validity of a scribus file"
 		echo "Options :"
 		echo "-? : get this help"
-		echo "-v : verbose output"
+		echo "-vconfig : verbose config output"
+		echo "-vcheck : verbose check output"
 		echo "-pdfignore : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
 		echo "-pdfcheck : check pdf, but dont re-create it in case required"
 		echo "-forcepdf : (re)create pdf even when it exists allready"
@@ -36,9 +55,13 @@ do
 		echo "-vecto : all fonts must be vectorized - NOT IMPLEMENTED"
 		echo "-pagenum PPP : check that section begins at page number PPP"
 		echo
-	elif [ "$1" = "-v" ]; then
+	elif [ "$1" = "-vconfig" ]; then
+		vconfig=$1
 		shift
-		verboseoption='-v'
+		stopoptions=''
+	elif [ "$1" = "-vcheck" ]; then
+		shift
+		vcheck='-v'
 		stopoptions=''
 	elif [ "$1" = "-pdfignore" ]; then
 		shift
@@ -60,7 +83,6 @@ do
 		shift
 		actionoption="$actionoption -set"
 		setrequested="-set"
-		echo -e "${ESC_warning}${ESC_normal} : SLA file will be altered in case it doesnt fit config"
 		stopoptions=''
 	elif [ "$1" = "-vecto" ];	then
 		shift
@@ -81,22 +103,46 @@ do
 	fi
 done
 
-[ ! -f "$1.sla" ] && echo "${ESC_error}Error${ESC_normal} : missing $1.sla file" && exit
+# *****************************
+# config for scribus project manager general default features
 
-[ -f "./$1.config" ] && echo "Loading file config for $1.sla" && . "./$1.config"
+. slacheck.defaultconfig
 
+# *****************************
+# config for project (must be specified... unless project is default project which is unlikely)
+# project config can be either in local or parent folder
+[ -f "./slacheck.config" ] && . ./slacheck.config $vconfig
+[ ! -f "./slacheck.config" ] && [ -f "../slacheck.config" ] && . ../slacheck.config $vconfig
+[ ! -f "./slacheck.config" ] && [ ! -f "../slacheck.config" ] && echo "${ESC_error}Error : No local config for project, using default for $1.sla$ESC_normal"
+
+# *****************************
+# config for chapter file
+
+[ ! -f "$1.sla" ] && echo "${ESC_error}Error : missing $1.sla file${ESC_normal}" && exit
+[ -f "./$1.config" ] && . "./$1.config" $vconfig
+
+# *****************************
 # -H : affiche le nom de fichier
 # -o : n'affiche que la partie matchant le pattern et non toute la ligne
 # -i : case insensitif
 # -E : c'est une regexp (permettrait d'extraire plus de caractères environnants par ex)
 # -v : élimine les lignes vérifiant le pattern
-echo -e $ESC_blue 
-grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*aaa[^\"]*\"" 
-grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*ppp[^\"]*\"" 
-grep -i "<ITEXT CH=" "$1.sla" | grep -o -i "\"[^\"]*xxx[^\"]*\""  
-echo -e $ESC_normal
+grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*aaa[^"]*"'  > .slacheck.comments
+grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*ppp[^"]*"'  >> .slacheck.comments
+grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*xxx[^"]*"'  >> .slacheck.comments
 
-alloptions="$verboseoption $actionoption"
+sizecomments=$(stat -c%s .slacheck.comments)
+if [ sizecomments > 0 ] 
+then
+	# -n : no newline at EOL
+	# -e : manage escape
+	echo -ne $ESC_blue 
+	cat .slacheck.comments
+	rm .slacheck.comments
+	echo -ne $ESC_normal
+fi
+
+alloptions="$vcheck $actionoption"
 
 # As for color profiles, the correct values to be checked are :
 # <DOCUMENT ... DPMo="sRGB" DPPr="ISO Coated v2 300% (ECI)" DPIn="sRGB" DPInCMYK="ISO Coated v2 300% (ECI)" DPIn2="sRGB" DPIn3="ISO Coated v2 300% (ECI)" ...>
@@ -155,9 +201,9 @@ slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEWIDTH	"$PAGEWIDTH"	"Largeur d
 slacheckattr $alloptions -all "$1" PAGE 		PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
 slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
 
-
 if [ "$checkpagenums" = 'check' ]
 then
+	# echo slacheckattr $alloptions "$1" Section	Start 	$pagenumval		"La première page doit être la $pagenumval"
 	slacheckattr $alloptions "$1" Section	Start 	$pagenumval		"La première page doit être la $pagenumval"
 fi
 
@@ -196,7 +242,7 @@ then
 			fi
 			echo "Export to $1.pdf"
 			
-			if [ "$verboseoption" = '' ]
+			if [ "$vcheck" = '' ]
 			then 
 				$scribuscommand -g -ns -py `which slatopdf.py` -- $1.sla 2> /dev/null
 			else
