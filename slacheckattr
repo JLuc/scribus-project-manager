@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# mais quand il y a des options ça décale...
 # echo "$0 $1.sla <$2 $3=$4> ($5)"
 
 #
@@ -75,14 +76,8 @@ fi
 
 # found=`xmllint --xpath "//$2/@$3" "$1.sla" | sed -e 's/^ *//' -e 's/ *$//'`
 found=`xmllint --xpath "//$2/@$3" "$1.sla" | strtrim`
-
-if  [ "$get" = "oui" ]
-then
-	echo $found
-	exit
-fi
-
 expected="$3=\"$4\""
+
 if [ "$verbose" = "oui" ]
 then
 	echo \* In $1.sla, check whether \<$2 $expected
@@ -90,14 +85,9 @@ then
 	echo \* Found : $found
 fi
 
-# echo compare "$found"
-# echo avec... "$3=\"$4\""
-# echo 
-
 wrong=false
 if [ "$found" = "" ]
 then
-	echo 
 	echo -e "${ESC_error}\<$2 $3=\"$4\" not found in $1.sla \(xmllint renvoie  `xmllint --xpath "//$2/@$3" $1.sla`\)$ESC_normal"
 	exit
 elif [ "$all" = "oui" ]
@@ -110,7 +100,7 @@ then
 		if [ $one != $expected ]
 		then 
 			echo -e "${ESC_error}$3 NOT OK ! In $1.sla, found \<$2 $one\>$ESC_normal"
-			wrong=true
+			wrong="true"
 		fi
 	done
 	if [ $wrong = "true" ]
@@ -125,5 +115,6 @@ fi
 
 if [ "$action" = "-set" -a "$wrong" = "true" ]
 then
-	slasetattr "$1" $2 $3 "$4"
+	echo -e "${ESC_warning}SLA file will be altered so it checks config${ESC_normal}"
+	slasetattr "$1" "$2" "$3" "$4"
 fi
