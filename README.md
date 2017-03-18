@@ -92,19 +92,21 @@ The set of files is described in a string made out of all filenames.
 
 Simple example : 
 ```
-# 5 files project
+# 5 files project, no sourcing pattern
 sources="CoverBegin		Inside/Summary  Inside/InsidePages		Ads/Adverts  CoverEnd"
 sourcespattern=0
 ```
 
 Example where all SLA files are stored in filename/filename.sla :
 ```
+# 5 files project, basic sourcing pattern where the chapter SLA are each at the root of their chapter folder
 sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
 sourcespattern=1
 ```
 
 Example where all SLA files are stored in filename/PAO/filename.sla, so other subfolders exist in filename/ :
 ```
+# more complex store pattern where SLA files are in PAO subfolder of each chapter folder
 sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
 sourcespattern=2
 ```
@@ -136,6 +138,15 @@ it checks that all used images are stored into the local images/ folder
 
 slacheck checks that the fonts are either embeded or subset
 An option also exists also to use vectorized versions of the PDFs
+
+## Searching text in whole book
+
+* `-find "un texte"` searches string in textes of all chapters
+- `-xmlfind "CNAME='mystyle'" searches string in the whole XML of all chapters (technical uses only)
+
+## Other options
+
+Try `-?` option for each tool so as to see main options. Mainly makbook example  (to be split in 2 files : makbook and project.config)
 
 ## could be done
 
