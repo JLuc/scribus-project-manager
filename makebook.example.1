@@ -7,6 +7,7 @@ sources="p_3 aftercover n_2	summary n_4	intro n_14	realstart n_12		maincontent n
 # Paramétrages
 
 output=mybook
+
 pdfwithimages=oui
 
 # set to "-vecto" to use "-vecto" version of files and config
@@ -32,6 +33,7 @@ vconfig=''
 vcheck=''
 
 searched=''	 	# searched string
+xmlsearched=''	# xml searched string
 nbfound=0
 
 nopdf=''
@@ -53,18 +55,20 @@ do
 		echo 
 		echo "Options :"
 		echo "-? : get this help"
-		echo "-vecto : uses -vecto version of each file (sla and pdf)"
 		echo "-set : set value to correct value"
 		echo "-pagenum : also checks the first page number  of each doc"
 		echo "-nopagenum : dont check the first page number of each doc"
 		echo "-nocheck : dont check anything, just merge all chapter's pdfs"
-		echo "-nopdf : dont create nor merge pdfs"
+		echo "-nopdf : dont create nor merge pdfs (only checks)"
 		echo "-forcepdf : force all pdf (re)creation, even when it exists allready"
 		echo "-vconfig : verbose output about config files"
 		echo "-vcheck : very verbose output about check"
+		echo '-find "word or phrase" : find occurences in all chapters text'
+		echo '-xmlfind "string" : find occurences of string in all chapters SLA file (text + xml tags)'
+		echo "beta :"
+		echo "-vecto : uses -vecto version of each file (sla and pdf)"
 		echo
-		stopoptions=''
-		continue
+		exit
 	fi
 
 	if [ "$1" = "-nocheck" ]
@@ -98,6 +102,21 @@ do
 			exit
 		fi
 		searched="$1"
+		rm .found.tmp
+		check=''
+		nopdf='-nopdf'
+		continue
+	fi
+
+	if [ "$1" = "-xmlfind" ]
+	then
+		shift
+		if [ "$1" = "" ]
+		then
+			echo "${ESC_error}-xmlfind option must have additionnal parameter$ESC_normal"
+			exit
+		fi
+		xmlsearched="$1"
 		rm .found.tmp
 		check=''
 		nopdf='-nopdf'
@@ -200,13 +219,32 @@ do
 			nbfound=$(( $nbfound+$count ))
 
 			echo $ESC_yellow
-			grep -i "<ITEXT CH=" "$fic.sla" | grep -o -i "\"[^\"]*$searched[^\"]*\""
+			grep -ni "<ITEXT CH=" "$fic.sla" | grep -i "\"[^\"]*$searched[^\"]*\"" | sed -e 's/<ITEXT CH="//' | sed -e 's/"\/>//'
 			echo $ESC_normal
-			echo $ESC_green$fic.sla$ESC_normal
 			
 			# -n : line number
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
 			grep -ni "<ITEXT CH=\"[^\"]*$searched[^\"]*\"" "$fic.sla" /dev/null | sed -e 's/<ITEXT CH="//' | sed -e 's/"\/>//' >> .found.tmp
+
+		fi	
+	fi
+	
+	if [ "$xmlsearched" != '' ]
+	then
+		# fixme : malgré les -i ça n'a pas l'air case-insensitif (vérifier)
+		count=`grep -c -o -i "$xmlsearched" "$fic.sla"`
+		echo Search for "$xmlsearched" : $count results
+		if [ "$count" != "0" ]
+		then
+			nbfound=$(( $nbfound+$count ))
+
+			echo $ESC_yellow
+			grep -ni "$xmlsearched" "$fic.sla"
+			echo $ESC_normal
+			
+			# -n : line number
+			# /dev/null is added so grep believes there is more than one file and outputs the filename
+			grep -ni "$xmlsearched" "$fic.sla" /dev/null >> .found.tmp
 
 		fi	
 	fi
@@ -224,10 +262,6 @@ do
 	fi
 done
 
-if [ "$1" = "-test" ] || [ "$1" = "-t" ]
-	then 	exit
-fi
-
 if [ "$1" = "-nopdf" ] || [ "$1" = "nopdf" ]
 then
 	exit
@@ -242,7 +276,12 @@ then
 	# listepdf="$listepdf separettes/p68-HR.pdf"
 
 	pdftk $listepdf cat output $output.pdf
-	[ -f $output.pdf  ] && evince $output.pdf && ls -ltr $output.pdf && echo $output.pdf created OK
+	if [ -f $output.pdf  ] 
+	then
+		ls -ltr $output.pdf 
+		echo $output.pdf created OK  
+		evince $output.pdf &
+	fi
 fi
 
 # création d'une version sans marge (marges enlevées à l'arrache pour l'instant) : un peu utile pour impression un peu plus grand en pleine page
@@ -258,9 +297,11 @@ then
 	done
 fi
 
-if [ "$searched" != '' ]
+if [ "$searched$xmlsearched" != '' ]
 then
-	echo ${ESC_yellow}Searching \'$searched\' :  $nbfound results found in whole book$ESC_normal
+	echo Done
+	echo 
+	echo ${ESC_yellow}Searching \'$searched$xmlsearched\' :  $nbfound results found in whole book$ESC_normal
 	if [ $nbfound != 0 ]
 	then
 		cat .found.tmp
