@@ -141,8 +141,11 @@ An option also exists also to use vectorized versions of the PDFs
 
 ## Searching text in whole book
 
-* `-find "un texte"` searches string in textes of all chapters
+* `-find "a string"` searches string in textes of all chapters
 - `-xmlfind "CNAME='mystyle'" searches string in the whole XML of all chapters (technical uses only)
+
+The example makbook script takes care of deleting all conditional hyphens before performing the search (and also the xmlsearch)
+Results are displayed and also stored in the .found.tmp file
 
 ## Other options
 
