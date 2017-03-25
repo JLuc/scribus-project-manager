@@ -93,6 +93,11 @@ do
 		break
 	fi
 
+	if [ -f .found.tmp ]
+	then
+		rm .found.tmp
+	fi
+
 	if [ "$1" = "-find" ]
 	then
 		shift
@@ -102,7 +107,6 @@ do
 			exit
 		fi
 		searched="$1"
-		rm .found.tmp
 		check=''
 		nopdf='-nopdf'
 		continue
@@ -117,7 +121,6 @@ do
 			exit
 		fi
 		xmlsearched="$1"
-		rm .found.tmp
 		check=''
 		nopdf='-nopdf'
 		continue
@@ -313,6 +316,5 @@ then
 	if [ $nbfound != 0 ]
 	then
 		cat .found.tmp
-		rm .found.tmp
 	fi
 fi
