@@ -214,44 +214,47 @@ do
 		# césures conditionnelles = caractère Unicode U+00AD
 		# http://stackoverflow.com/questions/8562354/remove-unicode-characters-from-textfiles-sed-other-bash-shell-methods
 		# La commande `echo -ne '\u00AD' | xxd` donne c2ad qu'il faut utiliser avec \x dans `sed 's/...'` = 
-		sed -e 's/\xc2\xad//g' "$fic.sla" > .cleansla.tmp
+		cleansla="$fic.clean.sla"
+		sed -e 's/\xc2\xad//g' "$fic.sla" > "$cleansla"
 	fi
 
 	if [ "$searched" != '' ]
 	then
-		count=`grep -i "<ITEXT[^>]*CH=" .cleansla.tmp | grep -c -o -i "\"[^\"]*$searched[^\"]*\""`
+		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""`
 		echo Search for "$searched" : $count results
 		if [ "$count" != "0" ]
 		then
 			nbfound=$(( $nbfound+$count ))
 
 			echo $ESC_yellow
-			grep -ni "<ITEXT[^>]*CH=" .cleansla.tmp | grep -i "\"[^\"]*$searched[^\"]*\"" | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//'
+			grep -ni "<ITEXT[^>]*CH=" "$cleansla" | grep -i "\"[^\"]*$searched[^\"]*\"" | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//'
 			echo $ESC_normal
 			
 			# -n : line number
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
-			grep -ni "<ITEXT[^>]*CH=\"[^\"]*$searched[^\"]*\"" .cleansla.tmp /dev/null | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//' >> .found.tmp
+			grep -ni "<ITEXT[^>]*CH=\"[^\"]*$searched[^\"]*\"" "$cleansla" /dev/null | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//' >> .found.tmp
 		fi
+		rm $cleansla
 	fi
 	
 	if [ "$xmlsearched" != '' ]
 	then
 		# fixme : malgré les -i ça n'a pas l'air case-insensitif (vérifier)
-		count=`grep -c -o -i "$xmlsearched" .cleansla.tmp`
+		count=`grep -c -o -i "$xmlsearched" "$cleansla"`
 		echo Search for "$xmlsearched" : $count results
 		if [ "$count" != "0" ]
 		then
 			nbfound=$(( $nbfound+$count ))
 
 			echo $ESC_yellow
-			grep -ni "$xmlsearched" .cleansla.tmp
+			grep -ni "$xmlsearched" "$cleansla"
 			echo $ESC_normal
 			
 			# -n : line number
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
-			grep -ni "$xmlsearched" .cleansla.tmp /dev/null >> .found.tmp
-		fi	
+			grep -ni "$xmlsearched" "$cleansla" /dev/null >> .found.tmp
+		fi
+		rm $cleansla
 	fi
 	
 	if [ "$check" = "oui" ] 
@@ -310,5 +313,6 @@ then
 	if [ $nbfound != 0 ]
 	then
 		cat .found.tmp
+		rm .found.tmp
 	fi
 fi
