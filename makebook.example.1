@@ -51,7 +51,7 @@ do
 	if  [ "$1" = '-?' ]
 	then
 		echo "mak makes the global PDF"
-		echo "due to inline config, name of produced PDF is $output.pdf"
+		echo "Due to inline config, name of produced PDF is $output.pdf"
 		echo 
 		echo "Options :"
 		echo "-? : get this help"
@@ -63,8 +63,10 @@ do
 		echo "-forcepdf : force all pdf (re)creation, even when it exists allready"
 		echo "-vconfig : verbose output about config files"
 		echo "-vcheck : very verbose output about check"
-		echo '-find "word or phrase" : find occurences in all chapters text'
-		echo '-xmlfind "string" : find occurences of string in all chapters SLA file (text + xml tags)'
+		echo '-find "word1 or phrase1" : find occurences in all chapters text'
+		echo '-xmlfind "string1" : find occurences of string in all chapters SLA file (text + xml tags)'
+		echo '-replace "string2" : replace found occurences with specified string2. (with -xmlfind only. with -find still to do)'
+		echo '-checkcolorall : check for (bad) uses of "All" named color'
 		echo "beta :"
 		echo "-vecto : uses -vecto version of each file (sla and pdf)"
 		echo
@@ -109,6 +111,8 @@ do
 		searched="$1"
 		check=''
 		nopdf='-nopdf'
+		stopoptions=''
+		shift
 		continue
 	fi
 
@@ -123,6 +127,39 @@ do
 		xmlsearched="$1"
 		check=''
 		nopdf='-nopdf'
+		stopoptions=''
+		shift
+		continue
+	fi
+
+	if [ "$1" = '-checkcolorall' ]
+	then
+		checkcolorall='yes'
+		xmlsearched="COLOR=\"All\""
+		check=''
+		nopdf='-nopdf'
+		stopoptions=''
+		shift
+		continue
+	fi
+
+	if [ "$1" = "-replace" ]
+	then
+		if [ "$xmlsearched" = "" ] && [ "$searched" = "" ]
+		then 
+			echo "${ESC_error}-replace option must follow some -xmlfind or -find option. No such options found here.$ESC_normal"
+			exit
+		fi
+		shift
+		if [ "$1" = "" ]
+		then
+			echo "${ESC_error}-replace option must have additionnal parameter$ESC_normal"
+			exit
+		fi
+		replaced="$1"
+		shift
+		echo "Replace all found strings with '$replaced'"
+		stopoptions=''
 		continue
 	fi
 
@@ -165,6 +202,7 @@ do
 		stopoptions=''
 		continue
 	fi
+	
 done
 
 ####################################################################"
@@ -242,7 +280,7 @@ do
 	
 	if [ "$xmlsearched" != '' ]
 	then
-		# fixme : malgré les -i ça n'a pas l'air case-insensitif (vérifier)
+		# FIXME ? : malgré les -i ça n'a pas l'air case-insensitif
 		count=`grep -c -o -i "$xmlsearched" "$cleansla"`
 		echo Search for "$xmlsearched" : $count results
 		if [ "$count" != "0" ]
@@ -256,6 +294,20 @@ do
 			# -n : line number
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
 			grep -ni "$xmlsearched" "$cleansla" /dev/null >> .found.tmp
+			
+			echo "replaced=$replaced"
+			if [ "$replaced" != '' ]
+			then
+				if [ -f "$fic.before_replace.sla" ]
+				then
+					echo "$fic.before_replace.sla allready exists : moved as .bak"
+					mv "$fic.before_replace.sla" "$fic.before_replace.sla.bak"
+				fi
+				cp "$fic.sla" "$fic.before_replace.sla"
+				echo $fic.sla is saved into $fic.before_replace.sla
+				echo $xmlsearched is replaced with $replaced in $fic.sla 
+				sed -i -- "s/$xmlsearched/$replaced/g" "$fic.sla"
+			fi
 		fi
 		rm $cleansla
 	fi
@@ -315,6 +367,10 @@ then
 	echo ${ESC_yellow}Searching \'$searched$xmlsearched\' :  $nbfound results found in whole book$ESC_normal
 	if [ $nbfound != 0 ]
 	then
+		if [ "$checkcolorall" != '' ]
+		then
+			echo "${ESC_error}Some (bad) uses of COLOR=\"All\" have been found !$ESC_normal"
+		fi
 		cat .found.tmp
 	fi
 fi
