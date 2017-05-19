@@ -83,12 +83,19 @@ So as to set the SLA parameters to the project specified values, use the -set op
 
 ## Set of files composing the project ##
 
-The set of files is described in a string made out of all filenames.
+The set of files is described in a string made out of all filenames in their appearing order.  
 
-3 possible standard organisation of files in the project folder are proposed and make project description more easy :
+As easy as :
+`sources = "filename1 filename2 ... lastfilename"`
+
+Rq : The `.sla` extension, being a constant of a scribus filename, must be omited.
+
+Since each chapter SLA file is usually the end result of a work requiring more documents, images, files, it may requires a whole folder to store these documents, and the SLA file is only one of them.
+
+So as to accomodate this, 3 possible standard organisation of files in the project folder are proposed and make project description more easy :
 * 0 : no change to filename in sources
-* 1 : nomfich stands for filename/filename(.sla)
-* 2 : nomfich stands for filename/PAO/filename(.sla)
+* 1 : filename stands for filename/filename(.sla)
+* 2 : filename stands for filename/PAO/filename(.sla)
 
 Simple example : 
 ```
@@ -110,6 +117,23 @@ Example where all SLA files are stored in filename/PAO/filename.sla, so other su
 sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
 sourcespattern=2
 ```
+
+Page number specifications can also be embeded in this source spec. See later.
+
+
+# Running
+
+The `makbook` script does run `slacheck` on each file of the source and performs various tests and actions, depending on the command line or config files options.
+
+* Default : 
+  - it does test whether files and project conforms to the standards described in the config files : color management, image file storage, etc
+  - when page numbers are specified in the source, it tests whether the globaly produced PDF conforms with these pages specs.
+  - it updates the PDF when they are out of dates compared to their SLA origin. This ensure the produced concatenated PDF is up to date.
+  - it concatenates all chapter's PDF into a big PDF.
+
+* with `-set` option, it edits the SLA so it conforms to the specified config. When doing so, it doesn not update the PDFs. A later call without `-set` option will produce the updated PDFs.
+
+
 ## Page numbering ##
 
 The project can check and set the correct numberging of pages in each file of the project.
@@ -131,7 +155,7 @@ It's possible to avoid this automatic behaviour using -pdfignore or -pdfcheck op
 - -pdfignore : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
 - -pdfcheck : check pdf, but dont re-create it in case required"
 
-## Ensuring project sanity and safety ##
+## Ensuring project long term safety and portability ##
 
 slacheck checks that the project has been correctly collected for output : 
 it checks that all used images are stored into the local images/ folder
@@ -151,11 +175,14 @@ Results are displayed and also stored in the .found.tmp file
 
 Try `-?` option for each tool so as to see main options. Mainly makbook example  (to be split in 2 files : makbook and project.config)
 
+#Other
+
 ## could be done
 
-Next step :
-* Create separated config files for the list of files included in the project so as to release a generic makebook script (easy !)
- 
+Next steps :
+* Create separated config files for the list of files included in the project so as to release a generic makebook script
+* Create as a dedicated C++ app
+
 Other usefull features :
 * import or overwrite some specific style in all parts of the project
 * use one of the document as the `masterdocument` and use it for smart synchronization for
@@ -164,8 +191,7 @@ Other usefull features :
 * optionnaly state that some attribut should remain unchanged when using -set option
 
 Other not so usefull features :
-* smart merge of SLAs (manage styles, masterpages and other conflicts) (usefull since merge of SLA is one of scribus Most Annoying Bug, but complex and not so usefull with this project manager)
-
+* smart merge of SLAs (manage styles, masterpages and other conflicts) (usefull since merge of SLA is one of scribus Most Annoying Bug, but complex and not so usefull with the help of this project manager)
 
 ## Rules when proposing a script or push request for this repo
 * name of the script should be self-understandable and should give hints as what the script does
