@@ -133,6 +133,7 @@ The `makbook` script does run `slacheck` on each file of the source and performs
 
 * with `-set` option, it edits the SLA so it conforms to the specified config. When doing so, it doesn not update the PDFs. A later call without `-set` option will produce the updated PDFs.
 
+* Other options ... provide more options ! just ask with `-?`
 
 ## Page numbering ##
 
