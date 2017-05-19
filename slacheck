@@ -29,12 +29,8 @@ verboseoption=''	# default : not verbose
 # =====================================================================
 vcheck=''
 vconfig=''
-pdf=''
-vecto=''
-checkimg=''
 setrequested=''
 actionoption=''
-checkpagenums=''
 pagenumval=''
 
 while [ "$stopoptions" = "" ] 
@@ -88,13 +84,13 @@ do
 		shift
 		vecto="-vecto"
 		stopoptions=''
-		echo "${ESC_error}Error${ESC_normal} : -vecto option IS NOT IMPLEMENTED"
+		echo -e "${ESC_error} -vecto option IS NOT IMPLEMENTED$ESC_normal"
 		exit
 	elif [ "$1" = "-pagenum" ]; then
 		shift
 		checkpagenums='check'
 		if [ "$1" = '' ]; then
-			echo "${ESC_error}Error : missing page numer after -pagenum$ESC_normal"
+			echo -e "${ESC_error} missing page numer after -pagenum$ESC_normal"
 			exit;
 		fi
 		pagenumval="$1"
@@ -113,12 +109,12 @@ done
 # project config can be either in local or parent folder
 [ -f "./slacheck.config" ] && . ./slacheck.config $vconfig
 [ ! -f "./slacheck.config" ] && [ -f "../slacheck.config" ] && . ../slacheck.config $vconfig
-[ ! -f "./slacheck.config" ] && [ ! -f "../slacheck.config" ] && echo "${ESC_error}Error : No local config for project, using default for $1.sla$ESC_normal"
+[ ! -f "./slacheck.config" ] && [ ! -f "../slacheck.config" ] && echo -e "${ESC_warning} No local config for project, using default for $1.sla$ESC_normal"
 
 # *****************************
 # config for chapter file
 
-[ ! -f "$1.sla" ] && echo "${ESC_error}Error : missing $1.sla file${ESC_normal}" && exit
+[ ! -f "$1.sla" ] && echo -e "${ESC_error} missing $1.sla file${ESC_normal}" && exit
 [ -f "./$1.config" ] && . "./$1.config" $vconfig
 
 # *****************************
