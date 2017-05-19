@@ -37,7 +37,7 @@ docInfoMarks=0
 # All pages should be :
 PAGEWIDTH="420.944881889764"
 PAGEHEIGHT="595.275590551181"
-DFONT="(no Document default font specified !)" # DFONT *HAS* to be specified in project config
+DFONT="Liberation Sans Regular" # no font is 100% perfect default DFONT, but this is better than none
 
 # config for preflight checker
 # NOT OK - not used
