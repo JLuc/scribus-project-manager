@@ -23,8 +23,7 @@ Some day, it could help to clean styles and share styles or objects accross file
 
 ## What is this repo
 
-This repo contains the scripts i use to create the quaterly Passerelle Eco magazine.
-This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, some parts being very differents.
+This repo contains the scripts i use to create the quaterly Passerelle Eco magazine. This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, some parts being very differents. Of course, the scripts can be used for other projects having differents characteristics.
 
 ### Main tools
 
@@ -36,13 +35,17 @@ This magazine is made of 8 to 20 parts with same page size, sharing lots of comm
 ### Lower level scripts
 * slacheckattr : checks the value of some xml attribute in the scribus file
 * slasetattr : set some XML attr in the SLA file to its correct value
+   - various backup are created : .sla.first.sla, .sla.last.sla and a hiden .filename.sla.tmp.bak
 * strtrim : basic string trim
 
 ### Environnement tools
-This project is primarily created and used on Ubuntu 14.04
+This project is primarily created and used on Ubuntu 14.04.
+
 It includes the following tools, that might depend on the OS :
 * sla_icon : adds specific icon on SLA file(s) for nautilus view
 * clean_icon : removes user-added icon on file or folder
+
+These scripts can be made callable via nautilus action's menus.
 
 ## Configuration data
 
@@ -60,13 +63,15 @@ Blocking release :
  - the list of files included in the project. This will enable to release a generic makbook script.
 
 Other usefull features :
-* automatically updates starting page-numbers for all documents in project
+* automatically updates starting page-numbers for all documents in project (WIP)
 * optionnaly state that some attribut should remain unchanged when using -set option
-* smart sync of masterdocument's styles toward project files
+* add masterdocument + smart sync of masterdocument's styles toward (some) project files
 * smart merge of SLAs (manage styles, masterpages and other conflicts)
 * more attributes checked in slacheck : which ?
 
-## Rules when proposiing a script for this repo
+## Rules when proposing a script or push request for this repo
 * name of the script should be self-understandable and should give hints as what the script does
 * you should provide a detailed description of the intent, required conditions and action of the script, as comments at the script's begining
+* same for the push requests
 * scripts should provide help on how to use them (-h option)
+

@@ -1,0 +1,37 @@
+# mak56 calls slacheck on each SLA file of the project
+# Some have bad settings !
+
+./mak56
+Quality NOT OK ! In couv/couv.sla, found <PDF Quality="0"> (expected value for Quality is 1)
+In couv/couv.sla, image has source file outside /images : ../../../../REVUES/Passerelle 55/PAO/couv/images/ALT PICTO 1600 TRANSPROGRESSIF.png
+couv/couv.sla : checked
+TDLserrabone/PAO/TDLserrabone.sla : checked
+DPIn NOT OK ! In PA56/PA56.sla, found <DOCUMENT DPIn="sRGB IEC61966-2.1"> (expected value for DPIn is sRGB)
+DPIn2 NOT OK ! In PA56/PA56.sla, found <DOCUMENT DPIn2="sRGB IEC61966-2.1"> (expected value for DPIn2 is sRGB)
+DPPr NOT OK ! In PA56/PA56.sla, found <DOCUMENT DPPr="Fogra27L CMYK Coated Press"> (expected value for DPPr is ISO Coated v2 300% (ECI))
+DPInCMYK NOT OK ! In PA56/PA56.sla, found <DOCUMENT DPInCMYK="Fogra27L CMYK Coated Press"> (expected value for DPInCMYK is ISO Coated v2 300% (ECI))
+DPIn3 NOT OK ! In PA56/PA56.sla, found <DOCUMENT DPIn3="Fogra27L CMYK Coated Press"> (expected value for DPIn3 is ISO Coated v2 300% (ECI))
+SolidP NOT OK ! In PA56/PA56.sla, found <PDF SolidP="sRGB IEC61966-2.1"> (expected value for SolidP is sRGB)
+ImageP NOT OK ! In PA56/PA56.sla, found <PDF ImageP="sRGB IEC61966-2.1"> (expected value for ImageP is sRGB)
+PrintP NOT OK ! In PA56/PA56.sla, found <PDF PrintP="Fogra27L CMYK Coated Press"> (expected value for PrintP is ISO Coated v2 300% (ECI))
+RecalcPic NOT OK ! In PA56/PA56.sla, found <PDF RecalcPic="0"> (expected value for RecalcPic is 1)
+CMethod NOT OK ! In PA56/PA56.sla, found <PDF CMethod="0"> (expected value for CMethod is 1)
+Quality NOT OK ! In PA56/PA56.sla, found <PDF Quality="0"> (expected value for Quality is 1)
+EmbedPDF NOT OK ! In PA56/PA56.sla, found <PDF EmbedPDF="0"> (expected value for EmbedPDF is 1)
+Version NOT OK ! In PA56/PA56.sla, found <PDF Version="13"> (expected value for Version is 15)
+BTop NOT OK ! In PA56/PA56.sla, found <PDF BTop="0"> (expected value for BTop is 14.1732283464567)
+BRight NOT OK ! In PA56/PA56.sla, found <PDF BRight="0"> (expected value for BRight is 14.1732283464567)
+BBottom NOT OK ! In PA56/PA56.sla, found <PDF BBottom="0"> (expected value for BBottom is 14.1732283464567)
+cropMarks NOT OK ! In PA56/PA56.sla, found <PDF cropMarks="0"> (expected value for cropMarks is 1)
+markLength NOT OK ! In PA56/PA56.sla, found <PDF markLength="0"> (expected value for markLength is 8.50393700787402)
+markOffset NOT OK ! In PA56/PA56.sla, found <PDF markOffset="0"> (expected value for markOffset is 8.50393700787402)
+   PAGEWIDTH NOT OK ! In PA56/PA56.sla, found <PAGE PAGEWIDTH="419.527559055118"> (expected value for PAGEWIDTH is PAGEWIDTH="420.944881889764")
+   PAGEWIDTH NOT OK ! In PA56/PA56.sla, found <PAGE PAGEWIDTH="419.527559055118"> (expected value for PAGEWIDTH is PAGEWIDTH="420.944881889764")
+   PAGEWIDTH NOT OK ! In PA56/PA56.sla, found <PAGE PAGEWIDTH="419.527559055118"> (expected value for PAGEWIDTH is PAGEWIDTH="420.944881889764")
+   PAGEWIDTH NOT OK ! In PA56/PA56.sla, found <PAGE PAGEWIDTH="419.527559055118"> (expected value for PAGEWIDTH is PAGEWIDTH="420.944881889764")
+PA56/PA56.sla : checked
+Warning : 6chapeaux/6chapeaux.sla has been edited and saved later than last PDF output : 6chapeaux/6chapeaux.sla = 2015-04-09 12:05 ; 6chapeaux/6chapeaux.pdf = 2015-04-09 12:02
+6chapeaux/6chapeaux.sla : checked
+cendres/cendres.sla : checked
+painlegumes/painlegumes.sla : checked
+pateveget/pateveget.sla : checked

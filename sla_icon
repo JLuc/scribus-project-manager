@@ -11,5 +11,5 @@ then
 	cd "$1"
 	sla_icon
 else
-	echo "S'il y a un argument, ce doit être un fichier existant ou un répertoire existant"
+	echo "Dont specify any parameter or parameter has to be existing file or folder"
 fi
