@@ -176,7 +176,8 @@ slacheckattr $alloptions "$1" PDF		Quality		"$Quality"		"Qualité de la compress
 slacheckattr $alloptions "$1" PDF		EmbedPDF	"$EmbedPDF"		"Embed PDFs"
 slacheckattr $alloptions "$1" PDF		Version		"$PDFversion"	"Version PDF - eg 15 for 1.5"
 
-slacheckattr $alloptions "$1" PDF	useDocBleeds 	"$useDocBleeds"	"Utiliser le fond perdu du document"
+slacheckattr $alloptions "$1" PDF	docInfoMarks 	"$docInfoMarks"		"Nom du fichier et date (+ agrandit les bleeds)"
+slacheckattr $alloptions "$1" PDF	useDocBleeds 	"$useDocBleeds"		"Utiliser le fond perdu du document"
 slacheckattr $alloptions "$1" PDF		BTop		"$BTop"			"Fond perdu en haut"
 slacheckattr $alloptions "$1" PDF		BLeft		"$BLeft"		"Fond perdu intérieur (mais indiqué Left ?)"
 slacheckattr $alloptions "$1" PDF		BRight		"$BRight"		"Fond perdu extérieur (mais indiqué Right ?)"
