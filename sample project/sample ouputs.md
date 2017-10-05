@@ -169,3 +169,24 @@ Set //DOCUMENT/@DFONT to Montserrat Light in patterns/PAO/patterns.sla
 2 pages
 Début page 69
 ```
+
+With `-set` option, .SLA files are edited and fixed, but the PDF are not updated.
+We ought to call `makbook` to do so and get new report.
+
+```
+Début page 1
+
+couv/PAO/couv : page 1 (set)
+Warning :  couv/PAO/couv.sla has been edited and saved later than last PDF output : couv/PAO/couv.sla = 2017-10-05 05:16 ; couv/PAO/couv.pdf = 2017-10-05 05:00
+Export to couv/PAO/couv.pdf
+OK couv/PAO/couv.pdf
+Début page 4
+
+rdevolution/PAO/rdevolution : page 4 (set)
+Warning :  rdevolution/PAO/rdevolution.sla has been edited and saved later than last PDF output : rdevolution/PAO/rdevolution.sla = 2017-10-05 05:16 ; rdevolution/PAO/rdevolution.pdf = 2017-10-05 05:01
+Export to rdevolution/PAO/rdevolution.pdf
+OK rdevolution/PAO/rdevolution.pdf
+4 pages
+
+...etc...
+```
