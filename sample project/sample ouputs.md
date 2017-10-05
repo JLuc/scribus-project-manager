@@ -4,6 +4,15 @@ Sample output at some point in the unfinished workflow.
 In this project,
 `sources="p_1 couv p_4 rdevolution n_4 grafterre n_6 p_14 PA n_32 equivalence n_6 photovoltaique n_8 peindre n_7 patterns n_2 p_69"`
 
+This variable describes the chapter of the project :
+- first chapter named `couv` starts at page 1
+- 2nd chapter is named `rdevolution`, starts at page 4 and has 4 pages
+- 3d chapter is named `grafterre` and has 6 pages
+- 4th chapter is named `PA`, starts at page 14 and has 32 pages 
+- etc
+- the last `p_69` is not followed with a chapter name : it enables to check that the first available page (after the last of the book) would be p69. 
+All these pages # thing is to enable the project manager to check chapter sizes and page number consistancies.
+
 # Output 1
 makbook loads performs checks and PDFs (when required) for each project chapter and issues following output :
 
