@@ -6,7 +6,8 @@ In this project,
 
 makbook loads performs checks and PDFs (when required) for each project chapter and issues following output :
 
-`Début page 1
+```
+Début page 1
 
 couv/PAO/couv : page 1 (set)
 Début page 4
@@ -41,4 +42,5 @@ patterns/PAO/patterns : page 67 (computed)
 2 pages
 Début page 69
 -rw-rw-r-- 1 jluc jluc 66605968 oct.   5 05:01 n64.pdf
-n64.pdf created OK`
+n64.pdf created OK
+```
