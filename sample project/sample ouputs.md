@@ -53,7 +53,7 @@ During this run
 
 # Output 2
 
-The project's config was edited (DFONT set to *Montserrat Light*) and a specific config was added to `PA` chapter (DFONT set to *Dejavu condensed*).
+The project's config `slacheck.config` was edited (stating DFONT should be *Montserrat Light*) and a specific config file `PA.config` was added to `PA` chapter (stating DFONT should be *Dejavu condensed*).
 When re-run, the script detects unconsistencies because the SLA files have not yet been updated to conform to the new configs.
 
 ```
