@@ -24,9 +24,10 @@ Particularly it helps
   - ensure PDF is updated when sla has been edited
   - ensure backups are created before altering files
 * edit SLAs so they conform to the project standard or to the chapter specifics.
-* produce the concatenated updated PDF.
+* produce the concatenated updated PDF
+* looking for strings in the text or in the XML structure and replace them with some other text
 
-Some day, it could help clean styles and share styles or objects accross files (compensate for scribus bugs with styles).
+And more. Some day, it could help clean styles and share styles or objects accross files, because this is a common need and would be very usefull (compensate for scribus bugs with styles management).
 
 ## What is this repository
 
@@ -64,22 +65,32 @@ Also :
 
 ## Configuration data
 
-Configuration is value for **page sizes**, **bleeds**, **marks**, **color profiles** and all other book creation issues etc...
+Configuration is a set of values for **page sizes**, **bleeds**, **marks**, **color profiles** and all other book creation issues that are required for your book or magazine etc... None of this is require, it all depends of what you need to check and ensure.
 
-The configuration values are parmeters for slacheck script and can be set
+These config are attributes of the SLA XML file tags.
+Config files are shell scripts that set variables : usualy there is one variable for each XML attribute you need to check/set.
+
+The configuration values are parameters for slacheck script and can be set
 - at global tool level in the slacheck.defaultconfig file
 - at project level in the project related local slacheck.config file
 - at file level in the file-related local filename.config file
 
-You have to edit the defaultconfig file or create a project config file so as to adapt the values to your project's standard. In case some of the file of your project requires different settings, then you have to create the required file-related restricted settings.
+So as to create a config file from scratch you'll have to
+- open an SLA with a text editor and understand its structure. 
+- findout which attributes you need.
+- findout their correct values
+- create a config file composed with all "attribute=value" settings.
 
+The default config file has done all this tedious job and you can also simply look at it and edit a copy in you work space so as to make it fit your need. It will be rather simple.
+
+In case some of the file of your project requires different settings, then you have to create the required file-related restricted settings.
 Doing this requires 
 - edit a correct SLA that fit your standards, 
 - look for all the attributes names and values there 
 - and set them as the goal for your project or file in the corresponding config file
 
-So as to check the correct values, just launch the script
-So as to set the SLA parameters to the project specified values, use the -set options
+So as to check whether the SLA document have the correct settings, just launch the script.
+In case an error is detected, you can fix it and set the the SLA parameters to the correct (project or document specific) specified values, use the `-set` option.
 
 ## Set of files composing the project ##
 
