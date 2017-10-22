@@ -63,35 +63,6 @@ These scripts can be made callable via nautilus action's menus.
 Also :
 * **shellcolors** : create variables to easily bring colors to console output using escape sequences
 
-## Configuration data
-
-Configuration is a set of values for **page sizes**, **bleeds**, **marks**, **color profiles** and all other book creation issues that are required for your book or magazine etc... None of this is require, it all depends of what you need to check and ensure.
-
-These config are attributes of the SLA XML file tags.
-Config files are shell scripts that set variables : usualy there is one variable for each XML attribute you need to check/set.
-
-The configuration values are parameters for slacheck script and can be set
-- at global tool level in the slacheck.defaultconfig file
-- at project level in the project related local slacheck.config file
-- at file level in the file-related local filename.config file
-
-So as to create a config file from scratch you'll have to
-- open an SLA with a text editor and understand its structure. 
-- findout which attributes you need.
-- findout their correct values
-- create a config file composed with all "attribute=value" settings.
-
-The default config file has done all this tedious job and you can also simply look at it and edit a copy in you work space so as to make it fit your need. It will be rather simple.
-
-In case some of the file of your project requires different settings, then you have to create the required file-related restricted settings.
-Doing this requires 
-- edit a correct SLA that fit your standards, 
-- look for all the attributes names and values there 
-- and set them as the goal for your project or file in the corresponding config file
-
-So as to check whether the SLA document have the correct settings, just launch the script.
-In case an error is detected, you can fix it and set the the SLA parameters to the correct (project or document specific) specified values, use the `-set` option.
-
 ## Set of files composing the project ##
 
 The set of files is described in a string made out of all filenames in their appearing order.  
@@ -131,6 +102,34 @@ sourcespattern=2
 
 Page number specifications can also be embeded in this source spec. See later.
 
+## Configuration data
+
+Configuration is a set of values for **page sizes**, **bleeds**, **marks**, **color profiles** and all other book creation issues that are required for your book or magazine etc... None of this is require, it all depends of what you need to check and ensure.
+
+These config are attributes of the SLA XML file tags.
+Config files are shell scripts that set variables : usualy there is one variable for each XML attribute you need to check/set.
+
+The configuration values are parameters for slacheck script and can be set
+- at global tool level in the slacheck.defaultconfig file
+- at project level in the project related local slacheck.config file
+- at file level in the file-related local filename.config file
+
+So as to create a config file from scratch you'll have to
+- open an SLA with a text editor and understand its structure. 
+- findout which attributes you need.
+- findout their correct values
+- create a config file composed with all "attribute=value" settings.
+
+The default config file has done all this tedious job and you can also simply look at it and edit a copy in you work space so as to make it fit your need. It will be rather simple.
+
+In case some of the file of your project requires different settings, then you have to create the required file-related restricted settings.
+Doing this requires 
+- edit a correct SLA that fit your standards, 
+- look for all the attributes names and values there 
+- and set them as the goal for your project or file in the corresponding config file
+
+So as to check whether the SLA document have the correct settings, just launch the script.
+In case an error is detected, you can fix it and set the the SLA parameters to the correct (project or document specific) specified values, use the `-set` option.
 
 # Running
 
@@ -157,7 +156,7 @@ Equivalent examples :
 * ```sources="p_1 CoverBegin		p_3 Summary  p_7 InsidePages	p_15	Notes  p_20 CoverEnd"```
 * ```sources="n_2 CoverBegin		n_4 Summary  n_8 InsidePages	n_5	Notes  p_20 CoverEnd"```
 
-So as to set the correct numbering *inside* the sla file, use -set option
+So as to set the correct numbering *inside* the sla file, use `-set` option
 
 ## Checking PDF files validity ##
 
