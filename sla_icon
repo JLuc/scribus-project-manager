@@ -1,15 +1,20 @@
 #!/bin/bash
+# avec un argument fichier : change l'icone de ce fichier en icone scribus
+# sans argument : met une icone scribus à tous les fichiers du dossier courant
+# Appelle sla_icon_dir.py
 
 if [ "$1" = "" ]
 then
 	python ~/bin/sla_icon.py "$1"
 elif [ -f "$1" ]
 then
-	gvfs-set-attribute "$1" metadata::custom-icon file:///home/jluc/dev/scribus/svn/resources/icons/other/scribus-icon.svg
+	# gvfs-set-attribute "$1" metadata::custom-icon file:///home/jluc/dev/scribus/svn/resources/icons/other/scribus-icon.svg
+	gio set "$1" metadata::custom-icon file:///home/jluc/bin/ressources/scribus_logo.svg
 elif [ -d "$1" ]
 then
+	echo "répertoire $1"
 	cd "$1"
 	sla_icon
 else
-	echo "Dont specify any parameter or parameter has to be existing file or folder"
+	echo "S'il y a un argument, ce doit être un fichier existant ou un répertoire existant"
 fi
