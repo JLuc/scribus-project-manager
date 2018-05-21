@@ -156,7 +156,11 @@ Equivalent examples :
 * ```sources="p_1 CoverBegin		p_3 Summary  p_7 InsidePages	p_15	Notes  p_20 CoverEnd"```
 * ```sources="n_2 CoverBegin		n_4 Summary  n_8 InsidePages	n_5	Notes  p_20 CoverEnd"```
 
-So as to set the correct numbering *inside* the sla file, use `-set` option
+So as to set the correct starting page numbering *inside* the sla file, use `-set` option
+
+Note : 
+* its possible to mix n_ and p_ data, and this makes it possible to do stronger page numbering checks
+* in case some page numbering is not valid, slacheck issues a warning
 
 ## Checking PDF files validity ##
 
