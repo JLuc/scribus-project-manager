@@ -101,7 +101,7 @@ sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
 sourcespattern=2
 ```
 
-Page number specifications can also be embeded in this source spec. See later.
+Page number specifications can also be embeded in this source spec. See above in dedicated part of this readme.
 
 ## Configuration data
 
