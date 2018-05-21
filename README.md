@@ -62,7 +62,7 @@ It includes the following tools, that might depend on the OS :
 These scripts can be made callable via nautilus action's menus.
 
 Also :
-* **shellcolors** : create variables to easily bring colors to console output using escape sequences
+* **shellcolors** : create variables to easily bring colors to console output using escape sequences. it is used to issue error or warning messages, and search result or such.
 
 ## Set of files composing the project ##
 
