@@ -188,6 +188,25 @@ You can either look for a string in the document's textframes or for a string ap
 The example makbook script takes care of deleting all conditional hyphens before performing the search (and also the xmlsearch)
 Results are displayed and also stored in the .found.tmp file
 
+## NEW : update chapter with master
+
+Choose a document and use it as master document for styles, colors and masterpages
+
+`slasync` command enables to update chapters accordingly to master document. 
+
+Some paragraph and character styles can be preserved as is. These "localy defined" styles should be named with a specific prefix or suffix.
+
+Example : 
+- `slasync -s masterdoc chapter2` : updates defined styles
+- `slasync -ps masterdoc chapter2` : updates defined paragraph styles only
+- `slasync -c masterdoc chapter2` : updates defined colors
+- `slasync -a masterdoc chapter2` : updates both styles, masterpages and colors
+- `slasync -keeps loc -cs masterdoc chapter2` : updates styles but keeps all styles whose name contains 'loc' 
+
+See -h option for more
+
+(WORK IN PROGRESS : slasync still has to be improved and as for now it doesnt change the chapter document at all it produces a result.sla file)
+
 ## Other options
 
 Try `-?` option for each tool so as to see main options. Mainly makbook example  (to be split in 2 files : makbook and project.config)
