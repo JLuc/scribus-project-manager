@@ -43,7 +43,7 @@ After creating dedicated config files, the scripts can be used for other project
 * **slacheckfonts** : checks that all used fonts are either embeded or subseted.  
 
 Also :
-* **mak book script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  WARNING : not uptodate but see example with.
+* **mak book script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  WARNING : not uptodate but see example with it.
 
 ### Lower level scripts
 * **slacheckattr** : checks the value of some xml attribute in the scribus file
@@ -188,7 +188,7 @@ You can either look for a string in the document's textframes or for a string ap
 The example makbook script takes care of deleting all conditional hyphens before performing the search (and also the xmlsearch)
 Results are displayed and also stored in the .found.tmp file
 
-## NEW : update chapter with master
+## NEW : update chapters with master
 
 Choose a document and use it as master document for styles, colors and masterpages
 
@@ -205,7 +205,10 @@ Example :
 
 See -h option for more
 
-(WORK IN PROGRESS : slasync still has to be improved and as for now it doesnt change the chapter document at all it produces a result.sla file)
+WORK IN PROGRESS : 
+- slasync has not yet been thoroughfully tested and more features have to be coded
+- as for now, slasync doesnt change the chapter document at all : it produces a result.sla file out of the synced chapter
+- slasync should be called from within mak script so as to possibly apply to all chapters of a book project
 
 ## Other options
 
