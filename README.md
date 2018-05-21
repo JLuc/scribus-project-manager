@@ -189,6 +189,20 @@ You can either look for a string in the document's textframes or for a string ap
 The example makbook script takes care of deleting all conditional hyphens before performing the search (and also the xmlsearch)
 Results are displayed and also stored in the .found.tmp file
 
+## Project notes and reminders
+
+When editing a project, it happens often that one needs to take notes about some part of a chapter. 
+Example :
+- "Find higher resolution picture"
+- "Add credit and licence"
+- "Check numbers"
+- "todo : use vectorized logo"
+
+The project manager provides a way of doing so and being automaticaly reminded of these notes :
+- in the book text of an existing textframe, use "AAA" or "XXX" next to the text of your note (avoid this with long texts)
+- OR create a dedicated small textframe and type your note along with AAA or XXX prefix
+- when project's manager `makbook` is called, it reminds you of all such notes it finds in the chapters of your book
+
 ## NEW : update chapters with master
 
 Choose a document and use it as master document for styles, colors and masterpages
