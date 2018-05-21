@@ -26,8 +26,9 @@ Particularly it helps
 * edit SLAs so they conform to the project standard or to the chapter specifics.
 * produce the concatenated updated PDF
 * looking for strings in the text or in the XML structure and replace them with some other text
+* synchronise chapter's styles, masterpages or color definitions with those of a master document
 
-And more. Some day, it could help clean styles and share styles or objects accross files, because this is a common need and would be very usefull (compensate for scribus bugs with styles management).
+And more.
 
 ## What is this repository
 
