@@ -11,7 +11,7 @@ Each scribus file is a chapter, an article, a part of the book.
 All have to be concatenated to create the whole book.
 All share some common properties like size of pages, styles or color profiles, but some of the chapters might have specific properties.
 
-## What does a scribus-project-manager *manage* ?
+## What does a scribus-project-manager *manages* ?
 A Scribus project manager is a tool that help manage multiple scribus files that are parts of a same project.
 
 Particularly it helps
