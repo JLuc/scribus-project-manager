@@ -52,7 +52,7 @@ Also :
 * **strtrim** : basic string trim
 
 ### Environnement tools
-This project is primarily created and used on Ubuntu 14.04.
+This project has been created and used on Ubuntu 14.04, 16.04, 17.10
 
 It includes the following tools, that might depend on the OS :
 * **sla_icon** : adds specific icon on SLA file(s) for nautilus view  
