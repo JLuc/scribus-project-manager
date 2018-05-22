@@ -119,6 +119,7 @@ chapter=$2.sla
 # '/xml/block/el[@name="b"]' : ceux dont l'attribut 'name' a la valeur 'b'
 # '/xml/block/el[not(@name)]' : ceux qui n'ont pas d'attribut 'name'
 
+# Capture chapter's kept nodes
 if [ "$keeps" != "" ]; then
 	xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT/STYLE[contains(@NAME,'$keeps')]" -c . -n $chapter > ".$chapter.kept_$nodes.xml"
 	xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT/CHARSTYLE[contains(@NAME,'$keeps')]" -c . -n $chapter >> ".$chapter.kept_$nodes.xml"
@@ -129,7 +130,7 @@ if [ "$keeps" != "" ]; then
 	fi
 fi
 
-# On capte les noeuds du master
+# Capture master's nodes
 xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT" -m $nodes -c . -n $master > ".$master.$nodes.xml"
 
 if [ $trace != "" ]; then
@@ -138,9 +139,11 @@ if [ $trace != "" ]; then
 	cat ".$master.$nodes.xml"
 fi
 
-# On vide les noeuds du chapter
+# Empty chapter nodes
 xmlstarlet ed -d "SCRIBUSUTF8NEW/DOCUMENT/$nodes" $chapter > ".$chapter.without_$nodes.xml"
 
-# On insère les noeuds du master au début de <DOCUMENT>
+# Insert master nodes at the begining of the <DOCUMENT>
 sed "/<DOCUMENT.*>/ r .$master.$nodes.xml" ".$chapter.without_$nodes.xml" > result.sla
+# Insert kept nodes
+sed "/<DOCUMENT.*>/ r .$chapter.kept_$nodes.xml" result.sla > result.sla
 
