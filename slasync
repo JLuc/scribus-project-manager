@@ -16,7 +16,7 @@ do
 	stopoptions=true
 	
 	if  [ "$1" = '-?' ]; then
-		echo "use : `slasync <options> masterfile.sla chapterfile.sla`"
+		echo "use : 'slasync <options> masterfile.sla chapterfile.sla'"
 		echo "Replaces all paragraph styles and character styles of chapterfile.sla by those in masterfile.sla"
 		echo "options :"
 		echo "-s : replaces all styles"
