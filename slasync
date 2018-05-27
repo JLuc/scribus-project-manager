@@ -2,7 +2,7 @@
 
 #set -x  # for a detailed trace
 
-# use : slasync master dest
+# use : slasync options master dest
 
 # $1 : fichier sla master pour les styles 
 # $2 : fichier sla à synchroniser
@@ -71,6 +71,9 @@ do
 	fi
 done
 
+nodesregexp=$nodes
+nodes=`echo $nodes | tr '|' '_'`
+
 if [ "$1" = "" ]; then
 	echo -e "${ESC_error} missing masterpage in slasync command. Read doc using -?"
 	exit
@@ -91,6 +94,13 @@ fi
 cp -f $2.sla $2.bak.sla
 master=$1.sla
 chapter=$2.sla
+
+
+if [ "$trace" != "" ]; then
+	echo 
+	echo "Origin :"
+	ls -la "$2.sla"
+fi
 
 # xmlstarlet ed -u ... -v ... : update value of path to be value (-v) or other xpath value (-x)
 #	ne change pas les attributs des xpaths mais affecte leurs valeurs
@@ -123,7 +133,7 @@ chapter=$2.sla
 if [ "$keeps" != "" ]; then
 	xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT/STYLE[contains(@NAME,'$keeps')]" -c . -n $chapter > ".$chapter.kept_$nodes.xml"
 	xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT/CHARSTYLE[contains(@NAME,'$keeps')]" -c . -n $chapter >> ".$chapter.kept_$nodes.xml"
-	if [ $trace != "" ]; then
+	if [ "$trace" != "" ]; then
 		echo
 		echo "Kept in $chapter :"
 		cat ".$chapter.kept_$nodes.xml"
@@ -131,19 +141,37 @@ if [ "$keeps" != "" ]; then
 fi
 
 # Capture master's nodes
-xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT" -m $nodes -c . -n $master > ".$master.$nodes.xml"
+xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT" -m $nodesregexp -c . -n $master > ".$master.$nodes.xml"
 
-if [ $trace != "" ]; then
+if [ "$trace" != "" ]; then
 	echo
 	echo "Found in master $master :"
 	cat ".$master.$nodes.xml"
 fi
 
 # Empty chapter nodes
-xmlstarlet ed -d "SCRIBUSUTF8NEW/DOCUMENT/$nodes" $chapter > ".$chapter.without_$nodes.xml"
+xmlstarlet ed -d "SCRIBUSUTF8NEW/DOCUMENT/$nodesregexp" $chapter > ".$chapter.without_$nodes.xml"
+
+if [ "$trace" != "" ]; then
+	echo 
+	echo "without $nodes :"
+	ls -la ".$chapter.without_$nodes.xml"
+fi
 
 # Insert master nodes at the begining of the <DOCUMENT>
-sed "/<DOCUMENT.*>/ r .$master.$nodes.xml" ".$chapter.without_$nodes.xml" > result.sla
-# Insert kept nodes
-sed "/<DOCUMENT.*>/ r .$chapter.kept_$nodes.xml" result.sla > result.sla
+sed "/<DOCUMENT.*>/ r .$master.$nodes.xml" ".$chapter.without_$nodes.xml" > result.soon.sla
 
+if [ "$trace" != "" ]; then
+	echo 
+	echo "With master's $nodes :"
+	ls -la "result.soon.sla"
+fi
+
+# Insert kept nodes
+sed "/<DOCUMENT.*>/ r .$chapter.kept_$nodes.xml" result.soon.sla > result.sla
+
+if [ "$trace" != "" ]; then
+	echo 
+	echo "With kept $nodes :"
+	ls -la "result.sla"
+fi
