@@ -16,19 +16,35 @@ do
 	stopoptions=true
 	
 	if  [ "$1" = '-?' ]; then
-		echo "use : 'slasync <options> masterfile.sla chapterfile.sla'"
+		echo "use : 'slasync [options] <goal> masterfile.sla chapterfile.sla'"
 		echo "Replaces all paragraph styles and character styles of chapterfile.sla by those in masterfile.sla"
-		echo "options :"
-		echo "-s : replaces all styles"
+		echo "Possible options :"
+		echo "-keeps <str> : keeps paragraph and character style definitions whose NAME contains <str> string in chapter. These MUST NOT be defined in master. Only OK with -s or -a goal"
+		echo "-trace : displays styles kept in chapter and nodes import-forced from master"
+		echo "Possible goals :"
 		echo "-ps : replaces paragraph styles only"
 		echo "-cs : replaces character styles only"
+		echo "-s : replaces both paragraph and character styles"
+		echo "-ns : replaces notes styles"
 		echo "-m : replaces masterpages"
 		echo "-c : replaces colors"
-		echo "-a : replaces paragraph and character styles, colors and masterpages"
+		echo "-a : replaces paragraph, character and notes styles + colors and masterpages"
 		echo "-nodes <node1|node2|node3> : replaces all nodes specified in pipe separated list"
-		echo "-keeps <str> : keeps paragraph and character style definitions whose NAME contains <str> string in chapter. These MUST NOT be defined in master"
-		echo "-trace : displays styles kept in chapter and nodes import-forced from master"
 		exit
+	elif [ "$1" = '-keeps' ]; then
+		shift
+		if [ "$1" = "" ]; then
+			echo -e "${ESC_error} missing <part> after '-keeps' option. Read the doc with -? option"
+			exit
+		fi
+		keeps="$1"
+		echo "keeps char and par styles with NAME containing '$1'"
+		shift
+		stopoptions=''
+	elif [ "$1" = "-trace" ]; then
+		trace=true
+		shift
+		stopoptions=''
 	elif [ "$1" = '-nodes' ]; then
 		shift
 		if [ "$1" = "" ]; then
@@ -36,16 +52,6 @@ do
 			exit
 		fi
 		nodes=$1
-	elif [ "$1" = '-keeps' ]; then
-		shift
-		if [ "$1" = "" ]; then
-			echo -e "${ESC_error} missing <part> after '-keeps' option. Read the doc with -? option"
-			exit
-		fi
-		keeps="$2"
-		echo "keeps char and par styles with NAME containing '$2'"
-		shift
-		stopoptions=''
 	elif [ "$1" = "-s" ]; then
 		nodes="STYLE|CHARSTYLE"
 		shift
@@ -55,6 +61,9 @@ do
 	elif [ "$1" = "-cs" ]; then
 		nodes=CHARSTYLE
 		shift
+	elif [ "$1" = "-ns" ]; then
+		nodes=NotesStyles
+		shift
 	elif [ "$1" = "-m" ]; then
 		nodes=MASTERPAGE
 		shift
@@ -62,12 +71,8 @@ do
 		nodes=COLOR
 		shift
 	elif [ "$1" = "-a" ]; then
-		nodes="STYLE|CHARSTYLE|COLOR|MASTERPAGE"
+		nodes="STYLE|CHARSTYLE|NotesStyles|COLOR|MASTERPAGE"
 		shift
-	elif [ "$1" = "-trace" ]; then
-		trace=true
-		shift
-		stopoptions=''
 	fi
 done
 
@@ -131,35 +136,49 @@ fi
 
 # Capture chapter's kept nodes
 if [ "$keeps" != "" ]; then
-	xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT/STYLE[contains(@NAME,'$keeps')]" -c . -n $chapter > ".$chapter.kept_$nodes.xml"
-	xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT/CHARSTYLE[contains(@NAME,'$keeps')]" -c . -n $chapter >> ".$chapter.kept_$nodes.xml"
+	xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT/STYLE[contains(@NAME,'$keeps')]" -c . -n $chapter > "$chapter.kept_$nodes.xml"
+	xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT/CHARSTYLE[contains(@CNAME,'$keeps')]" -c . -n $chapter >> "$chapter.kept_$nodes.xml"
 	if [ "$trace" != "" ]; then
 		echo
 		echo "Kept in $chapter :"
-		cat ".$chapter.kept_$nodes.xml"
+		cat "$chapter.kept_$nodes.xml"
 	fi
 fi
 
 # Capture master's nodes
-xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT" -m $nodesregexp -c . -n $master > ".$master.$nodes.xml"
+xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT" -m $nodesregexp -c . -n $master > "$master.$nodes.xml"
 
 if [ "$trace" != "" ]; then
 	echo
 	echo "Found in master $master :"
-	cat ".$master.$nodes.xml"
+	cat "$master.$nodes.xml"
+	echo
+	ls -la "$chapter"
+	echo 
 fi
 
 # Empty chapter nodes
-xmlstarlet ed -d "SCRIBUSUTF8NEW/DOCUMENT/$nodesregexp" $chapter > ".$chapter.without_$nodes.xml"
+cp "$chapter" "$chapter.without_$nodes.xml"
+
+IFS=$'_'
+for anode in $nodes
+do
+	if [ "$trace" != "" ]; then
+		echo "Emptying $anode nodes"
+	fi
+	xmlstarlet ed -d "SCRIBUSUTF8NEW/DOCUMENT/$anode" "$chapter.without_$nodes.xml" > .tmp
+	cp .tmp "$chapter.without_$nodes.xml"
+done
+rm .tmp
 
 if [ "$trace" != "" ]; then
 	echo 
 	echo "without $nodes :"
-	ls -la ".$chapter.without_$nodes.xml"
+	ls -la "$chapter.without_$nodes.xml"
 fi
 
 # Insert master nodes at the begining of the <DOCUMENT>
-sed "/<DOCUMENT.*>/ r .$master.$nodes.xml" ".$chapter.without_$nodes.xml" > result.soon.sla
+sed "/<DOCUMENT.*>/ r $master.$nodes.xml" "$chapter.without_$nodes.xml" > result.soon.sla
 
 if [ "$trace" != "" ]; then
 	echo 
@@ -168,7 +187,7 @@ if [ "$trace" != "" ]; then
 fi
 
 # Insert kept nodes
-sed "/<DOCUMENT.*>/ r .$chapter.kept_$nodes.xml" result.soon.sla > result.sla
+sed "/<DOCUMENT.*>/ r $chapter.kept_$nodes.xml" result.soon.sla > result.sla
 
 if [ "$trace" != "" ]; then
 	echo 
