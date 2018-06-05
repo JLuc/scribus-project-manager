@@ -1,0 +1,424 @@
+#!/bin/sh
+
+# book definition
+output=book
+
+sourcespattern=1
+# possible values for sourcespattern
+# 0 : no change to filename in sources
+# 1 : filename stands for filename/filename(.sla)
+# 2 : filename stands for filename/PAO/filename(.sla)
+
+sources="Part0 Part1 Part2 Part3 Part4"
+
+####################################################################"
+
+# warning illogic SLA logic :
+# FontEmbedding=0 	# PDF with embeded or subset fonts
+# FontEmbedding=1	  # vectorized fonts (no font embeded)
+
+####################################################################"
+
+# other user options
+setopt=""
+
+pdfwithimages=oui
+
+#checkpagenum=''
+checkpagenum='check'
+pagenumwhy='' # reason why start page is set : 'set' or 'computed'echo
+
+# Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
+
+check='oui'		# '' to not check (only merge chapter pdfs)
+vconfig=''
+vcheck=''
+
+searched=''	 	# searched string
+xmlsearched=''	# xml searched string
+nbfound=0
+
+checkcolorall=''
+pdfignore=''
+getfonts=''
+nofontcheck=''
+
+pdfopt=''
+vectoopt=''
+
+####################################################################
+
+reset
+. shellcolors
+
+while [ "$stopoptions" = "" ]
+do
+	stopoptions=true
+
+	if  [ "$1" = '-?' ]
+	then
+		echo "mak makes the global PDF"
+		echo "Due to inline config, name of produced PDF is $output.pdf or $output-vecto.pdf"
+		echo 
+		echo "Options :"
+		echo "-? : get this help"
+		echo "-set : set value to correct value"
+		echo "-pagenum : also checks the first page number  of each doc"
+		echo "-nopagenum : dont check the first page number of each doc"
+		echo "-nocheck : dont check anything, just merge all chapter's pdfs"
+		echo '-nofontcheck : dont check fonts'
+		echo "-pdfignore : dont create chapters PDFs nor merge them (only checks SLA)"
+		echo "-forcepdf : force all pdf (re)creation, even when it exists allready"
+		echo "-vconfig : verbose output about config files"
+		echo "-vcheck : very verbose output about check"
+		echo '-find "word1 or phrase1" : find occurences in all chapters text'
+		echo '-xmlfind "string1" : find occurences of string in all chapters SLA file (text + xml tags)'
+		echo '-replace "string2" : replace found occurences with specified string2. (with -xmlfind only. with -find still to do)'
+		echo '-checkcolorall : check for (bad) uses of "All" named color'
+		echo '-getfonts : display embeded fonts'
+		echo "-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto"
+		echo
+		exit
+	fi
+
+	if [ "$1" = "-vconfig" ]
+	then
+		vconfig=$1
+		shift
+		break
+	fi
+
+	if [ "$1" = "-vcheck" ]
+	then
+		vcheck=$1
+		shift
+		break
+	fi
+
+	if [ "$1" = "-getfonts" ]
+	then
+		getfonts=$1
+		echo "will output embeded fonts for each .pdf"
+		shift
+		break
+	fi
+
+	if [ "$1" = "-nocheck" ]
+	then
+		shift
+		check=''
+		echo "Chapter PDFs will be merged. No check will happen"
+		break
+	fi
+
+	if [ "$1" = "-nofontcheck" ]
+	then
+		shift
+		nofontcheck="-nofontcheck"
+		echo "No font embeding or subseting check will happen"
+		break
+	fi
+
+	if [ -f .found.tmp ]
+	then
+		rm .found.tmp
+	fi
+
+	if [ "$1" = "-find" ]
+	then
+		shift
+		if [ "$1" = "" ]
+		then
+			echo "${ESC_error}-find option must have additionnal parameter$ESC_normal"
+			exit
+		fi
+		searched="$1"
+		check=''
+		pdfignore='-pdfignore'
+		stopoptions=''
+		shift
+		continue
+	fi
+
+	if [ "$1" = "-xmlfind" ]
+	then
+		shift
+		if [ "$1" = "" ]
+		then
+			echo "${ESC_error}-xmlfind option must have additionnal parameter$ESC_normal"
+			exit
+		fi
+		xmlsearched="$1"
+		check=''
+		pdfignore='-pdfignore'
+		stopoptions=''
+		shift
+		continue
+	fi
+
+	if [ "$1" = '-checkcolorall' ]
+	then
+		checkcolorall='yes'
+		xmlsearched="COLOR=\"All\""
+		check=''
+		pdfignore='-pdfignore'
+		stopoptions=''
+		shift
+		continue
+	fi
+
+	if [ "$1" = "-replace" ]
+	then
+		if [ "$xmlsearched" = "" ] && [ "$searched" = "" ]
+		then 
+			echo "${ESC_error}-replace option must follow some -xmlfind or -find option. No such options found here.$ESC_normal"
+			exit
+		fi
+		shift
+		if [ "$1" = "" ]
+		then
+			echo "${ESC_error}-replace option must have additionnal parameter$ESC_normal"
+			exit
+		fi
+		replaced="$1"
+		shift
+		echo "Replace all found strings with '$replaced'"
+		stopoptions=''
+		continue
+	fi
+
+	if [ "$1" = "-set" ]
+	then
+		shift
+		setopt='-set'
+		stopoptions=''
+		pdfignore='-pdfignore'
+		continue
+	fi
+
+	if [ "$1" = "-pdfignore" ]
+	then
+		shift
+		pdfignore='-pdfignore'
+		continue
+	fi
+
+	if [ "$1" = "-forcepdf" ]
+	then
+		shift
+		pdfignore=''
+		pdfopt='-forcepdf'
+		continue
+	fi
+
+	if [ "$1" = "-vecto" ]
+	then
+		shift
+		vectoopt='-vecto'	# pour slacheck et en suffixe de output
+		output="$output$vectoopt"
+		stopoptions=''
+		continue
+	fi
+
+	if [ "$1" = "-nopagenum" ]
+	then
+		shift
+		checkpagenum=''
+		stopoptions=''
+		continue
+	fi
+	
+done
+
+####################################################################"
+verboseopt="$vconfig $vcheck"
+
+listepdf=''
+pagenumopt=''
+
+numpagecourant=1
+for fic in $sources
+do 
+	if [ "${fic#p_}" != "$fic" ] && [ $checkpagenum = 'check' ]
+	then
+		numpageset=${fic#p_}
+		if [ "$lastpagenumwhy" = computed ] && [ $numpageset != $numpagecourant ]
+		then
+			echo "${ESC_warning} or error : After adding pages, page num should be $numpagecourant, but is set to $numpageset"
+			echo "Continuing.$ESC_normal"
+		fi
+		numpagecourant=$numpageset
+		pagenumopt="-pagenum $numpagecourant"
+		echo "Début page $numpagecourant"
+		pagenumwhy=set
+		continue
+	fi
+
+	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
+	then
+		numpagecourant=$(( $numpagecourant+${fic#n_} ))
+		pagenumopt="-pagenum $numpagecourant"
+		echo "${fic#n_} pages"
+		pagenumwhy=computed
+		continue
+	fi
+
+	if [ "$sourcespattern" = 1 ]
+	then
+		fic="$fic/$fic"
+	elif [ "$sourcespattern" = 2 ]
+	then 
+		fic="$fic/PAO/$fic"
+	fi
+
+	if [ ! -f "$fic.sla" ] 
+	then 
+		echo Error : missing $fic.sla file 
+		exit
+	fi
+
+	echo
+	echo -n $fic
+	[ "$pagenumopt" != "" ] && echo " : page $numpagecourant ($pagenumwhy)"
+	[ "$pagenumopt" = "" ] && echo "${ESC_error}no starting page ?$ESC_normal"
+	lastpagenumwhy=$pagenumwhy
+	pagenumwhy=''
+
+	if [ "$searched" != '' ] || [ "$xmlsearched" != '' ]
+	then
+		# Enlever d'abord les césures avant de chercher $searched, et même $xmlsearched
+		# césures conditionnelles = caractère Unicode U+00AD
+		# http://stackoverflow.com/questions/8562354/remove-unicode-characters-from-textfiles-sed-other-bash-shell-methods
+		# La commande `echo -ne '\u00AD' | xxd` donne c2ad qu'il faut utiliser avec \x dans `sed 's/...'` = 
+		cleansla="$fic.clean.sla"
+		sed -e 's/\xc2\xad//g' "$fic.sla" > "$cleansla"
+	fi
+
+	if [ "$searched" != '' ]
+	then
+		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""`
+		echo Search for "$searched" : $count results
+		if [ "$count" != "0" ]
+		then
+			nbfound=$(( $nbfound+$count ))
+
+			echo $ESC_yellow
+			grep -ni "<ITEXT[^>]*CH=" "$cleansla" | grep -i "\"[^\"]*$searched[^\"]*\"" | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//'
+			echo $ESC_normal
+			
+			# -n : line number
+			# /dev/null is added so grep believes there is more than one file and outputs the filename
+			grep -ni "<ITEXT[^>]*CH=\"[^\"]*$searched[^\"]*\"" "$cleansla" /dev/null | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//' >> .found.tmp
+		fi
+		rm $cleansla
+	fi
+	
+	if [ "$xmlsearched" != '' ]
+	then
+		# FIXME ? : malgré les -i ça n'a pas l'air case-insensitif
+		count=`grep -c -o -i "$xmlsearched" "$cleansla"`
+		echo Search for "$xmlsearched" : $count results
+		if [ "$count" != "0" ]
+		then
+			nbfound=$(( $nbfound+$count ))
+
+			echo $ESC_yellow
+			grep -ni "$xmlsearched" "$cleansla"
+			echo $ESC_normal
+			
+			# -n : line number
+			# /dev/null is added so grep believes there is more than one file and outputs the filename
+			grep -ni "$xmlsearched" "$cleansla" /dev/null >> .found.tmp
+			
+			echo "replaced=$replaced"
+			if [ "$replaced" != '' ]
+			then
+				if [ -f "$fic.before_replace.sla" ]
+				then
+					echo "$fic.before_replace.sla allready exists : moved as .bak"
+					mv "$fic.before_replace.sla" "$fic.before_replace.sla.bak"
+				fi
+				cp "$fic.sla" "$fic.before_replace.sla"
+				echo $fic.sla is saved into $fic.before_replace.sla
+				echo $xmlsearched is replaced with $replaced in $fic.sla 
+				echo sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
+				sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
+			fi
+		fi
+		rm $cleansla
+	fi
+
+	if [ "$check" = "oui" ] 
+	then
+		echo "slacheck $vectoopt $setopt $pagenumopt $pdfopt $nofontcheck $pdfignore $verboseopt $fic"
+		slacheck $vectoopt $setopt $pagenumopt $pdfopt $nofontcheck $pdfignore $verboseopt $fic
+		echo "slacheck done"
+	fi
+
+	if [ "$getfonts" != '' ]
+	then
+		# alternative : `strings yourPDFfilepath.pdf | grep FontName`
+		echo "pdffonts $fic.pdf"
+		pdffonts "$fic.pdf"
+	fi
+
+	listepdf="$listepdf $fic.pdf"
+	if [ "$pdfwithimages" = "no" ]
+	then
+		mv -b "$fic/images" "$fic/images.bak"
+	fi
+done
+
+if [ "$pdfignore" = "-pdfignore" ] || [ "$pdfignore" = "pdfignore" ]
+then
+	exit
+fi
+
+
+if [ "$pdfignore" = "" ]
+then
+	mv $output.pdf $output.pdf.bak
+
+	# add some special file as a last page cover
+	# listepdf="$listepdf separettes/p68-HR.pdf"
+	echo "Merged PDFs : $listepdf"
+	pdftk $listepdf cat output $output.pdf
+	if [ -f $output.pdf  ] 
+	then
+		ls -ltr $output.pdf 
+		echo $output.pdf created OK  
+		evince $output.pdf &
+	fi
+fi
+
+# création d'une version sans marge (marges enlevées à l'arrache pour l'instant) : un peu utile pour impression un peu plus grand en pleine page
+# pdfcrop --margins '-25 -25 -25 -25' $output.pdf normargin_$output.pdf
+# [ -f normargin_$output.pdf  ] && evince normargin_$output.pdf & ls -ltr normargin_$output.pdf ; echo normargin_$output.pdf created OK
+
+if [ "$pdfwithimages" = "no" ]
+then
+	for fic in $sources
+	do
+		mv -b "$fic/images.bak" "$fic/images"
+	done
+fi
+
+if [ "$searched$xmlsearched" != '' ]
+then
+	echo Done
+	echo 
+	echo ${ESC_yellow}Searching \'$searched$xmlsearched\' :  $nbfound results found in whole book$ESC_normal
+	if [ $nbfound != 0 ]
+	then
+		if [ "$checkcolorall" != '' ]
+		then
+			echo "${ESC_error}Some (bad) uses of COLOR=\"All\" have been found !$ESC_normal"
+		fi
+		cat .found.tmp
+	fi
+fi
+
+if [ "$getfonts" != '' ]
+then
+	pdffonts $output.pdf
+fi
