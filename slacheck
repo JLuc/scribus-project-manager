@@ -135,8 +135,6 @@ then
 	. "./$1.config" $vconfig
 fi
 
-
-echo FontEmbedding=$FontEmbedding
 if [ "$FontEmbedding" = 1 ] 
 then
 	checkfonts=''
