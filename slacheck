@@ -8,17 +8,18 @@
 
 # *****************************
 # SHELL configs for defaults features
-scribuscommand="scribusok"	# command to choose scribus 1.5 version to be called amongts various possible versions
+scribuscommand="scribus-trunk"	# command to choose scribus 1.5 version to be called amongts various possible versions
 						  # can be changed for some of the files configs so as to avoid scribus crashes
 
 checkimg='check'		# check that used images are in images subfolder
+
 checkfonts='check'		# check that used fonts are either embeded or subset
 vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
 checkpagenums='check'	# do check startpage num
-pdf='create' 		 	# pdf = create : checks pdf exists and is recent and recreate it when not 
-						# pdf = check : only checks
-						# pdf = ignore : neither checks nor (re)creates pdf
-						# pdf = force : (re)create all pdf whether existing or recent or not
+dopdf='create' 		 	# dopdf = create : checks pdf exists and is recent and recreate it when not 
+						# dopdf = check : only checks
+						# dopdf = ignore : neither checks nor (re)creates pdf
+						# dopdf = force : (re)create all pdf whether existing or recent or not
 
 actionoption='' 	# default : dont change SLAs
 					# "-set" edit sla so it checks config specs
@@ -33,6 +34,19 @@ setrequested=''
 actionoption=''
 pagenumval=''
 
+# *****************************
+# config for scribus project manager general default features
+
+. slacheck.defaultconfig
+
+# *****************************
+# config for project (must be specified... unless project is default project which is unlikely)
+# project config can be either in local or parent folder
+[ -f "./slacheck.config" ] && . ./slacheck.config $vconfig
+[ ! -f "./slacheck.config" ] && [ -f "../slacheck.config" ] && echo -e "${ESC_warning}Parent's folder default slacheck.config is used" &&  . ../slacheck.config $vconfig
+[ ! -f "./slacheck.config" ] && [ -f "../../slacheck.config" ] && echo -e "${ESC_warning}Grand-parent's folder default slacheck.config is used" && . ../../slacheck.config $vconfig
+[ ! -f "./slacheck.config" ] && [ ! -f "../slacheck.config" ] && [ ! -f "../../slacheck.config" ] && echo -e "${ESC_warning} No local config for project, using default for $1.sla$ESC_normal"
+
 while [ "$stopoptions" = "" ] 
 do
 	stopoptions=true
@@ -45,12 +59,14 @@ do
 		echo "-vcheck : verbose check output"
 		echo "-pdfignore : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
 		echo "-pdfcheck : check pdf, but dont re-create it in case required"
+		echo "-nofontcheck : doesnt check fonts"
 		echo "-forcepdf : (re)create pdf even when it exists allready"
 		echo "-notimg : dont check for correct included image files"
 		echo "-set : change the SLA so it conforms to project standards (save in .bak)"
-		echo "-vecto : all fonts must be vectorized - NOT IMPLEMENTED"
+		echo "-vecto : all fonts must be vectorized - BETA" # il faut FontEmbedding="1" (logique booléenne inversée)
 		echo "-pagenum PPP : check that section begins at page number PPP"
 		echo
+		exit
 	elif [ "$1" = "-vconfig" ]; then
 		vconfig=$1
 		shift
@@ -59,17 +75,17 @@ do
 		shift
 		vcheck='-v'
 		stopoptions=''
-	elif [ "$1" = "-pdfignore" ]; then
+	elif [ "$1" = "-pdfignore" ] || [ "$1" = "-nopdf" ]; then
 		shift
-		pdf='ignore'
+		dopdf='ignore'
 		stopoptions=''
 	elif [ "$1" = "-forcepdf" ]; then
 		shift
-		pdf='force'
+		dopdf='force'
 		stopoptions=''
 	elif [ "$1" = "-pdfcheck" ]; then
 		shift
-		pdf='check'
+		dopdf='check'
 		stopoptions=''
 	elif [ "$1" = "-notimg" ]; then
 		shift
@@ -80,12 +96,18 @@ do
 		actionoption="$actionoption -set"
 		setrequested="-set"
 		stopoptions=''
+	elif [ "$1" = "-nofontcheck" ]; then
+		shift
+		checkfonts=''
+		echo "nofontcheck"
+		stopoptions=''
 	elif [ "$1" = "-vecto" ];	then
 		shift
 		vecto="-vecto"
 		stopoptions=''
-		echo -e "${ESC_error} -vecto option IS NOT IMPLEMENTED$ESC_normal"
-		exit
+		checkfonts=''
+		FontEmbedding=1 # logique booléenne inverse
+		echo -e "${ESC_warning} -vecto option est EN BÉTA EXPÉRIMENTALE $ESC_normal"
 	elif [ "$1" = "-pagenum" ]; then
 		shift
 		checkpagenums='check'
@@ -100,22 +122,25 @@ do
 done
 
 # *****************************
-# config for scribus project manager general default features
-
-. slacheck.defaultconfig
-
-# *****************************
-# config for project (must be specified... unless project is default project which is unlikely)
-# project config can be either in local or parent folder
-[ -f "./slacheck.config" ] && . ./slacheck.config $vconfig
-[ ! -f "./slacheck.config" ] && [ -f "../slacheck.config" ] && . ../slacheck.config $vconfig
-[ ! -f "./slacheck.config" ] && [ ! -f "../slacheck.config" ] && echo -e "${ESC_warning} No local config for project, using default for $1.sla$ESC_normal"
-
-# *****************************
 # config for chapter file
 
-[ ! -f "$1.sla" ] && echo -e "${ESC_error} missing $1.sla file${ESC_normal}" && exit
-[ -f "./$1.config" ] && . "./$1.config" $vconfig
+if [ ! -f "$1.sla" ] 
+then
+	echo -e "${ESC_error} missing $1.sla file${ESC_normal}" 
+	exit
+fi
+
+if [ -f "./$1.config" ] 
+then
+	. "./$1.config" $vconfig
+fi
+
+
+echo FontEmbedding=$FontEmbedding
+if [ "$FontEmbedding" = 1 ] 
+then
+	checkfonts=''
+fi
 
 # *****************************
 # -H : affiche le nom de fichier
@@ -151,8 +176,6 @@ slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
 
-slacheckattr $alloptions "$1" DOCUMENT 	DFONT		"$DFONT"		"DOCUMENT's default font"
-
 slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
 slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
 
@@ -165,6 +188,14 @@ slacheckattr $alloptions "$1" PDF		ImageP 		"$RGBprof"		"RGB color profile"
 
 slacheckattr $alloptions "$1" PDF		PrintP		"$CMYKprof"		"CMYK color profile"
 
+echo "checkfonts = $checkfonts"
+if [ "$checkfonts" = 'check' ]
+then
+	slacheckattr $alloptions "$1" DOCUMENT 	DFONT		"$DFONT"		"DOCUMENT's default font"
+	echo "FontEmbedding ciblé = $FontEmbedding (logique booléenne inversée)"
+	slacheckattr $alloptions "$1" PDF		FontEmbedding "$FontEmbedding"		"0 = Embeds full or subset fonts. 1=outlines = vectorise, sans fontes (logique booléenne inversée)"
+fi
+
 # other PDF output checks
 
 slacheckattr $alloptions "$1" PDF		PicRes		"$resolution"	"Résolution des images"
@@ -176,8 +207,8 @@ slacheckattr $alloptions "$1" PDF		Quality		"$Quality"		"Qualité de la compress
 slacheckattr $alloptions "$1" PDF		EmbedPDF	"$EmbedPDF"		"Embed PDFs"
 slacheckattr $alloptions "$1" PDF		Version		"$PDFversion"	"Version PDF - eg 15 for 1.5"
 
-slacheckattr $alloptions "$1" PDF	docInfoMarks 	"$docInfoMarks"		"Nom du fichier et date (+ agrandit les bleeds)"
-slacheckattr $alloptions "$1" PDF	useDocBleeds 	"$useDocBleeds"		"Utiliser le fond perdu du document"
+slacheckattr $alloptions "$1" PDF	docInfoMarks 	"$docInfoMarks"	"Nom du fichier et date (+ agrandit les bleeds)"
+slacheckattr $alloptions "$1" PDF	useDocBleeds 	"$useDocBleeds"	"Utiliser le fond perdu du document"
 slacheckattr $alloptions "$1" PDF		BTop		"$BTop"			"Fond perdu en haut"
 slacheckattr $alloptions "$1" PDF		BLeft		"$BLeft"		"Fond perdu intérieur (mais indiqué Left ?)"
 slacheckattr $alloptions "$1" PDF		BRight		"$BRight"		"Fond perdu extérieur (mais indiqué Right ?)"
@@ -198,9 +229,8 @@ slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEWIDTH	"$PAGEWIDTH"	"Largeur d
 slacheckattr $alloptions -all "$1" PAGE 		PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
 slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
 
-if [ "$checkpagenums" = 'check' ]
+if [ "$checkpagenums" = 'check' ] && [ "$pagenumval" != '' ]
 then
-	# echo slacheckattr $alloptions "$1" Section	Start 	$pagenumval		"La première page doit être la $pagenumval"
 	slacheckattr $alloptions "$1" Section	Start 	$pagenumval		"La première page doit être la $pagenumval"
 fi
 
@@ -211,7 +241,7 @@ then
 #	echo "Attributes have been checked. In case there are mistakes you can fix them using -set option"
 fi
 
-if [ "$pdf" = 'check' ] || [ "$pdf" = 'create' ] || [ "$pdf" = 'force' ]
+if [ "$dopdf" = 'check' ] || [ "$dopdf" = 'create' ] || [ "$dopdf" = 'force' ]
 then
 	# on vérifie qu'il y a un PDF et qu'il a été généré APRÈS l'édition du SLA
 	# stat -c %y n54.pdf : date de modif de n54.pdf
@@ -225,9 +255,9 @@ then
 		echo -e "${ESC_warning}${ESC_normal} $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
 	fi
 
-	if [ ! -f "$1.pdf" ] || [ "$1.sla" -nt "$1.pdf" ] || [ "$pdf" = 'force' ]
+	if [ ! -f "$1.pdf" ] || [ "$1.sla" -nt "$1.pdf" ] || [ "$dopdf" = 'force' ]
 	then
-		if [ "$pdf" = 'create' ] || [ "$pdf" = 'force' ]
+		if [ "$dopdf" = 'create' ] || [ "$dopdf" = 'force' ]
 		then
 			if [ -f "$1.pdf" ]
 			then 
@@ -241,10 +271,10 @@ then
 			
 			if [ "$vcheck" = '' ]
 			then 
-				$scribuscommand -g -ns -py `which slatopdf.py` -- $1.sla 2> /dev/null
+				$scribuscommand -g -ns -py `which slatopdf.py` -- "$1.sla" 2> /dev/null
 			else
-				echo $scribuscommand -g -ns -py `which slatopdf.py` -- $1.sla 
-				$scribuscommand -g -ns -py `which slatopdf.py` -- $1.sla 
+				echo $scribuscommand -g -ns -py `which slatopdf.py` -- "$1.sla"
+				$scribuscommand -g -ns -py `which slatopdf.py` -- "$1.sla"
 			fi
 
 			if [ -f "$1.pdf" ]
