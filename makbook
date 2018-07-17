@@ -12,10 +12,11 @@ sourcespattern=1
 sources="Part0 Part1 Part2 Part3 Part4"
 
 ####################################################################"
+# délégué au fichier de config
 
-# warning illogic SLA logic :
-# FontEmbedding=0 	# PDF with embeded or subset fonts
-# FontEmbedding=1	  # vectorized fonts (no font embeded)
+#logique inversée
+# FontEmbedding=0 	# PDF avec inclusion des fontes déclarées embedded ou outlined
+# FontEmbedding=1	# vectorisé = PDF sans les fonts
 
 ####################################################################"
 
@@ -23,6 +24,7 @@ sources="Part0 Part1 Part2 Part3 Part4"
 setopt=""
 
 pdfwithimages=oui
+pdfsuffix=""
 
 #checkpagenum=''
 checkpagenum='check'
@@ -46,6 +48,7 @@ nofontcheck=''
 pdfopt=''
 vectoopt=''
 
+
 ####################################################################
 
 reset
@@ -58,7 +61,7 @@ do
 	if  [ "$1" = '-?' ]
 	then
 		echo "mak makes the global PDF"
-		echo "Due to inline config, name of produced PDF is $output.pdf or $output-vecto.pdf"
+		echo "Due to inline config, name of produced PDF is $output.pdf, $output-vecto.pdf or $output-noimages.pdf"
 		echo 
 		echo "Options :"
 		echo "-? : get this help"
@@ -77,6 +80,7 @@ do
 		echo '-checkcolorall : check for (bad) uses of "All" named color'
 		echo '-getfonts : display embeded fonts'
 		echo "-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto"
+		echo "-noimages : dont include images in created PDF"
 		echo
 		exit
 	fi
@@ -84,6 +88,7 @@ do
 	if [ "$1" = "-vconfig" ]
 	then
 		vconfig=$1
+		stopoptions=''
 		shift
 		break
 	fi
@@ -91,6 +96,7 @@ do
 	if [ "$1" = "-vcheck" ]
 	then
 		vcheck=$1
+		stopoptions=''
 		shift
 		break
 	fi
@@ -99,6 +105,7 @@ do
 	then
 		getfonts=$1
 		echo "will output embeded fonts for each .pdf"
+		stopoptions=''
 		shift
 		break
 	fi
@@ -108,6 +115,7 @@ do
 		shift
 		check=''
 		echo "Chapter PDFs will be merged. No check will happen"
+		stopoptions=''
 		break
 	fi
 
@@ -116,6 +124,7 @@ do
 		shift
 		nofontcheck="-nofontcheck"
 		echo "No font embeding or subseting check will happen"
+		stopoptions=''
 		break
 	fi
 
@@ -200,6 +209,7 @@ do
 	then
 		shift
 		pdfignore='-pdfignore'
+		stopoptions=''
 		continue
 	fi
 
@@ -208,6 +218,7 @@ do
 		shift
 		pdfignore=''
 		pdfopt='-forcepdf'
+		stopoptions=''
 		continue
 	fi
 
@@ -228,12 +239,22 @@ do
 		continue
 	fi
 	
+	if [ "$1" = "-noimages" ]
+	then
+		pdfsuffix=$1
+		shift
+		pdfwithimages='no'
+		pdfopt='-forcepdf'
+		stopoptions=''
+		continue
+	fi
+
 done
 
 ####################################################################"
 verboseopt="$vconfig $vcheck"
 
-listepdf=''
+listepdf=""
 pagenumopt=''
 
 numpagecourant=1
@@ -263,11 +284,15 @@ do
 		continue
 	fi
 
+	# fold : dossier contenant le  SLA, sans / final
+	fold='.' 
 	if [ "$sourcespattern" = 1 ]
 	then
+		fold="$fic"
 		fic="$fic/$fic"
 	elif [ "$sourcespattern" = 2 ]
 	then 
+		fold="$fic/PAO"
 		fic="$fic/PAO/$fic"
 	fi
 
@@ -348,11 +373,24 @@ do
 		rm $cleansla
 	fi
 
+	if [ "$pdfwithimages" = "no" ]
+	then
+		mv -b "$fold/images" "$fold/images.bak"
+		mv -b $fic.pdf "$fic"avecimages.pdf
+	fi
+
 	if [ "$check" = "oui" ] 
 	then
 		echo "slacheck $vectoopt $setopt $pagenumopt $pdfopt $nofontcheck $pdfignore $verboseopt $fic"
 		slacheck $vectoopt $setopt $pagenumopt $pdfopt $nofontcheck $pdfignore $verboseopt $fic
 		echo "slacheck done"
+	fi
+
+	if [ "$pdfwithimages" = "no" ]
+	then
+		mv -b "$fold/images.bak" "$fold/images"
+		mv -b $fic.pdf "$fic$pdfsuffix".pdf
+		mv -b "$fic"avecimages.pdf $fic.pdf
 	fi
 
 	if [ "$getfonts" != '' ]
@@ -362,11 +400,7 @@ do
 		pdffonts "$fic.pdf"
 	fi
 
-	listepdf="$listepdf $fic.pdf"
-	if [ "$pdfwithimages" = "no" ]
-	then
-		mv -b "$fic/images" "$fic/images.bak"
-	fi
+	listepdf="$listepdf $fic$pdfsuffix.pdf"
 done
 
 if [ "$pdfignore" = "-pdfignore" ] || [ "$pdfignore" = "pdfignore" ]
@@ -382,7 +416,7 @@ then
 	# add some special file as a last page cover
 	# listepdf="$listepdf separettes/p68-HR.pdf"
 	echo "Merged PDFs : $listepdf"
-	pdftk $listepdf cat output $output.pdf
+	pdftk $listepdf cat output $output$pdfsuffix.pdf
 	if [ -f $output.pdf  ] 
 	then
 		ls -ltr $output.pdf 
@@ -394,14 +428,6 @@ fi
 # création d'une version sans marge (marges enlevées à l'arrache pour l'instant) : un peu utile pour impression un peu plus grand en pleine page
 # pdfcrop --margins '-25 -25 -25 -25' $output.pdf normargin_$output.pdf
 # [ -f normargin_$output.pdf  ] && evince normargin_$output.pdf & ls -ltr normargin_$output.pdf ; echo normargin_$output.pdf created OK
-
-if [ "$pdfwithimages" = "no" ]
-then
-	for fic in $sources
-	do
-		mv -b "$fic/images.bak" "$fic/images"
-	done
-fi
 
 if [ "$searched$xmlsearched" != '' ]
 then
@@ -422,3 +448,6 @@ if [ "$getfonts" != '' ]
 then
 	pdffonts $output.pdf
 fi
+
+
+
