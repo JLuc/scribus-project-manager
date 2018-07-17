@@ -135,6 +135,7 @@ then
 	. "./$1.config" $vconfig
 fi
 
+# warning : FontEmbedding = 1 when fonts are vectorized
 if [ "$FontEmbedding" = 1 ] 
 then
 	checkfonts=''
@@ -186,7 +187,6 @@ slacheckattr $alloptions "$1" PDF		ImageP 		"$RGBprof"		"RGB color profile"
 
 slacheckattr $alloptions "$1" PDF		PrintP		"$CMYKprof"		"CMYK color profile"
 
-echo "checkfonts = $checkfonts"
 if [ "$checkfonts" = 'check' ]
 then
 	slacheckattr $alloptions "$1" DOCUMENT 	DFONT		"$DFONT"		"DOCUMENT's default font"
