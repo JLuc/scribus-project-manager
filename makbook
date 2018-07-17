@@ -12,12 +12,12 @@ sourcespattern=1
 sources="Part0 Part1 Part2 Part3 Part4"
 
 ####################################################################"
-# délégué au fichier de config
-
-#logique inversée
-# FontEmbedding=0 	# PDF avec inclusion des fontes déclarées embedded ou outlined
-# FontEmbedding=1	# vectorisé = PDF sans les fonts
-
+# now managed inside config file :
+#
+# warning illogic SLA logic	
+# FontEmbedding=0	# PDF with embeded or subset fonts
+# FontEmbedding=	# vectorized fonts (no font embeded)
+#
 ####################################################################"
 
 # other user options
