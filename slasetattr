@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# $1 : sla file
+# $2 : main XML tag <balise principale
+# $3 : attribute
+# $4 : value
+
+
+# DEV NOTES
 # use xmlstarlet to update value of an attribute 
 # ======================================================================
 # cf http://xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html#d0e461
@@ -13,11 +20,6 @@
 # or combine grep and sed :
 # if [[ $(grep -E "Node Name=\"aaaaa\" Role=\"APPSERV" infile | sed 's/.*Role="\(.*\)"\/>/\1/') == "APPSERV,BACKEND,CLM" ]] ...
 # ======================================================================
-
-# $1 : fichier sla
-# $2 : <balise principale
-# $3 : attribut
-# $4 : valeur voulue
 
 if [ $# -lt 3 ]
 then 
