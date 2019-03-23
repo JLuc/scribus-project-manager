@@ -416,7 +416,10 @@ then
 	# add some special file as a last page cover
 	# listepdf="$listepdf separettes/p68-HR.pdf"
 	echo "Merged PDFs : $listepdf"
-	pdftk $listepdf cat output $output$pdfsuffix.pdf
+	# pdftk is now obsolete
+	# pdftk $listepdf cat output $output$pdfsuffix.pdf
+	sejda-console merge -f $listepdf -o $output$pdfsuffix.pdf
+	
 	if [ -f $output.pdf  ] 
 	then
 		ls -ltr $output.pdf 
