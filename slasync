@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -x  # for a detailed trace
+set -x  # for a detailed trace
 
 # use : slasync options master dest
 
@@ -11,16 +11,21 @@
 
 . shellcolors
 
+# default <goal>
+nodes="STYLE|CHARSTYLE|NotesStyles|COLOR|MASTERPAGE"
+
 while [ "$stopoptions" = "" ] 
 do
 	stopoptions=true
 	
 	if  [ "$1" = '-?' ]; then
-		echo "use : 'slasync [options] <goal> masterfile.sla chapterfile.sla'"
+		echo "use : 'slasync [options] <goal> masterfile chapterfile'"
 		echo "Replaces all paragraph styles and character styles of chapterfile.sla by those in masterfile.sla"
+		echo
 		echo "Possible options :"
-		echo "-keeps <str> : keeps paragraph and character style definitions whose NAME contains <str> string in chapter. These MUST NOT be defined in master. Only OK with -s or -a goal"
-		echo "-trace : displays styles kept in chapter and nodes import-forced from master"
+		echo "-keeps <str> : keeps paragraph and character style definitions whose NAME contains <str> string in chapter. These MUST NOT be defined in master. Only works with -s or -a goal"
+		echo "-trace : displays styles kept in chapter and nodes import-forced from master, and keeps intermediate file versions"
+		echo
 		echo "Possible goals :"
 		echo "-ps : replaces paragraph styles only"
 		echo "-cs : replaces character styles only"
@@ -28,8 +33,11 @@ do
 		echo "-ns : replaces notes styles"
 		echo "-m : replaces masterpages"
 		echo "-c : replaces colors"
-		echo "-a : replaces paragraph, character and notes styles + colors and masterpages"
+		echo "-a : replaces paragraph, character and notes styles + colors and masterpages (DEFAULT)"
 		echo "-nodes <node1|node2|node3> : replaces all nodes specified in pipe separated list"
+		echo
+		echo "masterfile and chapterfile should NOT include .sla : it will be automaticaly added"
+		echo
 		exit
 	elif [ "$1" = '-keeps' ]; then
 		shift
@@ -104,7 +112,7 @@ chapter=$2.sla
 if [ "$trace" != "" ]; then
 	echo 
 	echo "Origin :"
-	ls -la "$2.sla"
+	ls -la "$chapter"
 fi
 
 # xmlstarlet ed -u ... -v ... : update value of path to be value (-v) or other xpath value (-x)
@@ -146,30 +154,27 @@ if [ "$keeps" != "" ]; then
 fi
 
 # Capture master's nodes
-xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT" -m $nodesregexp -c . -n $master > "$master.$nodes.xml"
+xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT" -m $nodesregexp -c . -n "$master" > "$master.$nodes.xml"
 
 if [ "$trace" != "" ]; then
 	echo
-	echo "Found in master $master :"
+	echo "master"
+	ls -la "$master"
+	echo "Found $nodes in master :"
+	ls -la "$master.$nodes.xml"
 	cat "$master.$nodes.xml"
 	echo
-	ls -la "$chapter"
-	echo 
 fi
 
 # Empty chapter nodes
-cp "$chapter" "$chapter.without_$nodes.xml"
-
 IFS=$'_'
 for anode in $nodes
 do
 	if [ "$trace" != "" ]; then
 		echo "Emptying $anode nodes"
 	fi
-	xmlstarlet ed -d "SCRIBUSUTF8NEW/DOCUMENT/$anode" "$chapter.without_$nodes.xml" > .tmp
-	cp .tmp "$chapter.without_$nodes.xml"
+	xmlstarlet ed -d "SCRIBUSUTF8NEW/DOCUMENT/$anode" "$chapter" > "$chapter.without_$nodes.xml"
 done
-rm .tmp
 
 if [ "$trace" != "" ]; then
 	echo 
@@ -192,5 +197,8 @@ sed "/<DOCUMENT.*>/ r $chapter.kept_$nodes.xml" result.soon.sla > result.sla
 if [ "$trace" != "" ]; then
 	echo 
 	echo "With kept $nodes :"
-	ls -la "result.sla"
 fi
+
+mv result.sla "$chapter"
+ls -la "$chapter"
+
