@@ -189,6 +189,8 @@ You can either look for a string in the document's textframes or for a string ap
 The example makbook script takes care of deleting all conditional hyphens before performing the search (and also the xmlsearch)
 Results are displayed and also stored in the .found.tmp file
 
+There is also a `-replace` option
+
 ## Project notes and reminders
 
 When editing a project, it happens often that one needs to take notes about some part of a chapter. 
