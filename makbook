@@ -1,15 +1,31 @@
 #!/bin/sh
 
-# book definition
-output=book
+# set -x # trace shell
 
-sourcespattern=1
+# Paraméters
+
 # possible values for sourcespattern
-# 0 : no change to filename in sources
+# 0 : no change to filename in sources - 
+#		+ you MUST specify a value for "images_parent_folder for -noimages
 # 1 : filename stands for filename/filename(.sla)
 # 2 : filename stands for filename/PAO/filename(.sla)
+# 3 (TODO) : smart detect 2 or 1 or 0
 
-sources="Part0 Part1 Part2 Part3 Part4"
+####################################################################
+#
+# Place for your chapters and book definition
+#
+
+# example 1 (replace with your own config)
+sources="p_32 PA72/PA72_1 n_8 PA72/PA72_2 n_6 PA72/PA72_3 n_8 p_54"
+sourcespattern=0
+images_parent_folder="PA72"
+output="PA72/PA72"
+
+# example 2 (replace with your own config)
+sources="p_1 couv n_3 amisdemax n_8 audrey n_6 ricochet n_8 portail n_6 p_32 PA72 n_22 p_54 hxl n_8 verfeil n_4 repas_1 n_3 p_69"
+sourcespattern=1	
+output="N72"
 
 ####################################################################"
 # now managed inside config file :
@@ -80,7 +96,7 @@ do
 		echo '-checkcolorall : check for (bad) uses of "All" named color'
 		echo '-getfonts : display embeded fonts'
 		echo "-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto"
-		echo "-noimages : dont include images in created PDF"
+		echo "-noimages : dont include images in created PDF (souvent à combiner avec -forcepdf)"
 		echo
 		exit
 	fi
@@ -284,22 +300,25 @@ do
 		continue
 	fi
 
-	# fold : dossier contenant le  SLA, sans / final
-	fold='.' 
+	# images_parent_folder : dossier contenant le  SLA, sans / final
 	if [ "$sourcespattern" = 1 ]
 	then
-		fold="$fic"
+		images_parent_folder="$fic"
 		fic="$fic/$fic"
 	elif [ "$sourcespattern" = 2 ]
 	then 
-		fold="$fic/PAO"
+		images_parent_folder="$fic/PAO"
 		fic="$fic/PAO/$fic"
+	elif [ "$images_parent_folder" = "" ]
+	then 
+		images_parent_folder="."
 	fi
 
 	if [ ! -f "$fic.sla" ] 
 	then 
 		echo Error : missing $fic.sla file 
-		exit
+# il faut pas exit pour PA composite
+#		exit
 	fi
 
 	echo
@@ -411,24 +430,32 @@ fi
 
 if [ "$pdfignore" = "" ]
 then
-	mv $output.pdf $output.pdf.bak
+	mv $output$pdfsuffix.pdf $output$pdfsuffix.pdf.bak
 
 	# add some special file as a last page cover
 	# listepdf="$listepdf separettes/p68-HR.pdf"
 	echo "Merged PDFs : $listepdf"
-	# pdftk is now obsolete
-	# pdftk $listepdf cat output $output$pdfsuffix.pdf
-	sejda-console merge -f $listepdf -o $output$pdfsuffix.pdf
-	
-	if [ -f $output.pdf  ] 
+	echo "Avec /usr/bin/pdftk"
+	# sur ubuntu 18.04 pdftk n'est plus dispo et déclanchait une erreur en snap
+	# la commande suivante a réparé cela
+	# sudo ln -s /snap/pdftk/current/usr/bin/pdftk /usr/bin/pdftk
+	# à condition qu'on l'appelle en absolu :
+	/usr/bin/pdftk $listepdf cat output $output$pdfsuffix.pdf
+
+	# sinon on peut le faire avec sejda
+	# echo "Avec sejda-console (http://sejda.org/)"
+	# sejda-console merge -f $listepdf -o $output$pdfsuffix.pdf
+
+	if [ -f $output$pdfsuffix.pdf  ] 
 	then
-		ls -ltr $output.pdf 
-		echo $output.pdf created OK  
-		evince $output.pdf &
+		ls -ltr $output$pdfsuffix.pdf 
+		echo $output$pdfsuffix.pdf created OK  
+		evince $output$pdfsuffix.pdf &
 	fi
 fi
 
-# création d'une version sans marge (marges enlevées à l'arrache pour l'instant) : un peu utile pour impression un peu plus grand en pleine page
+# création d'une version sans marge (marges enlevées à l'arrache pour l'instant) : 
+# un peu utile pour impression un peu plus grand en pleine page
 # pdfcrop --margins '-25 -25 -25 -25' $output.pdf normargin_$output.pdf
 # [ -f normargin_$output.pdf  ] && evince normargin_$output.pdf & ls -ltr normargin_$output.pdf ; echo normargin_$output.pdf created OK
 
@@ -449,8 +476,5 @@ fi
 
 if [ "$getfonts" != '' ]
 then
-	pdffonts $output.pdf
+	pdffonts $output$pdfsuffix.pdf
 fi
-
-
-
