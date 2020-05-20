@@ -266,12 +266,13 @@ then
 			fi
 			echo "Export to $1.pdf"
 			
+			path_to_here=`pwd`			# appimages require an absolute path to SLA
 			if [ "$vcheck" = '' ]
 			then 
-				$scribuscommand -g -ns -py `which slatopdf.py` -- "$1.sla" 2> /dev/null
+				$scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla" 2> /dev/null
 			else
-				echo $scribuscommand -g -ns -py `which slatopdf.py` -- "$1.sla"
-				$scribuscommand -g -ns -py `which slatopdf.py` -- "$1.sla"
+				echo $scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla"
+				$scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla"
 			fi
 
 			if [ -f "$1.pdf" ]
