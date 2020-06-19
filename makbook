@@ -32,9 +32,12 @@ output="N72"
 #
 # warning illogic SLA logic	
 # FontEmbedding=0	# PDF with embeded or subset fonts
-# FontEmbedding=	# vectorized fonts (no font embeded)
+# FontEmbedding=1	# vectorized fonts (no font embeded)
 #
 ####################################################################"
+#
+# Default options
+#
 
 # other user options
 setopt=""
@@ -44,7 +47,7 @@ pdfsuffix=""
 
 #checkpagenum=''
 checkpagenum='check'
-pagenumwhy='' # reason why start page is set : 'set' or 'computed'echo
+pagenumwhy='' # reason how start page is set : 'set' by user or 'computed' by script
 
 # Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
 
@@ -394,8 +397,10 @@ do
 
 	if [ "$pdfwithimages" = "no" ]
 	then
-		mv -b "$fold/images" "$fold/images.bak"
+		mv -b "$images_parent_folder/images" "$images_parent_folder/images.bak"
 		mv -b $fic.pdf "$fic"avecimages.pdf
+		ls $images_parent_folder
+#		exit; # XXX
 	fi
 
 	if [ "$check" = "oui" ] 
@@ -407,7 +412,7 @@ do
 
 	if [ "$pdfwithimages" = "no" ]
 	then
-		mv -b "$fold/images.bak" "$fold/images"
+		mv -b "$images_parent_folder/images.bak" "$images_parent_folder/images"
 		mv -b $fic.pdf "$fic$pdfsuffix".pdf
 		mv -b "$fic"avecimages.pdf $fic.pdf
 	fi
