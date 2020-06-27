@@ -43,6 +43,7 @@ output="N72"
 setopt=""
 
 pdfwithimages=oui
+displaypdf=oui
 pdfsuffix=""
 
 #checkpagenum=''
@@ -100,6 +101,8 @@ do
 		echo '-getfonts : display embeded fonts'
 		echo "-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto"
 		echo "-noimages : dont include images in created PDF (souvent à combiner avec -forcepdf)"
+		echo "-nodisplay : dont open produced PDF"
+
 		echo
 		exit
 	fi
@@ -267,7 +270,14 @@ do
 		stopoptions=''
 		continue
 	fi
-
+	
+	if [ "$1" = "-nodisplay" ]
+	then
+		shift
+		displaypdf=''
+		stopoptions=''
+		continue
+	fi
 done
 
 ####################################################################"
@@ -455,7 +465,10 @@ then
 	then
 		ls -ltr $output$pdfsuffix.pdf 
 		echo $output$pdfsuffix.pdf created OK  
-		evince $output$pdfsuffix.pdf &
+		if [ "$displaypdf" != '' ]
+		then
+			evince $output$pdfsuffix.pdf &
+		fi	
 	fi
 fi
 
