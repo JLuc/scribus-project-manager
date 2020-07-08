@@ -35,17 +35,19 @@ And more.
 This repo contains the scripts I use to create the quaterly [Passerelle Eco](http://www.passerelleco.info/) magazine. This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, but some parts being very differents. 
 After creating dedicated config files, the scripts can be used for other projects having differents characteristics.
 
-### Main tools
+### Book related tools
 
-* **slacheck** : 
+* **mak book script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  WARNING : not uptodate but see example with it.
+
+### SLA document related tools
+
+* **slacheck** :
 *   - performs all possible checks and reports issues before sending PDF to printer. 
 *   - Optionnaly edit the SLA so it conforms to the defined standard.  
 * **slacheckimages** : checks that the used images are all stored in 'images' subfolder.  
 * **slacheckfonts** : checks that all used fonts are either embeded or subseted.  
-* **slasync** : updates some parts of a scribus document following a master document
 
-Also :
-* **mak book script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  WARNING : not uptodate but see example with it.
+* **slasync** : updates some parts of a scribus document following a master document
 
 ### Lower level scripts
 * **slacheckattr** : checks the value of some xml attribute in the scribus file
