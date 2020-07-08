@@ -202,7 +202,7 @@ Example :
 
 The project manager provides a way of doing so and being automaticaly reminded of these notes :
 - in the book text of an existing textframe, use "AAA" or "XXX" next to the text of your note (avoid this with long texts)
-- OR create a dedicated small textframe and type your note along with AAA or XXX prefix
+- OR create a dedicated small textframe and type your note along with AAA, XXX or PPP prefix
 - when project's manager `makbook` is called, it reminds you of all such notes it finds in the chapters of your book
 
 ## NEW : update chapters with master
@@ -223,17 +223,16 @@ Example :
 - `-m` option : replaces masterpages
 - `-nodes <node1|node2|node3>` : replaces all SLA (XML) nodes specified in pipe separated list
 
-
 See -h option for more
-
-WORK IN PROGRESS : 
-- slasync has not yet been thoroughfully tested and more features have to be coded
-- as for now, slasync doesnt change the chapter document at all : it produces a result.sla file out of the synced chapter
-- slasync should be called from within mak script so as to possibly apply to all chapters of a book project
 
 ## Other options
 
 Try `-?` option for each tool so as to see main options. Mainly makbook example  (to be split in 2 files : makbook and project.config)
+
+## Warning : Work in Progress : 
+- slasync has not yet been thoroughfully tested and more features have to be coded
+- as for now, slasync doesnt change the chapter document at all : it produces a result.sla file out of the synced chapter
+- todo : call slasync from within mak script so as to apply to all chapters of a book project
 
 #Other
 
