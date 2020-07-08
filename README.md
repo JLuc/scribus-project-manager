@@ -219,6 +219,10 @@ Example :
 - `slasync -c masterdoc chapter2` : updates defined colors
 - `slasync -a masterdoc chapter2` : updates both styles, masterpages and colors
 - `slasync -keeps loc -cs masterdoc chapter2` : updates styles but keeps all styles whose name contains 'loc' 
+- `-ns` option : replaces notes styles
+- `-m` option : replaces masterpages
+- `-nodes <node1|node2|node3>` : replaces all SLA (XML) nodes specified in pipe separated list
+
 
 See -h option for more
 
