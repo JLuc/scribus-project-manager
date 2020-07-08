@@ -42,6 +42,7 @@ After creating dedicated config files, the scripts can be used for other project
 *   - Optionnaly edit the SLA so it conforms to the defined standard.  
 * **slacheckimages** : checks that the used images are all stored in 'images' subfolder.  
 * **slacheckfonts** : checks that all used fonts are either embeded or subseted.  
+* **slasync** : updates some parts of a scribus document following a master document
 
 Also :
 * **mak book script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  WARNING : not uptodate but see example with it.
