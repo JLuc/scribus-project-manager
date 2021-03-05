@@ -26,6 +26,7 @@ do
 		echo "-h or -? : get this help"
 		echo "-keeps <str> : keeps paragraph and character style definitions whose NAME contains <str> string in chapter. These MUST NOT be defined in master. Only works with -s or -a goal"
 		echo "-trace : displays traces of operations, styles kept in chapter and nodes import-forced from master, and keeps intermediate file versions"
+		echo "-tmp : dont delete intermediate useless temporary files after proceeding"
 		echo
 		echo "Possible goals :"
 		echo "-ps : replaces paragraph styles only"
@@ -52,6 +53,10 @@ do
 		stopoptions=''
 	elif [ "$1" = "-trace" ]; then
 		trace=true
+		shift
+		stopoptions=''
+	elif [ "$1" = "-tmp" ]; then
+		keeptmp=true
 		shift
 		stopoptions=''
 	elif [ "$1" = '-nodes' ]; then
@@ -203,7 +208,15 @@ if [ "$keeps" != "" ]; then
 		echo "With kept $nodes :"
 	fi
 else
-	cp result.soon.sla "$chapter"
+	mv result.soon.sla "$chapter"
+fi
+
+if [ "$keeptmp" = "" ]; then
+	rm "$chapter.without_$nodes.xml"
+	rm "$master.$nodes.xml"
+	if [ -f result.soon.sla ]; then
+		rm result.soon.sla
+	fi
 fi
 
 if [ "$trace" != "" ]; then
@@ -211,5 +224,3 @@ if [ "$trace" != "" ]; then
 	echo "Result : $chapter is " `< "$chapter" wc -l` "lines long"
 fi
 ls -la "$chapter"
-
-
