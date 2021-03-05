@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x  # for a detailed trace
+# set -x  # for a detailed trace
 
 # use : slasync options master dest
 
@@ -18,20 +18,21 @@ while [ "$stopoptions" = "" ]
 do
 	stopoptions=true
 	
-	if  [ "$1" = '-?' ]; then
+	if  [ "$1" = '-?' ] || [ "$1" = '-h' ] ; then
 		echo "use : 'slasync [options] <goal> masterfile chapterfile'"
-		echo "Replaces all paragraph styles and character styles of chapterfile.sla by those in masterfile.sla"
+		echo "Replaces paragraph styles, character styles, notes styles, color and/or masterpages of chapterfile.sla by those in masterfile.sla"
 		echo
 		echo "Possible options :"
+		echo "-h or -? : get this help"
 		echo "-keeps <str> : keeps paragraph and character style definitions whose NAME contains <str> string in chapter. These MUST NOT be defined in master. Only works with -s or -a goal"
-		echo "-trace : displays styles kept in chapter and nodes import-forced from master, and keeps intermediate file versions"
+		echo "-trace : displays traces of operations, styles kept in chapter and nodes import-forced from master, and keeps intermediate file versions"
 		echo
 		echo "Possible goals :"
 		echo "-ps : replaces paragraph styles only"
 		echo "-cs : replaces character styles only"
 		echo "-s : replaces both paragraph and character styles"
 		echo "-ns : replaces notes styles"
-		echo "-m : replaces masterpages"
+		echo "-m : replaces masterpages (DOESNT WORK)"
 		echo "-c : replaces colors"
 		echo "-a : replaces paragraph, character and notes styles + colors and masterpages (DEFAULT)"
 		echo "-nodes <node1|node2|node3> : replaces all nodes specified in pipe separated list"
@@ -73,7 +74,7 @@ do
 		nodes=NotesStyles
 		shift
 	elif [ "$1" = "-m" ]; then
-		nodes=MASTERPAGE
+		nodes="MASTERPAGE|MASTEROBJECT"	
 		shift
 	elif [ "$1" = "-c" ]; then
 		nodes=COLOR
@@ -88,7 +89,7 @@ nodesregexp=$nodes
 nodes=`echo $nodes | tr '|' '_'`
 
 if [ "$1" = "" ]; then
-	echo -e "${ESC_error} missing masterpage in slasync command. Read doc using -?"
+	echo -e "${ESC_error} missing masterpage in slasync command. Read doc using -h"
 	exit
 elif [ ! -f "$1.sla" ]; then
 	echo -e "${ESC_error} in slasync command : file \"$1.sla\" doesnt exist. Read doc using -?"
@@ -111,7 +112,7 @@ chapter=$2.sla
 
 if [ "$trace" != "" ]; then
 	echo 
-	echo "Origin :"
+	echo "Origin : $chapter is " `< $chapter wc -l` " lines long"
 	ls -la "$chapter"
 fi
 
@@ -148,7 +149,7 @@ if [ "$keeps" != "" ]; then
 	xmlstarlet sel -t -m "SCRIBUSUTF8NEW/DOCUMENT/CHARSTYLE[contains(@CNAME,'$keeps')]" -c . -n $chapter >> "$chapter.kept_$nodes.xml"
 	if [ "$trace" != "" ]; then
 		echo
-		echo "Kept in $chapter :"
+		echo Keeping `< "$chapter.kept_$nodes.xml" wc -l` " lines in $chapter :"
 		cat "$chapter.kept_$nodes.xml"
 	fi
 fi
@@ -160,29 +161,32 @@ if [ "$trace" != "" ]; then
 	echo
 	echo "master"
 	ls -la "$master"
-	echo "Found $nodes in master :"
+	echo Found `< "$master.$nodes.xml" wc -l` " lines of $nodes in master :"
 	ls -la "$master.$nodes.xml"
 	cat "$master.$nodes.xml"
 	echo
 fi
 
 # Empty chapter nodes
+cp "$chapter" "$chapter.without_$nodes.xml" # required because > empties the destination file first
 IFS=$'_'
 for anode in $nodes
 do
 	if [ "$trace" != "" ]; then
 		echo "Emptying $anode nodes"
 	fi
-	xmlstarlet ed -d "SCRIBUSUTF8NEW/DOCUMENT/$anode" "$chapter" > "$chapter.without_$nodes.xml"
+	xmlstarlet ed -d "SCRIBUSUTF8NEW/DOCUMENT/$anode" "$chapter.without_$nodes.xml" > "$chapter.without_$nodes.tmp.xml"
+	cp "$chapter.without_$nodes.tmp.xml" "$chapter.without_$nodes.xml"
 done
+rm "$chapter.without_$nodes.tmp.xml"
 
 if [ "$trace" != "" ]; then
 	echo 
-	echo "without $nodes :"
+	echo "Without $nodes : `< "$chapter.without_$nodes.xml" wc -l` lines"
 	ls -la "$chapter.without_$nodes.xml"
 fi
 
-# Insert master nodes at the begining of the <DOCUMENT>
+# Insert master nodes at the begining of the <DOCUMENT> previously emptied of nodes
 sed "/<DOCUMENT.*>/ r $master.$nodes.xml" "$chapter.without_$nodes.xml" > result.soon.sla
 
 if [ "$trace" != "" ]; then
@@ -191,14 +195,21 @@ if [ "$trace" != "" ]; then
 	ls -la "result.soon.sla"
 fi
 
-# Insert kept nodes
-sed "/<DOCUMENT.*>/ r $chapter.kept_$nodes.xml" result.soon.sla > result.sla
+if [ "$keeps" != "" ]; then
+	# Insert kept nodes
+	sed "/<DOCUMENT.*>/ r $chapter.kept_$nodes.xml" result.soon.sla > "$chapter"
+	if [ "$trace" != "" ]; then
+		echo 
+		echo "With kept $nodes :"
+	fi
+else
+	cp result.soon.sla "$chapter"
+fi
 
 if [ "$trace" != "" ]; then
 	echo 
-	echo "With kept $nodes :"
+	echo "Result : $chapter is " `< "$chapter" wc -l` "lines long"
 fi
-
-mv result.sla "$chapter"
 ls -la "$chapter"
+
 
