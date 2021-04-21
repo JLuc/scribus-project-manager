@@ -22,7 +22,6 @@ then
 	sourcespattern=1
 fi
 
-
 ####################################################################"
 # (now managed inside config file)
 # warning illogic SLA logic	
@@ -34,6 +33,8 @@ fi
 #
 # Default options
 #
+
+numpage=1	 # start page
 
 # other user options
 setopt=""
@@ -49,8 +50,6 @@ pdfsubfolder='' # unused yet
 
 #checkpagenum=''
 checkpagenum='check'
-pagenumwhy='' # reason how start page is set : 'set' by user or 'computed' by script
-lastpagenumwhy=''
 
 # Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
 
@@ -72,8 +71,25 @@ vectoopt=''
 
 ####################################################################
 
+# init PATH to execs
+if [[ $PATH == */home/$USER/bin* ]] # ~/bin isnt ok for `which slatopdf.py`
+then
+	echo "path OK"
+else
+	export PATH="$PATH:/home/$USER/bin"
+	if [[ $PATH == */home/$USER/bin* ]]
+	then
+		echo "PATH OK now" 
+	else
+		echo $PATH
+		echo "PATH not ok yet" 
+		exit
+	fi
+fi
+
 reset
 . shellcolors
+echo -e "${ESC_info}PATH=$PATH$ESC_normal"
 
 while [ "$stopoptions" = "" ]
 do
@@ -287,7 +303,6 @@ verboseopt="$vconfig $vcheck"
 listepdf=""
 pagenumopt=''
 
-num_page=1
 for fic in $sources
 # fic = scribus filename or page declaration
 do 
@@ -296,15 +311,14 @@ do
 	if [ "${fic#p_}" != "$fic" ] && [ $checkpagenum = 'check' ]
 	then
 		num_page_set=${fic#p_}
-		if [ "$lastpagenumwhy" = computed ] && [ $num_page_set != $num_page ]	
+		if [ $num_page_set != $num_page ]	
 		then	# page jump could be intended
-			echo -e "${ESC_warning} or error : After adding pages, page num should be $num_page, but is set to $num_page_set"
+			echo -e "${ESC_warning} or error : After adding pages, page num should be $num_page, but is declared to be $num_page_set"
 			echo -e "Continuing.$ESC_normal"
 		fi
 		num_page=$num_page_set
 		pagenumopt="-pagenum $num_page"
 		echo "Début page $num_page"
-		pagenumwhy=set
 		continue
 	fi
 
@@ -313,15 +327,14 @@ do
 	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
 	then
 		echo -e "${ESC_info} Declared ${fic#n_} pages $ESC_normal"
-		pagenumwhy=computed
 
-		if [ "$lastpagecount" = "" ]
+		if [ "$pagecount" = "" ]
 		then
 			echo -e "$ESC_error Missing filename before pagecount in source variable - STOP $EXC_normal"
 			exit
-		elif [ "$lastpagecount" != ${fic#n_} ]
+		elif [ "$pagecount" != ${fic#n_} ]
 		then
-			echo -e "$ESC_error with ${fic#n_} declared pagecount - Found $lastpagecount - STOP $ESC_normal"
+			echo -e "$ESC_error with ${fic#n_} declared pagecount - Found $pagecount - STOP $ESC_normal"
 			exit
 		fi
 		continue
@@ -352,21 +365,13 @@ do
 	fi
 
 	echo
-	echo -n -e "$ESC_info $short_fic"
-	[ "$pagenumopt" != "" ] && echo " Start page = $num_page ($pagenumwhy)"
-	[ "$pagenumopt" = "" ] && echo -e "${ESC_error} no starting page $ESC_info"
 	let pagecount=`grep -c "\s<PAGE\s[^>]*PAGEXPOS\s*=\s*\"" "$fic.sla"`
-	echo -e "Nombre de page trouvé dans $last	fic : $pagecount $ESC_normal"
+	echo -n -e "$ESC_info $short_fic pagecount is $pagecount and begins at page $num_page"
+	pagenumopt="-pagenum $num_page"
 	echo -e "$ESC_normal"
 
 	num_page=$(( $num_page+$pagecount ))
-	pagenumopt="-pagenum $num_page"
-	echo "Computed next startpage = $num_page"
-
-	lastpagenumwhy=$pagenumwhy
-	lastpagecount=$pagecount
-	pagecount=''
-	pagenumwhy=''
+	echo "(Next part start page = $num_page)"
 
 	if [ "$searched" != '' ] || [ "$xmlsearched" != '' ]
 	then
