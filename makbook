@@ -1,40 +1,36 @@
-#!/bin/sh
-
+#!/bin/bash
 # set -x # trace shell
 
-# Paraméters
+# Paramétrages
+sources="p_1 coverstart n_3 p_4 amour n_1 remerciements apropostitre sommaire firstchapter second" 
+output="thebook"
 
 # possible values for sourcespattern
 # 0 : no change to filename in sources - 
-#		+ you MUST specify a value for "images_parent_folder for -noimages
+#		+ you MUST specify a value for "images_parent_folder so as to use -noimages option
 # 1 : filename stands for filename/filename(.sla)
 # 2 : filename stands for filename/PAO/filename(.sla)
 # 3 (TODO) : smart detect 2 or 1 or 0
+sourcespattern=1
 
-####################################################################
-#
-# Place for your chapters and book definition
-#
+if  [ "$1" = '-alt' ] ||  [ "$1" = '-ALT' ]
+then 
+	# config for alternative sources and output (sub-part)
+	shift
+	sources=""
+	output="alt"
+	sourcespattern=1
+fi
 
-# example 1 (replace with your own config)
-sources="p_32 PA72/PA72_1 n_8 PA72/PA72_2 n_6 PA72/PA72_3 n_8 p_54"
-sourcespattern=0
-images_parent_folder="PA72"
-output="PA72/PA72"
-
-# example 2 (replace with your own config)
-sources="p_1 couv n_3 amisdemax n_8 audrey n_6 ricochet n_8 portail n_6 p_32 PA72 n_22 p_54 hxl n_8 verfeil n_4 repas_1 n_3 p_69"
-sourcespattern=1	
-output="N72"
 
 ####################################################################"
-# now managed inside config file :
-#
+# (now managed inside config file)
 # warning illogic SLA logic	
 # FontEmbedding=0	# PDF with embeded or subset fonts
 # FontEmbedding=1	# vectorized fonts (no font embeded)
 #
 ####################################################################"
+
 #
 # Default options
 #
@@ -46,9 +42,15 @@ pdfwithimages=oui
 displaypdf=oui
 pdfsuffix=""
 
+# WIP
+# '' : PDF goes in same folder as SLA
+# 'PDF' : PDF goes to 'PDF' subfolder
+pdfsubfolder='' # unused yet
+
 #checkpagenum=''
 checkpagenum='check'
 pagenumwhy='' # reason how start page is set : 'set' by user or 'computed' by script
+lastpagenumwhy=''
 
 # Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
 
@@ -68,7 +70,6 @@ nofontcheck=''
 pdfopt=''
 vectoopt=''
 
-
 ####################################################################
 
 reset
@@ -78,13 +79,13 @@ while [ "$stopoptions" = "" ]
 do
 	stopoptions=true
 
-	if  [ "$1" = '-?' ]
+	if  [ "$1" = '-?' ] || [ "$1" = '-h' ]
 	then
 		echo "mak makes the global PDF"
 		echo "Due to inline config, name of produced PDF is $output.pdf, $output-vecto.pdf or $output-noimages.pdf"
 		echo 
 		echo "Options :"
-		echo "-? : get this help"
+		echo "-? or -h : get this help"
 		echo "-set : set value to correct value"
 		echo "-pagenum : also checks the first page number  of each doc"
 		echo "-nopagenum : dont check the first page number of each doc"
@@ -102,7 +103,6 @@ do
 		echo "-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto"
 		echo "-noimages : dont include images in created PDF (souvent à combiner avec -forcepdf)"
 		echo "-nodisplay : dont open produced PDF"
-
 		echo
 		exit
 	fi
@@ -160,7 +160,7 @@ do
 		shift
 		if [ "$1" = "" ]
 		then
-			echo "${ESC_error}-find option must have additionnal parameter$ESC_normal"
+			echo -e "${ESC_error}-find option must have additionnal parameter$ESC_normal"
 			exit
 		fi
 		searched="$1"
@@ -176,7 +176,7 @@ do
 		shift
 		if [ "$1" = "" ]
 		then
-			echo "${ESC_error}-xmlfind option must have additionnal parameter$ESC_normal"
+			echo -e "${ESC_error}-xmlfind option must have additionnal parameter$ESC_normal"
 			exit
 		fi
 		xmlsearched="$1"
@@ -202,13 +202,13 @@ do
 	then
 		if [ "$xmlsearched" = "" ] && [ "$searched" = "" ]
 		then 
-			echo "${ESC_error}-replace option must follow some -xmlfind or -find option. No such options found here.$ESC_normal"
+			echo -e "${ESC_error}-replace option must follow some -xmlfind or -find option. No such options found here.$ESC_normal"
 			exit
 		fi
 		shift
 		if [ "$1" = "" ]
 		then
-			echo "${ESC_error}-replace option must have additionnal parameter$ESC_normal"
+			echo -e "${ESC_error}-replace option must have additionnal parameter$ESC_normal"
 			exit
 		fi
 		replaced="$1"
@@ -278,6 +278,7 @@ do
 		stopoptions=''
 		continue
 	fi
+
 done
 
 ####################################################################"
@@ -286,36 +287,53 @@ verboseopt="$vconfig $vcheck"
 listepdf=""
 pagenumopt=''
 
-numpagecourant=1
+num_page=1
 for fic in $sources
+# fic = scribus filename or page declaration
 do 
+	# Appears before filename in $sources :
+	# Start page of next chapter declaration - let's check
 	if [ "${fic#p_}" != "$fic" ] && [ $checkpagenum = 'check' ]
 	then
-		numpageset=${fic#p_}
-		if [ "$lastpagenumwhy" = computed ] && [ $numpageset != $numpagecourant ]
-		then
-			echo "${ESC_warning} or error : After adding pages, page num should be $numpagecourant, but is set to $numpageset"
-			echo "Continuing.$ESC_normal"
+		num_page_set=${fic#p_}
+		if [ "$lastpagenumwhy" = computed ] && [ $num_page_set != $num_page ]	
+		then	# page jump could be intended
+			echo -e "${ESC_warning} or error : After adding pages, page num should be $num_page, but is set to $num_page_set"
+			echo -e "Continuing.$ESC_normal"
 		fi
-		numpagecourant=$numpageset
-		pagenumopt="-pagenum $numpagecourant"
-		echo "Début page $numpagecourant"
+		num_page=$num_page_set
+		pagenumopt="-pagenum $num_page"
+		echo "Début page $num_page"
 		pagenumwhy=set
 		continue
 	fi
 
+	# Appears after filename in $sources :
+	# pagenum for last chapter declaration - let's check
 	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
 	then
-		numpagecourant=$(( $numpagecourant+${fic#n_} ))
-		pagenumopt="-pagenum $numpagecourant"
-		echo "${fic#n_} pages"
+		echo -e "${ESC_info} Declared ${fic#n_} pages $ESC_normal"
 		pagenumwhy=computed
+
+		if [ "$lastpagecount" = "" ]
+		then
+			echo -e "$ESC_error Missing filename before pagecount in source variable - STOP $EXC_normal"
+			exit
+		elif [ "$lastpagecount" != ${fic#n_} ]
+		then
+			echo -e "$ESC_error with ${fic#n_} declared pagecount - Found $lastpagecount - STOP $ESC_normal"
+			exit
+		fi
 		continue
 	fi
 
-	# images_parent_folder : dossier contenant le  SLA, sans / final
+	# fic is a filename, without .sla extension. Lets get its full path
+
+	short_fic="$fic" # for echo only
+
 	if [ "$sourcespattern" = 1 ]
 	then
+		# images_parent_folder : sla folder, without ending slash
 		images_parent_folder="$fic"
 		fic="$fic/$fic"
 	elif [ "$sourcespattern" = 2 ]
@@ -329,16 +347,25 @@ do
 
 	if [ ! -f "$fic.sla" ] 
 	then 
-		echo Error : missing $fic.sla file 
-# il faut pas exit pour PA composite
-#		exit
+		echo -e "$ESC-error Error : missing $fic.sla file $ESC_normal"
+		# NO exit for mult-mixed component file
 	fi
 
 	echo
-	echo -n $fic
-	[ "$pagenumopt" != "" ] && echo " : page $numpagecourant ($pagenumwhy)"
-	[ "$pagenumopt" = "" ] && echo "${ESC_error}no starting page ?$ESC_normal"
+	echo -n -e "$ESC_info $short_fic"
+	[ "$pagenumopt" != "" ] && echo " Start page = $num_page ($pagenumwhy)"
+	[ "$pagenumopt" = "" ] && echo -e "${ESC_error} no starting page $ESC_info"
+	let pagecount=`grep -c "\s<PAGE\s[^>]*PAGEXPOS\s*=\s*\"" "$fic.sla"`
+	echo -e "Nombre de page trouvé dans $last	fic : $pagecount $ESC_normal"
+	echo -e "$ESC_normal"
+
+	num_page=$(( $num_page+$pagecount ))
+	pagenumopt="-pagenum $num_page"
+	echo "Computed next startpage = $num_page"
+
 	lastpagenumwhy=$pagenumwhy
+	lastpagecount=$pagecount
+	pagecount=''
 	pagenumwhy=''
 
 	if [ "$searched" != '' ] || [ "$xmlsearched" != '' ]
@@ -353,15 +380,15 @@ do
 
 	if [ "$searched" != '' ]
 	then
-		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""`
+		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""` 
 		echo Search for "$searched" : $count results
 		if [ "$count" != "0" ]
 		then
 			nbfound=$(( $nbfound+$count ))
 
-			echo $ESC_yellow
+			echo -e $ESC_yellow
 			grep -ni "<ITEXT[^>]*CH=" "$cleansla" | grep -i "\"[^\"]*$searched[^\"]*\"" | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//'
-			echo $ESC_normal
+			echo -e $ESC_normal
 			
 			# -n : line number
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
@@ -372,24 +399,23 @@ do
 	
 	if [ "$xmlsearched" != '' ]
 	then
-		# FIXME ? : malgré les -i ça n'a pas l'air case-insensitif
 		count=`grep -c -o -i "$xmlsearched" "$cleansla"`
 		echo Search for "$xmlsearched" : $count results
 		if [ "$count" != "0" ]
 		then
 			nbfound=$(( $nbfound+$count ))
 
-			echo $ESC_yellow
+			echo -e $ESC_yellow
 			grep -ni "$xmlsearched" "$cleansla"
-			echo $ESC_normal
+			echo -e $ESC_normal
 			
 			# -n : line number
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
 			grep -ni "$xmlsearched" "$cleansla" /dev/null >> .found.tmp
 			
-			echo "replaced=$replaced"
 			if [ "$replaced" != '' ]
 			then
+				echo "replaced=$replaced"
 				if [ -f "$fic.before_replace.sla" ]
 				then
 					echo "$fic.before_replace.sla allready exists : moved as .bak"
@@ -486,7 +512,7 @@ then
 	then
 		if [ "$checkcolorall" != '' ]
 		then
-			echo "${ESC_error}Some (bad) uses of COLOR=\"All\" have been found !$ESC_normal"
+			echo -e "${ESC_error}Some (bad) uses of COLOR=\"All\" have been found !$ESC_normal"
 		fi
 		cat .found.tmp
 	fi
