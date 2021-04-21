@@ -165,7 +165,7 @@ Examples :
 * ```sources="n_2 CoverBegin		Summary  n_8 InsidePages	n_5	Notes  p_20 CoverEnd"``` 
 
 So as to take effect into the PDF created files, these pagestart have to be recorded inside each SLA file.
-So as to do so : call `makbook` with the `-set` option. It will set all chapter's starting page according to "p_xxx" declarations OR (when there is no such declaration) so it follows previous chapter's last page.
+So as to do so : call `makbook` with the `-set` option. It will set all chapter's starting page according to "p_xxx" declarations OR (when there is no such declaration) so it follows previous chapter's last page. As for now, "n_xx" declarations cannot force pagecounts (in case you want some part of your document to be not exported in the book, place it outside of viewport)
 
 ## Checking PDF files validity ##
 
