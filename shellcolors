@@ -27,4 +27,4 @@ ESC_yellow='\033[1;33m'
 ESC_warning="${ESC_orange}Warning : "
 ESC_warning="${ESC_orange}Warning : "
 ESC_error="${ESC_red}Error : "
-
+ESC_info="${ESC_green}Info : "
