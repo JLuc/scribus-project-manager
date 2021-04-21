@@ -149,22 +149,23 @@ The `makbook` script does run `slacheck` on each file of the source and performs
 
 * Other options ... provide more options ! just ask with `-?`
 
-## Page numbering ##
+## Page numbering : set and check consistency ##
 
-The project can check and set the correct numberging of pages in each file of the project.
-2 ways to do so for each file of the project : 
-- specify the number of pages of the file, using n_6 (for a 6 pages document)
-- specify the starting page number for the file, using p_13 (for a document starting on page 13)
+The project can check or/and set the correct numberging of pages in each file of the project.
 
-Equivalent examples :
+When no specific declaration is added to the "sources" variable, the first page of the created book is 1 and each chapter's page numbers follows.
+Using the "sources" variable, it's possible to create page numbers jumps and checks :
+- adding "n_6" after the name of a chapter enables to check that this chapter is realy 6 pages long as intended. In case of mismatch, an error is issued and the script stops.
+- adding "p_13" before the name of a chapter ensures that the starting page number for this chapter is 13. In case of mismatch, a warning (not an error) is issued and the script continues.
+
+Its possible to mix n_ and p_ data, and this makes it possible to do stronger page numbering checks
+
+Examples :
 * ```sources="p_1 CoverBegin		p_3 Summary  p_7 InsidePages	p_15	Notes  p_20 CoverEnd"```
-* ```sources="n_2 CoverBegin		n_4 Summary  n_8 InsidePages	n_5	Notes  p_20 CoverEnd"```
+* ```sources="n_2 CoverBegin		Summary  n_8 InsidePages	n_5	Notes  p_20 CoverEnd"``` 
 
-So as to set the correct starting page numbering *inside* the sla file, use `-set` option
-
-Note : 
-* its possible to mix n_ and p_ data, and this makes it possible to do stronger page numbering checks
-* in case some page numbering is not valid, slacheck issues a warning
+So as to take effect into the PDF created files, these pagestart have to be recorded inside each SLA file.
+So as to do so : call `makbook` with the `-set` option. It will set all chapter's starting page according to "p_xxx" declarations OR (when there is no such declaration) so it follows previous chapter's last page.
 
 ## Checking PDF files validity ##
 
