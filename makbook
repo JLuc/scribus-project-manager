@@ -34,13 +34,11 @@ fi
 # Default options
 #
 
-numpage=1	 # start page
-
 # other user options
 setopt=""
 
 pdfwithimages=oui
-displaypdf=oui
+displaypdf=oui1
 pdfsuffix=""
 
 # WIP
@@ -302,6 +300,7 @@ verboseopt="$vconfig $vcheck"
 
 listepdf=""
 pagenumopt=''
+num_page=1	 # start page
 
 for fic in $sources
 # fic = scribus filename or page declaration
@@ -311,7 +310,7 @@ do
 	if [ "${fic#p_}" != "$fic" ] && [ $checkpagenum = 'check' ]
 	then
 		num_page_set=${fic#p_}
-		if [ $num_page_set != $num_page ]	
+		if [ "$num_page_set" != "$num_page" ]	
 		then	# page jump could be intended
 			echo -e "${ESC_warning} or error : After adding pages, page num should be $num_page, but is declared to be $num_page_set"
 			echo -e "Continuing.$ESC_normal"
@@ -326,7 +325,7 @@ do
 	# pagenum for last chapter declaration - let's check
 	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
 	then
-		echo -e "${ESC_info} Declared ${fic#n_} pages $ESC_normal"
+		# echo -e "${ESC_info} Declared ${fic#n_} pages $ESC_normal"
 
 		if [ "$pagecount" = "" ]
 		then
@@ -366,12 +365,9 @@ do
 
 	echo
 	let pagecount=`grep -c "\s<PAGE\s[^>]*PAGEXPOS\s*=\s*\"" "$fic.sla"`
-	echo -n -e "$ESC_info $short_fic pagecount is $pagecount and begins at page $num_page"
+	pagemsg="$ESC_info $short_fic pagecount is $pagecount and begins at page $num_page $ESC_normal"
 	pagenumopt="-pagenum $num_page"
-	echo -e "$ESC_normal"
-
 	num_page=$(( $num_page+$pagecount ))
-	echo "(Next part start page = $num_page)"
 
 	if [ "$searched" != '' ] || [ "$xmlsearched" != '' ]
 	then
@@ -381,12 +377,14 @@ do
 		# La commande `echo -ne '\u00AD' | xxd` donne c2ad qu'il faut utiliser avec \x dans `sed 's/...'` = 
 		cleansla="$fic.clean.sla"
 		sed -e 's/\xc2\xad//g' "$fic.sla" > "$cleansla"
+	else
+		echo -e $pagemsg
 	fi
 
 	if [ "$searched" != '' ]
 	then
 		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""` 
-		echo Search for "$searched" : $count results
+		echo Search for "$searched" in $fic : $count results
 		if [ "$count" != "0" ]
 		then
 			nbfound=$(( $nbfound+$count ))
