@@ -6,10 +6,9 @@ sources="p_1 coverstart n_3 p_4 amour n_1 remerciements apropostitre sommaire fi
 output="thebook"
 
 # possible values for sourcespattern
-# 0 : no change to filename in sources - 
-#		+ you MUST specify a value for "images_parent_folder so as to use -noimages option
-# 1 : filename stands for filename/filename(.sla)
-# 2 : filename stands for filename/PAO/filename(.sla)
+# 0 : no change to filename in sources + you MUST specify a value for "images_parent_folder in case you intend to use -noimages option
+# 1 : sources names stand for filename/filename(.sla)
+# 2 : sources names stand for filename/PAO/filename(.sla)
 # 3 (TODO) : smart detect 2 or 1 or 0
 sourcespattern=1
 
