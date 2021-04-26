@@ -10,6 +10,7 @@ output="thebook"
 # 1 : sources names stand for filename/filename(.sla)
 # 2 : sources names stand for filename/PAO/filename(.sla)
 # 3 (TODO) : smart detect 2 or 1 or 0
+
 sourcespattern=1
 
 if  [ "$1" = '-alt' ] ||  [ "$1" = '-ALT' ]
@@ -66,6 +67,7 @@ nofontcheck=''
 
 pdfopt=''
 vectoopt=''
+syncopt=''
 
 ####################################################################
 
@@ -118,6 +120,7 @@ do
 		echo "-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto"
 		echo "-noimages : dont include images in created PDF (souvent à combiner avec -forcepdf)"
 		echo "-nodisplay : dont open produced PDF"
+		echo "-sync opt : sync sla-declared styles, masterpages OR colors (depending on opt) of all chapters with project-declared syncmaster. opt=-c : sync colors, -s:styles, -cs:character styles, -ps:paragraph styles, -m:masterpages"
 		echo
 		exit
 	fi
@@ -206,8 +209,8 @@ do
 	if [ "$1" = "-nores" ]	
 	then
 		shift
-		displayfindresult=""	# dont display find result details
-		echo "dont display find result details"
+		displayfindresult=""	
+		# echo "dont display find result details"
 		stopoptions=''
 		continue
 	fi
@@ -304,6 +307,18 @@ do
 		continue
 	fi
 
+	if [ "$1" = "-sync" ]
+	then
+		shift
+		if [ "$1" = "" ]
+		then
+			echo -e "${ESC_error}-sync option must have additionnal parameter : -c, -s, -m, -ps or -cs to sync colors, styles, masterpages, paragraph styles or character styles $ESC_normal"
+			exit
+		fi
+		syncopt="$1"
+		stopoptions=''
+		shift
+	fi
 done
 
 ####################################################################"
@@ -328,7 +343,7 @@ do
 		fi
 		num_page=$num_page_set
 		pagenumopt="-pagenum $num_page"
-		if [ "$searched" = '' ] && [ "$xmlsearched" = '' ]
+		if [ "$searched" = '' ] && [ "$xmlsearched" = '' ] && [ "$syncopt" = '' ]
 		then
 			echo "Declared start page $num_page"
 		fi
@@ -339,8 +354,6 @@ do
 	# pagenum for last chapter declaration - let's check
 	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
 	then
-		# echo -e "${ESC_info} Declared ${fic#n_} pages $ESC_normal"
-
 		if [ "$pagecount" = "" ]
 		then
 			echo -e "$ESC_error Missing filename before pagecount in source variable - STOP $EXC_normal"
@@ -377,7 +390,8 @@ do
 		# NO exit for mult-mixed component file
 	fi
 
-	echo
+	# $fic.sla is an existing scribus file whose chapter name is $short_fic
+	
 	let pagecount=`grep -c "\s<PAGE\s[^>]*PAGEXPOS\s*=\s*\"" "$fic.sla"`
 	pagemsg="$ESC_info $short_fic pagecount is $pagecount and begins at page $num_page $ESC_normal"
 	pagenumopt="-pagenum $num_page"
@@ -392,13 +406,16 @@ do
 		cleansla="$fic.clean.sla"
 		sed -e 's/\xc2\xad//g' "$fic.sla" > "$cleansla"
 	else
-		echo -e $pagemsg
+		if [ "$syncopt" = '' ]
+		then		
+			echo -e $pagemsg
+		fi
 	fi
 
 	if [ "$searched" != '' ]
 	then
 		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""` 
-		echo Search for "$searched" in $fic : $count results
+		echo Search in $short_fic : $count results
 		if [ "$count" != "0" ] && [ "$displayfindresult" != "" ]
 		then
 			nbfound=$(( $nbfound+$count ))
@@ -412,12 +429,13 @@ do
 			grep -ni "<ITEXT[^>]*CH=\"[^\"]*$searched[^\"]*\"" "$cleansla" /dev/null | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//' >> .found.tmp
 		fi
 		rm $cleansla
+		continue
 	fi
 	
 	if [ "$xmlsearched" != '' ]
 	then
 		count=`grep -c -o -i "$xmlsearched" "$cleansla"`
-		echo Search for "$xmlsearched" : $count results
+		echo XmlSearch in $short_fic : $count results
 		if [ "$count" != "0" ] && [ "$displayfindresult" != "" ]
 		then
 			nbfound=$(( $nbfound+$count ))
@@ -446,6 +464,14 @@ do
 			fi
 		fi
 		rm $cleansla
+		continue
+	fi
+	
+	if [ "$syncopt" != '' ]
+	then
+		echo "slasync $syncopt $syncmaster $fic"
+		slasync $syncopt $syncmaster $fic
+		continue
 	fi
 
 	if [ "$pdfwithimages" = "no" ]
@@ -480,15 +506,19 @@ do
 	listepdf="$listepdf $fic$pdfsuffix.pdf"
 done
 
-if [ "$pdfignore" = "-pdfignore" ] || [ "$pdfignore" = "pdfignore" ]
+if [ "$pdfignore" = "-pdfignore" ] || [ "$pdfignore" = "pdfignore" ] || [ "$searched" != '' ] || [ "$xmlsearched" != '' ] || [ "$syncopt" != '' ]
 then
+	echo "Done"
 	exit
 fi
 
 
 if [ "$pdfignore" = "" ]
 then
-	mv $output$pdfsuffix.pdf $output$pdfsuffix.pdf.bak
+	if [ -f $output$pdfsuffix.pdf ]
+	then
+		mv $output$pdfsuffix.pdf $output$pdfsuffix.pdf.bak
+	fi
 
 	# add some special file as a last page cover
 	# listepdf="$listepdf separettes/p68-HR.pdf"
