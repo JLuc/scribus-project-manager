@@ -38,7 +38,7 @@ fi
 setopt=""
 
 pdfwithimages=oui
-displaypdf=oui1
+displaypdf=oui
 pdfsuffix=""
 
 # WIP
@@ -58,6 +58,7 @@ vcheck=''
 searched=''	 	# searched string
 xmlsearched=''	# xml searched string
 nbfound=0
+displayfindresult="yes"
 
 checkcolorall=''
 pdfignore=''
@@ -111,6 +112,7 @@ do
 		echo "-vcheck : very verbose output about check"
 		echo '-find "word1 or phrase1" : find occurences in all chapters text'
 		echo '-xmlfind "string1" : find occurences of string in all chapters SLA file (text + xml tags)'
+		echo '-nores : do not list search results details (used with -find or -xmlfind)'
 		echo '-replace "string2" : replace found occurences with specified string2. (with -xmlfind only. with -find still to do)'
 		echo '-checkcolorall : check for (bad) uses of "All" named color'
 		echo '-getfonts : display embeded fonts'
@@ -197,10 +199,20 @@ do
 		check=''
 		pdfignore='-pdfignore'
 		stopoptions=''
+		echo "xmlfind $xmlsearched"
 		shift
 		continue
 	fi
 
+	if [ "$1" = "-nores" ]	
+	then
+		shift
+		displayfindresult=""	# dont display find result details
+		echo "dont display find result details"
+		stopoptions=''
+		continue
+	fi
+	
 	if [ "$1" = '-checkcolorall' ]
 	then
 		checkcolorall='yes'
@@ -317,7 +329,10 @@ do
 		fi
 		num_page=$num_page_set
 		pagenumopt="-pagenum $num_page"
-		echo "Début page $num_page"
+		if [ "$searched" = '' ] && [ "$xmlsearched" = '' ]
+		then
+			echo "Declared start page $num_page"
+		fi
 		continue
 	fi
 
@@ -385,7 +400,7 @@ do
 	then
 		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""` 
 		echo Search for "$searched" in $fic : $count results
-		if [ "$count" != "0" ]
+		if [ "$count" != "0" ] && [ "$displayfindresult" != "" ]
 		then
 			nbfound=$(( $nbfound+$count ))
 
@@ -404,7 +419,7 @@ do
 	then
 		count=`grep -c -o -i "$xmlsearched" "$cleansla"`
 		echo Search for "$xmlsearched" : $count results
-		if [ "$count" != "0" ]
+		if [ "$count" != "0" ] && [ "$displayfindresult" != "" ]
 		then
 			nbfound=$(( $nbfound+$count ))
 
@@ -510,7 +525,7 @@ if [ "$searched$xmlsearched" != '' ]
 then
 	echo Done
 	echo 
-	echo ${ESC_yellow}Searching \'$searched$xmlsearched\' :  $nbfound results found in whole book$ESC_normal
+	echo ${ESC_yellow}Searching \'$searched$xmlsearched\' : total $nbfound results found in whole book$ESC_normal
 	if [ $nbfound != 0 ]
 	then
 		if [ "$checkcolorall" != '' ]
