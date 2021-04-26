@@ -1,5 +1,5 @@
 #!/bin/bash
-# version 1.0.0
+# version 1.1.0
 
 # set -x # trace shell
 
@@ -42,6 +42,7 @@ fi
 setopt=""
 
 pdfwithimages=oui
+pdfwithbleeds=oui
 displaypdf=oui
 pdfsuffix=""
 
@@ -69,7 +70,7 @@ pdfignore=''
 getfonts=''
 nofontcheck=''
 
-pdfopt=''
+forcepdfopt=''
 vectoopt=''
 syncopt=''
 
@@ -125,6 +126,7 @@ do
 		echo "-noimages : dont include images in created PDF (souvent à combiner avec -forcepdf)"
 		echo "-nodisplay : dont open produced PDF"
 		echo "-sync opt : sync sla-declared styles, masterpages OR colors (depending on opt) of all chapters with project-declared syncmaster. opt=-c : sync colors, -s:styles, -cs:character styles, -ps:paragraph styles, -m:masterpages"
+		echo "-nobleeds : create chapters and PDF having -nobleeds suffix, using document's bleeds & without cropmarks."
 		echo
 		exit
 	fi
@@ -219,6 +221,16 @@ do
 		continue
 	fi
 	
+	if [ "$1" = "-nobleeds" ]
+	then
+		pdfsuffix=$1
+		shift
+		pdfwithbleeds='no'
+		forcepdfopt='-forcepdf'
+		stopoptions=''
+		continue
+	fi	
+	
 	if [ "$1" = '-checkcolorall' ]
 	then
 		checkcolorall='yes'
@@ -253,7 +265,7 @@ do
 	if [ "$1" = "-set" ]
 	then
 		shift
-		setopt='-set'
+		setopt="$setopt -set"
 		stopoptions=''
 		pdfignore='-pdfignore'
 		continue
@@ -271,7 +283,7 @@ do
 	then
 		shift
 		pdfignore=''
-		pdfopt='-forcepdf'
+		forcepdfopt='-forcepdf'
 		stopoptions=''
 		continue
 	fi
@@ -298,7 +310,7 @@ do
 		pdfsuffix=$1
 		shift
 		pdfwithimages='no'
-		pdfopt='-forcepdf'
+		forcepdfopt='-forcepdf'
 		stopoptions=''
 		continue
 	fi
@@ -481,23 +493,44 @@ do
 	if [ "$pdfwithimages" = "no" ]
 	then
 		mv -b "$images_parent_folder/images" "$images_parent_folder/images.bak"
-		mv -b $fic.pdf "$fic"avecimages.pdf
+		mv -b $fic.pdf "$fic"-withimages.pdf
 		ls $images_parent_folder
-#		exit; # XXX
+	fi
+
+	if [ "$pdfwithbleeds" = "no" ]
+	then
+		# save withbleeds version 
+		cp -p -f "$fic".sla "$fic"-withbleeds.sla	# -p preserves timestamp
+		cp -p -f "$fic".pdf "$fic"-withbleeds.pdf
+		slacheck -nobleeds -set -pdfignore -nofontcheck $verboseopt $fic
 	fi
 
 	if [ "$check" = "oui" ] 
 	then
-		echo "slacheck $vectoopt $setopt $pagenumopt $pdfopt $nofontcheck $pdfignore $verboseopt $fic"
-		slacheck $vectoopt $setopt $pagenumopt $pdfopt $nofontcheck $pdfignore $verboseopt $fic
+		echo "slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $pdfignore $verboseopt $fic"
+		slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $pdfignore $verboseopt $fic
 		echo "slacheck done"
 	fi
 
 	if [ "$pdfwithimages" = "no" ]
 	then
+		# on restaure le dossier image
 		mv -b "$images_parent_folder/images.bak" "$images_parent_folder/images"
-		mv -b $fic.pdf "$fic$pdfsuffix".pdf
-		mv -b "$fic"avecimages.pdf $fic.pdf
+		# on sav le nouveau pdf sans image 
+		mv -b "$fic".pdf "$fic$pdfsuffix".pdf
+		# on restaure le pdf normal
+		mv -b "$fic"-withimages.pdf "$fic".pdf
+	fi
+
+	if [ "$pdfwithbleeds" = "no" ]
+	then
+		# save sla without bleeds and restore sla with bleeds
+		mv -b "$fic".sla "$fic"-nobleeds.sla
+		cp -p -f "$fic"-withbleeds.sla "$fic".sla	# -p preserves timestamp
+		rm -f "$fic"-withbleeds.sla
+		# save pdf without bleeds and restore pdf with bleeds
+		mv -b "$fic".pdf "$fic"$pdfsuffix.pdf
+		cp -p -f "$fic"-withbleeds.pdf "$fic".pdf
 	fi
 
 	if [ "$getfonts" != '' ]
