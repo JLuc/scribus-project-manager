@@ -1,608 +1,308 @@
 #!/bin/bash
-# version 1.1.0
 
-# set -x # trace shell
+# shell memos :
+# 	set -x  # for a detailed trace
+# 	${parameter=default}, ${parameter:=default} # If parameter not set, set it to default.
 
-
-
-# Paramétrages
-sources="p_1 coverstart n_3 p_4 amour n_1 remerciements apropostitre sommaire firstchapter second" 
-output="thebook"
-
-# possible values for sourcespattern
-# 0 : no change to filename in sources + you MUST specify a value for "images_parent_folder in case you intend to use -noimages option
-# 1 : sources names stand for filename/filename(.sla)
-# 2 : sources names stand for filename/PAO/filename(.sla)
-# 3 (TODO) : smart detect 2 or 1 or 0
-
-sourcespattern=1
-
-if  [ "$1" = '-alt' ] ||  [ "$1" = '-ALT' ]
-then 
-	# config for alternative sources and output (sub-part)
-	shift
-	sources=""
-	output="alt"
-	sourcespattern=1
-fi
-
-####################################################################"
-# (now managed inside config file)
-# warning illogic SLA logic	
-# FontEmbedding=0	# PDF with embeded or subset fonts
-# FontEmbedding=1	# vectorized fonts (no font embeded)
-#
-####################################################################"
-
-#
-# Default options
-#
-
-# other user options
-setopt=""
-
-pdfwithimages=oui
-pdfwithbleeds=oui
-displaypdf=oui
-pdfsuffix=""
-
-# WIP
-# '' : PDF goes in same folder as SLA
-# 'PDF' : PDF goes to 'PDF' subfolder
-pdfsubfolder='' # unused yet
-
-#checkpagenum=''
-checkpagenum='check'
-
-# Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
-
-check='oui'		# '' to not check (only merge chapter pdfs)
-vconfig=''
-vcheck=''
-
-searched=''	 	# searched string
-xmlsearched=''	# xml searched string
-nbfound=0
-displayfindresult="yes"
-
-checkcolorall=''
-pdfignore=''
-getfonts=''
-nofontcheck=''
-
-forcepdfopt=''
-vectoopt=''
-syncopt=''
-
-####################################################################
-
-# init PATH to execs
-if [[ $PATH == */home/$USER/bin* ]] # ~/bin isnt ok for `which slatopdf.py`
-then
-	echo "path OK"
-else
-	export PATH="$PATH:/home/$USER/bin"
-	if [[ $PATH == */home/$USER/bin* ]]
-	then
-		echo "PATH OK now" 
-	else
-		echo $PATH
-		echo "PATH not ok yet" 
-		exit
-	fi
-fi
-
-reset
 . shellcolors
-echo -e "${ESC_info}PATH=$PATH$ESC_normal"
 
-while [ "$stopoptions" = "" ]
+# *****************************
+# SHELL configs for defaults features
+scribuscommand="scribus" # can be changed for some of the files configs so as to avoid scribus crashes
+
+checkimg='check'		# check that used images are in images subfolder
+
+checkfonts='check'		# check that used fonts are either embeded or subset
+vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
+checkpagenums='check'	# do check startpage num
+dopdf='create' 		 	# dopdf = create : checks pdf exists and is recent and recreate it when not 
+						# dopdf = check : only checks
+						# dopdf = ignore : neither checks nor (re)creates pdf
+						# dopdf = force : (re)create all pdf whether existing or recent or not
+
+actionoption='' 	# default : dont change SLAs
+					# "-set" edit sla so it checks config specs
+
+verboseoption=''	# default : not verbose
+# '-v' for verbose
+
+# =====================================================================
+vcheck=''
+vconfig=''
+setrequested=''
+actionoption=''
+pagenumval=''
+
+# *****************************
+# config for scribus project manager general default features
+
+. slacheck.defaultconfig
+
+# *****************************
+# config for project (must be specified... unless project is default project which is unlikely)
+# project config can be either in local or parent folder
+[ -f "./slacheck.config" ] && . ./slacheck.config $vconfig
+[ ! -f "./slacheck.config" ] && [ -f "../slacheck.config" ] && echo -e "${ESC_warning}Parent's folder default slacheck.config is used" &&  . ../slacheck.config $vconfig
+[ ! -f "./slacheck.config" ] && [ -f "../../slacheck.config" ] && echo -e "${ESC_warning}Grand-parent's folder default slacheck.config is used" && . ../../slacheck.config $vconfig
+[ ! -f "./slacheck.config" ] && [ ! -f "../slacheck.config" ] && [ ! -f "../../slacheck.config" ] && echo -e "${ESC_warning} No local config for project, using default for $1.sla$ESC_normal"
+
+while [ "$stopoptions" = "" ] 
 do
 	stopoptions=true
-
-	if  [ "$1" = '-?' ] || [ "$1" = '-h' ]
-	then
-		echo "mak makes the global PDF"
-		echo "Due to inline config, name of produced PDF is $output.pdf, $output-vecto.pdf or $output-noimages.pdf"
-		echo 
+	
+	if  [ "$1" = '-?' ]; then
+		echo "slacheck checks workflow validity of a scribus file"
 		echo "Options :"
-		echo "-? or -h : get this help"
-		echo "-set : set value to correct value"
-		echo "-pagenum : also checks the first page number  of each doc"
-		echo "-nopagenum : dont check the first page number of each doc"
-		echo "-nocheck : dont check anything, just merge all chapter's pdfs"
-		echo '-nofontcheck : dont check fonts'
-		echo "-pdfignore : dont create chapters PDFs nor merge them (only checks SLA)"
-		echo "-forcepdf : force all pdf (re)creation, even when it exists allready"
-		echo "-vconfig : verbose output about config files"
-		echo "-vcheck : very verbose output about check"
-		echo '-find "word1 or phrase1" : find occurences in all chapters text'
-		echo '-xmlfind "string1" : find occurences of string in all chapters SLA file (text + xml tags)'
-		echo '-nores : do not list search results details (used with -find or -xmlfind)'
-		echo '-replace "string2" : replace found occurences with specified string2. (with -xmlfind only. with -find still to do)'
-		echo '-checkcolorall : check for (bad) uses of "All" named color'
-		echo '-getfonts : display embeded fonts'
-		echo "-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto"
-		echo "-noimages : dont include images in created PDF (souvent à combiner avec -forcepdf)"
-		echo "-nodisplay : dont open produced PDF"
-		echo "-sync opt : sync sla-declared styles, masterpages OR colors (depending on opt) of all chapters with project-declared syncmaster. opt=-c : sync colors, -s:styles, -cs:character styles, -ps:paragraph styles, -m:masterpages"
-		echo "-nobleeds : create chapters and PDF having -nobleeds suffix, using document's bleeds & without cropmarks."
+		echo "-? : get this help"
+		echo "-vconfig : verbose config output"
+		echo "-vcheck : verbose check output"
+		echo "-pdfignore : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
+		echo "-pdfcheck : check pdf, but dont re-create it in case required"
+		echo "-nofontcheck : doesnt check fonts"
+		echo "-forcepdf : (re)create pdf even when it exists allready"
+		echo "-notimg : dont check for correct included image files"
+		echo "-set : change the SLA so it conforms to project standards (save in .bak)"
+		echo "-vecto : all fonts must be vectorized - BETA" # il faut FontEmbedding="1" (logique booléenne inversée)
+		echo "-pagenum PPP : check that section begins at page number PPP"
+		echo "-nobleeds : no cropmarks + useDocBleeds"
 		echo
 		exit
-	fi
-
-	if [ "$1" = "-vconfig" ]
-	then
+	elif [ "$1" = "-vconfig" ]; then
 		vconfig=$1
+		shift
 		stopoptions=''
+	elif [ "$1" = "-vcheck" ]; then
 		shift
-		break
-	fi
-
-	if [ "$1" = "-vcheck" ]
-	then
-		vcheck=$1
+		vcheck='-v'
 		stopoptions=''
+	elif [ "$1" = "-pdfignore" ] || [ "$1" = "-nopdf" ]; then
 		shift
-		break
-	fi
-
-	if [ "$1" = "-getfonts" ]
-	then
-		getfonts=$1
-		echo "will output embeded fonts for each .pdf"
+		dopdf='ignore'
 		stopoptions=''
+	elif [ "$1" = "-forcepdf" ]; then
 		shift
-		break
-	fi
-
-	if [ "$1" = "-nocheck" ]
-	then
-		shift
-		check=''
-		echo "Chapter PDFs will be merged. No check will happen"
+		dopdf='force'
 		stopoptions=''
-		break
-	fi
-
-	if [ "$1" = "-nofontcheck" ]
-	then
+	elif [ "$1" = "-pdfcheck" ]; then
 		shift
-		nofontcheck="-nofontcheck"
-		echo "No font embeding or subseting check will happen"
+		dopdf='check'
 		stopoptions=''
-		break
-	fi
-
-	if [ -f .found.tmp ]
-	then
-		rm .found.tmp
-	fi
-
-	if [ "$1" = "-find" ]
-	then
+	elif [ "$1" = "-notimg" ]; then
 		shift
-		if [ "$1" = "" ]
-		then
-			echo -e "${ESC_error}-find option must have additionnal parameter$ESC_normal"
-			exit
+		checkimg='dontcheck'
+		stopoptions=''
+	elif [ "$1" = "-set" ]; then
+		shift
+		actionoption="$actionoption -set"
+		setrequested="-set"
+		stopoptions=''
+	elif [ "$1" = "-nofontcheck" ]; then
+		shift
+		checkfonts=''
+		stopoptions=''
+	elif [ "$1" = "-vecto" ];	then
+		shift
+		vecto="-vecto"
+		stopoptions=''
+		checkfonts=''
+		FontEmbedding=1 # logique booléenne inverse
+		echo -e "${ESC_warning} -vecto option est EN BÉTA EXPÉRIMENTALE $ESC_normal"
+	elif [ "$1" = '-nobleeds' ]; then	# overwrites config option
+		shift
+		stopoptions=''
+		useDocBleeds="1" 
+		cropMarks="0"
+	elif [ "$1" = "-pagenum" ]; then
+		shift
+		checkpagenums='check'
+		if [ "$1" = '' ]; then
+			echo -e "${ESC_error} missing page numer after -pagenum$ESC_normal"
+			exit;
 		fi
-		searched="$1"
-		check=''
-		pdfignore='-pdfignore'
+		pagenumval="$1"
+		shift
 		stopoptions=''
-		shift
-		continue
-	fi
-
-	if [ "$1" = "-xmlfind" ]
-	then
-		shift
-		if [ "$1" = "" ]
-		then
-			echo -e "${ESC_error}-xmlfind option must have additionnal parameter$ESC_normal"
-			exit
-		fi
-		xmlsearched="$1"
-		check=''
-		pdfignore='-pdfignore'
-		stopoptions=''
-		echo "xmlfind $xmlsearched"
-		shift
-		continue
-	fi
-
-	if [ "$1" = "-nores" ]	
-	then
-		shift
-		displayfindresult=""	
-		# echo "dont display find result details"
-		stopoptions=''
-		continue
-	fi
-	
-	if [ "$1" = "-nobleeds" ]
-	then
-		pdfsuffix=$1
-		shift
-		pdfwithbleeds='no'
-		forcepdfopt='-forcepdf'
-		stopoptions=''
-		continue
-	fi	
-	
-	if [ "$1" = '-checkcolorall' ]
-	then
-		checkcolorall='yes'
-		xmlsearched="COLOR=\"All\""
-		check=''
-		pdfignore='-pdfignore'
-		stopoptions=''
-		shift
-		continue
-	fi
-
-	if [ "$1" = "-replace" ]
-	then
-		if [ "$xmlsearched" = "" ] && [ "$searched" = "" ]
-		then 
-			echo -e "${ESC_error}-replace option must follow some -xmlfind or -find option. No such options found here.$ESC_normal"
-			exit
-		fi
-		shift
-		if [ "$1" = "" ]
-		then
-			echo -e "${ESC_error}-replace option must have additionnal parameter$ESC_normal"
-			exit
-		fi
-		replaced="$1"
-		shift
-		echo "Replace all found strings with '$replaced'"
-		stopoptions=''
-		continue
-	fi
-
-	if [ "$1" = "-set" ]
-	then
-		shift
-		setopt="$setopt -set"
-		stopoptions=''
-		pdfignore='-pdfignore'
-		continue
-	fi
-
-	if [ "$1" = "-pdfignore" ]
-	then
-		shift
-		pdfignore='-pdfignore'
-		stopoptions=''
-		continue
-	fi
-
-	if [ "$1" = "-forcepdf" ]
-	then
-		shift
-		pdfignore=''
-		forcepdfopt='-forcepdf'
-		stopoptions=''
-		continue
-	fi
-
-	if [ "$1" = "-vecto" ]
-	then
-		shift
-		vectoopt='-vecto'	# pour slacheck et en suffixe de output
-		output="$output$vectoopt"
-		stopoptions=''
-		continue
-	fi
-
-	if [ "$1" = "-nopagenum" ]
-	then
-		shift
-		checkpagenum=''
-		stopoptions=''
-		continue
-	fi
-	
-	if [ "$1" = "-noimages" ]
-	then
-		pdfsuffix=$1
-		shift
-		pdfwithimages='no'
-		forcepdfopt='-forcepdf'
-		stopoptions=''
-		continue
-	fi
-	
-	if [ "$1" = "-nodisplay" ]
-	then
-		shift
-		displaypdf=''
-		stopoptions=''
-		continue
-	fi
-
-	if [ "$1" = "-sync" ]
-	then
-		shift
-		if [ "$1" = "" ]
-		then
-			echo -e "${ESC_error}-sync option must have additionnal parameter : -c, -s, -m, -ps or -cs to sync colors, styles, masterpages, paragraph styles or character styles $ESC_normal"
-			exit
-		fi
-		syncopt="$1"
-		stopoptions=''
-		shift
 	fi
 done
 
-####################################################################"
-verboseopt="$vconfig $vcheck"
+# *****************************
+# config for chapter file
 
-listepdf=""
-pagenumopt=''
-num_page=1	 # start page
-
-for fic in $sources
-# fic = scribus filename or page declaration
-do 
-	# Appears before filename in $sources :
-	# Start page of next chapter declaration - let's check
-	if [ "${fic#p_}" != "$fic" ] && [ $checkpagenum = 'check' ]
-	then
-		num_page_set=${fic#p_}
-		if [ "$num_page_set" != "$num_page" ]	
-		then	# page jump could be intended
-			echo -e "${ESC_warning} or error : After adding pages, page num should be $num_page, but is declared to be $num_page_set"
-			echo -e "Continuing.$ESC_normal"
-		fi
-		num_page=$num_page_set
-		pagenumopt="-pagenum $num_page"
-		if [ "$searched" = '' ] && [ "$xmlsearched" = '' ] && [ "$syncopt" = '' ]
-		then
-			echo "Declared start page $num_page"
-		fi
-		continue
-	fi
-
-	# Appears after filename in $sources :
-	# pagenum for last chapter declaration - let's check
-	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
-	then
-		if [ "$pagecount" = "" ]
-		then
-			echo -e "$ESC_error Missing filename before pagecount in source variable - STOP $EXC_normal"
-			exit
-		elif [ "$pagecount" != ${fic#n_} ]
-		then
-			echo -e "$ESC_error with ${fic#n_} declared pagecount - Found $pagecount - STOP $ESC_normal"
-			exit
-		fi
-		continue
-	fi
-
-	# fic is a filename, without .sla extension. Lets get its full path
-
-	short_fic="$fic" # for echo only
-
-	if [ "$sourcespattern" = 1 ]
-	then
-		# images_parent_folder : sla folder, without ending slash
-		images_parent_folder="$fic"
-		fic="$fic/$fic"
-	elif [ "$sourcespattern" = 2 ]
-	then 
-		images_parent_folder="$fic/PAO"
-		fic="$fic/PAO/$fic"
-	elif [ "$images_parent_folder" = "" ]
-	then 
-		images_parent_folder="."
-	fi
-
-	if [ ! -f "$fic.sla" ] 
-	then 
-		echo -e "$ESC-error Error : missing $fic.sla file $ESC_normal"
-		# NO exit for mult-mixed component file
-	fi
-
-	# $fic.sla is an existing scribus file whose chapter name is $short_fic
-	
-	let pagecount=`grep -c "\s<PAGE\s[^>]*PAGEXPOS\s*=\s*\"" "$fic.sla"`
-	pagemsg="$ESC_info $short_fic pagecount is $pagecount and begins at page $num_page $ESC_normal"
-	pagenumopt="-pagenum $num_page"
-	num_page=$(( $num_page+$pagecount ))
-
-	if [ "$searched" != '' ] || [ "$xmlsearched" != '' ]
-	then
-		# Enlever d'abord les césures avant de chercher $searched, et même $xmlsearched
-		# césures conditionnelles = caractère Unicode U+00AD
-		# http://stackoverflow.com/questions/8562354/remove-unicode-characters-from-textfiles-sed-other-bash-shell-methods
-		# La commande `echo -ne '\u00AD' | xxd` donne c2ad qu'il faut utiliser avec \x dans `sed 's/...'` = 
-		cleansla="$fic.clean.sla"
-		sed -e 's/\xc2\xad//g' "$fic.sla" > "$cleansla"
-	else
-		if [ "$syncopt" = '' ]
-		then		
-			echo -e $pagemsg
-		fi
-	fi
-
-	if [ "$searched" != '' ]
-	then
-		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""` 
-		echo Search in $short_fic : $count results
-		if [ "$count" != "0" ] && [ "$displayfindresult" != "" ]
-		then
-			nbfound=$(( $nbfound+$count ))
-
-			echo -e $ESC_yellow
-			grep -ni "<ITEXT[^>]*CH=" "$cleansla" | grep -i "\"[^\"]*$searched[^\"]*\"" | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//'
-			echo -e $ESC_normal
-			
-			# -n : line number
-			# /dev/null is added so grep believes there is more than one file and outputs the filename
-			grep -ni "<ITEXT[^>]*CH=\"[^\"]*$searched[^\"]*\"" "$cleansla" /dev/null | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//' >> .found.tmp
-		fi
-		rm $cleansla
-		continue
-	fi
-	
-	if [ "$xmlsearched" != '' ]
-	then
-		count=`grep -c -o -i "$xmlsearched" "$cleansla"`
-		echo XmlSearch in $short_fic : $count results
-		if [ "$count" != "0" ] && [ "$displayfindresult" != "" ]
-		then
-			nbfound=$(( $nbfound+$count ))
-
-			echo -e $ESC_yellow
-			grep -ni "$xmlsearched" "$cleansla"
-			echo -e $ESC_normal
-			
-			# -n : line number
-			# /dev/null is added so grep believes there is more than one file and outputs the filename
-			grep -ni "$xmlsearched" "$cleansla" /dev/null >> .found.tmp
-			
-			if [ "$replaced" != '' ]
-			then
-				echo "replaced=$replaced"
-				if [ -f "$fic.before_replace.sla" ]
-				then
-					echo "$fic.before_replace.sla allready exists : moved as .bak"
-					mv "$fic.before_replace.sla" "$fic.before_replace.sla.bak"
-				fi
-				cp "$fic.sla" "$fic.before_replace.sla"
-				echo $fic.sla is saved into $fic.before_replace.sla
-				echo $xmlsearched is replaced with $replaced in $fic.sla 
-				echo sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
-				sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
-			fi
-		fi
-		rm $cleansla
-		continue
-	fi
-	
-	if [ "$syncopt" != '' ]
-	then
-		echo "slasync $syncopt $syncmaster $fic"
-		slasync $syncopt $syncmaster $fic
-		continue
-	fi
-
-	if [ "$pdfwithimages" = "no" ]
-	then
-		mv -b "$images_parent_folder/images" "$images_parent_folder/images.bak"
-		mv -b $fic.pdf "$fic"-withimages.pdf
-		ls $images_parent_folder
-	fi
-
-	if [ "$pdfwithbleeds" = "no" ]
-	then
-		# save withbleeds version 
-		cp -p -f "$fic".sla "$fic"-withbleeds.sla	# -p preserves timestamp
-		cp -p -f "$fic".pdf "$fic"-withbleeds.pdf
-		slacheck -nobleeds -set -pdfignore -nofontcheck $verboseopt $fic
-	fi
-
-	if [ "$check" = "oui" ] 
-	then
-		echo "slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $pdfignore $verboseopt $fic"
-		slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $pdfignore $verboseopt $fic
-		echo "slacheck done"
-	fi
-
-	if [ "$pdfwithimages" = "no" ]
-	then
-		# on restaure le dossier image
-		mv -b "$images_parent_folder/images.bak" "$images_parent_folder/images"
-		# on sav le nouveau pdf sans image 
-		mv -b "$fic".pdf "$fic$pdfsuffix".pdf
-		# on restaure le pdf normal
-		mv -b "$fic"-withimages.pdf "$fic".pdf
-	fi
-
-	if [ "$pdfwithbleeds" = "no" ]
-	then
-		# save sla without bleeds and restore sla with bleeds
-		mv -b "$fic".sla "$fic"-nobleeds.sla
-		cp -p -f "$fic"-withbleeds.sla "$fic".sla	# -p preserves timestamp
-		rm -f "$fic"-withbleeds.sla
-		# save pdf without bleeds and restore pdf with bleeds
-		mv -b "$fic".pdf "$fic"$pdfsuffix.pdf
-		cp -p -f "$fic"-withbleeds.pdf "$fic".pdf
-	fi
-
-	if [ "$getfonts" != '' ]
-	then
-		# alternative : `strings yourPDFfilepath.pdf | grep FontName`
-		echo "pdffonts $fic.pdf"
-		pdffonts "$fic.pdf"
-	fi
-
-	listepdf="$listepdf $fic$pdfsuffix.pdf"
-done
-
-if [ "$pdfignore" = "-pdfignore" ] || [ "$pdfignore" = "pdfignore" ] || [ "$searched" != '' ] || [ "$xmlsearched" != '' ] || [ "$syncopt" != '' ]
+if [ ! -f "$1.sla" ] 
 then
-	echo "Done"
+	echo -e "${ESC_error} missing $1.sla file${ESC_normal}" 
 	exit
 fi
 
-
-if [ "$pdfignore" = "" ]
+if [ -f "./$1.config" ] 
 then
-	if [ -f $output$pdfsuffix.pdf ]
-	then
-		mv $output$pdfsuffix.pdf $output$pdfsuffix.pdf.bak
-	fi
-
-	# add some special file as a last page cover
-	# listepdf="$listepdf separettes/p68-HR.pdf"
-	echo "Merged PDFs : $listepdf"
-	echo "Avec /usr/bin/pdftk"
-	# sur ubuntu 18.04 pdftk n'est plus dispo et déclanchait une erreur en snap
-	# la commande suivante a réparé cela
-	# sudo ln -s /snap/pdftk/current/usr/bin/pdftk /usr/bin/pdftk
-	# à condition qu'on l'appelle en absolu :
-	/usr/bin/pdftk $listepdf cat output $output$pdfsuffix.pdf
-
-	# sinon on peut le faire avec sejda
-	# echo "Avec sejda-console (http://sejda.org/)"
-	# sejda-console merge -f $listepdf -o $output$pdfsuffix.pdf
-
-	if [ -f $output$pdfsuffix.pdf  ] 
-	then
-		ls -ltr $output$pdfsuffix.pdf 
-		echo $output$pdfsuffix.pdf created OK  
-		if [ "$displaypdf" != '' ]
-		then
-			evince $output$pdfsuffix.pdf &
-		fi	
-	fi
+	. "./$1.config" $vconfig
 fi
 
-# création d'une version sans marge (marges enlevées à l'arrache pour l'instant) : 
-# un peu utile pour impression un peu plus grand en pleine page
-# pdfcrop --margins '-25 -25 -25 -25' $output.pdf normargin_$output.pdf
-# [ -f normargin_$output.pdf  ] && evince normargin_$output.pdf & ls -ltr normargin_$output.pdf ; echo normargin_$output.pdf created OK
 
-if [ "$searched$xmlsearched" != '' ]
+# warning : FontEmbedding = 1 when fonts are vectorized
+if [ "$FontEmbedding" = 1 ] 
 then
-	echo Done
-	echo 
-	echo ${ESC_yellow}Searching \'$searched$xmlsearched\' : total $nbfound results found in whole book$ESC_normal
-	if [ $nbfound != 0 ]
+	checkfonts=''
+fi
+
+# *****************************
+# -H : affiche le nom de fichier
+# -o : n'affiche que la partie matchant le pattern et non toute la ligne
+# -i : case insensitif
+# -E : c'est une regexp (permettrait d'extraire plus de caractères environnants par ex)
+# -v : élimine les lignes vérifiant le pattern
+grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*aaa[^"]*"'  > .slacheck.comments
+grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*ppp[^"]*"'  >> .slacheck.comments
+grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*xxx[^"]*"'  >> .slacheck.comments
+
+sizecomments=$(stat -c%s .slacheck.comments)
+if [ sizecomments != 0 ] 	# pas ">" car ça crée un fichier "0" !
+then
+	# -n : no newline at EOL
+	# -e : manage escape
+	echo -ne $ESC_blue 
+	cat .slacheck.comments
+	rm .slacheck.comments
+	echo -ne $ESC_normal
+fi
+
+alloptions="$vcheck $actionoption"
+
+# As for color profiles, the correct values to be checked are :
+# <DOCUMENT ... DPMo="sRGB" DPPr="ISO Coated v2 300% (ECI)" DPIn="sRGB" DPInCMYK="ISO Coated v2 300% (ECI)" DPIn2="sRGB" DPIn3="ISO Coated v2 300% (ECI)" ...>
+# <PDF ... SolidP="sRGB" ImageP="sRGB" PrintP="ISO Coated v2 300% (ECI)"  ...>
+
+slacheckattr $alloptions "$1" DOCUMENT 	DPIn 		"$RGBprof" 		"RGB color profile"
+slacheckattr $alloptions "$1" DOCUMENT 	DPIn2		"$RGBprof"		"RGB color profile"
+
+slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
+slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
+slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
+
+slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
+slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
+
+slacheckattr $alloptions "$1" PDF 		rangeSel 	"$rangeSel"		"PDF selected pages : 1 for a selection of pages / 0 for all pages"
+# In case rangeSel is "1", rangeTxt has to be specified in each document's file config
+# slacheckattr $alloptions "$1" PDF 	rangeTxt 	"$rangeSel"		"PDF for a selection of pages (or for all pages) ?"
+
+slacheckattr $alloptions "$1" PDF		SolidP 		"$RGBprof"		"RGBcolor profile"
+slacheckattr $alloptions "$1" PDF		ImageP 		"$RGBprof"		"RGB color profile"
+
+slacheckattr $alloptions "$1" PDF		PrintP		"$CMYKprof"		"CMYK color profile"
+
+# même sans checkfont, on check DFONT et FontEmbedding !
+slacheckattr $alloptions "$1" DOCUMENT 	DFONT		"$DFONT"		"DOCUMENT's default font"
+slacheckattr $alloptions "$1" PDF		FontEmbedding "$FontEmbedding"		"0 = Embeds full or subset fonts. 1=outlines = vectorise, sans fontes (logique booléenne inversée)"	
+if [ "$checkfonts" = 'check' ]
+then
+	echo "FontEmbedding ciblé = $FontEmbedding (logique booléenne inversée)"
+fi
+
+# other PDF output checks
+
+slacheckattr $alloptions "$1" PDF		PicRes		"$resolution"	"Résolution des images"
+slacheckattr $alloptions "$1" PDF		Resolution	"$resolution"	"Résolution des EPS"
+slacheckattr $alloptions "$1" PDF		Compress	"$Compress"		"Compression des images"
+slacheckattr $alloptions "$1" PDF		RecalcPic	"$RecalcPic"	"Limiter la résolution des images"
+slacheckattr $alloptions "$1" PDF		CMethod		"$CMethod"		"Méthode de compression des images"
+slacheckattr $alloptions "$1" PDF		Quality		"$Quality"		"Qualité de la compression des images"
+slacheckattr $alloptions "$1" PDF		EmbedPDF	"$EmbedPDF"		"Embed PDFs"
+slacheckattr $alloptions "$1" PDF		Version		"$PDFversion"	"Version PDF - eg 15 for 1.5"
+
+slacheckattr $alloptions "$1" PDF	docInfoMarks 	"$docInfoMarks"	"Nom du fichier et date (+ agrandit les bleeds)"
+slacheckattr $alloptions "$1" PDF	useDocBleeds 	"$useDocBleeds"	"Utiliser le fond perdu du document"
+slacheckattr $alloptions "$1" PDF		BTop		"$BTop"			"Fond perdu en haut"
+slacheckattr $alloptions "$1" PDF		BLeft		"$BLeft"		"Fond perdu intérieur (mais indiqué Left ?)"
+slacheckattr $alloptions "$1" PDF		BRight		"$BRight"		"Fond perdu extérieur (mais indiqué Right ?)"
+slacheckattr $alloptions "$1" PDF		BBottom		"$BBottom"		"Fond perdu en bas"
+
+slacheckattr $alloptions "$1" PDF		cropMarks	"$cropMarks"	"Traits de coupe"
+slacheckattr $alloptions "$1" PDF		markLength	"$markLength"	"Longueur des traits de coupe"
+slacheckattr $alloptions "$1" PDF		markOffset	"$markOffset"	"Décalage des traits de coupe"
+
+slacheckattr $alloptions "$1" PDF		bleedMarks	"$bleedMarks"	"Traits de fond perdu"
+slacheckattr $alloptions "$1" PDF	registrationMarks	"$registrationMarks"	"registrationMarks"
+slacheckattr $alloptions "$1" PDF	colorMarks		"$colorMarks"	"colorMarks"
+
+# Check Pages attributes
+
+slacheckattr $alloptions -all "$1" PAGE 		PAGEWIDTH	"$PAGEWIDTH"	"Largeur de page A5=420.944881889764"
+slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEWIDTH	"$PAGEWIDTH"	"Largeur de page A5=420.944881889764"
+slacheckattr $alloptions -all "$1" PAGE 		PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
+slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
+
+
+echo "Attributes checked"
+ls -ltr "$1.sla"
+
+if [ "$checkpagenums" = 'check' ] && [ "$pagenumval" != '' ]
+then
+	slacheckattr $alloptions "$1" Section	Start 	$pagenumval		"La première page doit être la $pagenumval"
+fi
+
+if [ "$setrequested" = "-set" ]
+then
+	exit;
+# else
+#	echo "Attributes have been checked. In case there are mistakes you can fix them using -set option"
+fi
+
+if [ "$dopdf" = 'check' ] || [ "$dopdf" = 'create' ] || [ "$dopdf" = 'force' ]
+then
+	# on vérifie qu'il y a un PDF et qu'il a été généré APRÈS l'édition du SLA
+	# stat -c %y n54.pdf : date de modif de n54.pdf
+	if [ ! -f "$1.pdf" ]
 	then
-		if [ "$checkcolorall" != '' ]
+		echo Missing "$1.pdf"
+	elif [ "$1.sla" -nt "$1.pdf" ]
+	then
+		datesla=`stat -c %y "$1.sla"`
+		datepdf=`stat -c %y "$1.pdf"`
+		echo -e "${ESC_warning}${ESC_normal} $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
+	fi
+
+	if [ ! -f "$1.pdf" ] || [ "$1.sla" -nt "$1.pdf" ] || [ "$dopdf" = 'force' ]
+	then
+		if [ "$dopdf" = 'create' ] || [ "$dopdf" = 'force' ]
 		then
-			echo -e "${ESC_error}Some (bad) uses of COLOR=\"All\" have been found !$ESC_normal"
+			if [ -f "$1.pdf" ]
+			then 
+				mv "$1.pdf" "$1.pdf.bak"
+				if [ -f "$1.pdf" ]
+				then 
+					echo -e "${ESC_error}$1.pdf couldnt be moved$ESC_normal"
+				fi
+			fi
+			echo "Export to $1.pdf"
+
+			path_to_here=`pwd`			# appimages require an absolute path to SLA
+			if [ "$vcheck" = '' ]
+			then 
+				$scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla" 2> /dev/null
+			else
+				echo $scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla"
+				$scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla"
+			fi
+
+			if [ -f "$1.pdf" ]
+			then 
+				
+				echo "OK $1.pdf"
+			else
+				echo -e "${ESC_error}$1.pdf could not be created$ESC_normal"
+			fi
 		fi
-		cat .found.tmp
 	fi
 fi
 
-if [ "$getfonts" != '' ]
+if [ "$checkimg" = 'check' ]
 then
-	pdffonts $output$pdfsuffix.pdf
+	slacheckimages "$1"
+fi
+
+if [ "$checkfonts" = 'check' ]
+then
+	slacheckfonts $vecto "$1"
 fi
