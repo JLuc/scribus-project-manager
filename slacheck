@@ -8,8 +8,8 @@
 
 # *****************************
 # SHELL configs for defaults features
-scribuscommand="scribus-trunk"	# command to choose scribus 1.5 version to be called amongts various possible versions
-						  # can be changed for some of the files configs so as to avoid scribus crashes
+# values can be overwritten in slacheck.defaultconfig + in slacheck.config or ../slacheck.config or ../../slacheck.config
+scribuscommand="scribus" # default an be changed for some of the files configs so as to avoid scribus crashes
 
 checkimg='check'		# check that used images are in images subfolder
 
@@ -65,6 +65,7 @@ do
 		echo "-set : change the SLA so it conforms to project standards (save in .bak)"
 		echo "-vecto : all fonts must be vectorized - BETA" # il faut FontEmbedding="1" (logique booléenne inversée)
 		echo "-pagenum PPP : check that section begins at page number PPP"
+		echo "-nobleeds : no cropmarks + useDocBleeds"
 		echo
 		exit
 	elif [ "$1" = "-vconfig" ]; then
@@ -107,6 +108,11 @@ do
 		checkfonts=''
 		FontEmbedding=1 # logique booléenne inverse
 		echo -e "${ESC_warning} -vecto option est EN BÉTA EXPÉRIMENTALE $ESC_normal"
+	elif [ "$1" = '-nobleeds' ]; then	# overwrites config option
+		shift
+		stopoptions=''
+		useDocBleeds="1" 
+		cropMarks="0"
 	elif [ "$1" = "-pagenum" ]; then
 		shift
 		checkpagenums='check'
@@ -134,6 +140,7 @@ then
 	. "./$1.config" $vconfig
 fi
 
+
 # warning : FontEmbedding = 1 when fonts are vectorized
 if [ "$FontEmbedding" = 1 ] 
 then
@@ -151,7 +158,7 @@ grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*ppp[^"]*"'  >> .slacheck.comments
 grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*xxx[^"]*"'  >> .slacheck.comments
 
 sizecomments=$(stat -c%s .slacheck.comments)
-if [ sizecomments > 0 ] 
+if [ sizecomments != 0 ] 	# pas ">" car ça crée un fichier "0" !
 then
 	# -n : no newline at EOL
 	# -e : manage escape
@@ -186,11 +193,12 @@ slacheckattr $alloptions "$1" PDF		ImageP 		"$RGBprof"		"RGB color profile"
 
 slacheckattr $alloptions "$1" PDF		PrintP		"$CMYKprof"		"CMYK color profile"
 
+# même sans checkfont, on check DFONT et FontEmbedding !
+slacheckattr $alloptions "$1" DOCUMENT 	DFONT		"$DFONT"		"DOCUMENT's default font"
+slacheckattr $alloptions "$1" PDF		FontEmbedding "$FontEmbedding"		"0 = Embeds full or subset fonts. 1=outlines = vectorise, sans fontes (logique booléenne inversée)"	
 if [ "$checkfonts" = 'check' ]
 then
-	slacheckattr $alloptions "$1" DOCUMENT 	DFONT		"$DFONT"		"DOCUMENT's default font"
 	echo "FontEmbedding ciblé = $FontEmbedding (logique booléenne inversée)"
-	slacheckattr $alloptions "$1" PDF		FontEmbedding "$FontEmbedding"		"0 = Embeds full or subset fonts. 1=outlines = vectorise, sans fontes (logique booléenne inversée)"
 fi
 
 # other PDF output checks
@@ -226,6 +234,10 @@ slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEWIDTH	"$PAGEWIDTH"	"Largeur d
 slacheckattr $alloptions -all "$1" PAGE 		PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
 slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
 
+
+echo "Attributes checked"
+ls -ltr "$1.sla"
+
 if [ "$checkpagenums" = 'check' ] && [ "$pagenumval" != '' ]
 then
 	slacheckattr $alloptions "$1" Section	Start 	$pagenumval		"La première page doit être la $pagenumval"
@@ -244,7 +256,7 @@ then
 	# stat -c %y n54.pdf : date de modif de n54.pdf
 	if [ ! -f "$1.pdf" ]
 	then
-		echo Missing $1.pdf
+		echo Missing "$1.pdf"
 	elif [ "$1.sla" -nt "$1.pdf" ]
 	then
 		datesla=`stat -c %y "$1.sla"`
@@ -265,7 +277,7 @@ then
 				fi
 			fi
 			echo "Export to $1.pdf"
-			
+
 			path_to_here=`pwd`			# appimages require an absolute path to SLA
 			if [ "$vcheck" = '' ]
 			then 
@@ -277,6 +289,7 @@ then
 
 			if [ -f "$1.pdf" ]
 			then 
+				
 				echo "OK $1.pdf"
 			else
 				echo -e "${ESC_error}$1.pdf could not be created$ESC_normal"
