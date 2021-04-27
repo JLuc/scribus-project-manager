@@ -224,11 +224,11 @@ Choose a document, eg `masterchap.sla` and use it as a master document for style
 Add `syncmaster="masterchap"` in your book's config file.
 
 Then use various options :
-`makbook -sync -s` : sync all chapter files styles with master's styles
-`makbook -sync -ps` : sync all chapter files paragraph styles with master's paragraph styles
-`makbook -sync -cs` : sync all chapter files character styles with master's character styles
-`makbook -sync -c` : sync all chapter files colors with master's colors
-`makbook -sync -m` : sync all chapter files masterpages with master's masterpage
+- `makbook -sync -s` : sync all chapter files styles with master's styles
+- `makbook -sync -ps` : sync all chapter files paragraph styles with master's paragraph styles
+- `makbook -sync -cs` : sync all chapter files character styles with master's character styles
+- `makbook -sync -c` : sync all chapter files colors with master's colors
+- `makbook -sync -m` : sync all chapter files masterpages with master's masterpage
 
 ### for a specific chapter and master file
 
