@@ -37,7 +37,11 @@ After creating dedicated config files, the scripts can be used for other project
 
 ### Book related tools
 
-* **mak book script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  WARNING : not uptodate but see example with it.
+* **mak book script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  
+* - apply master styles or masterpage or color to all chapters
+* - create text only version (no images) or no-bleeds version for personal printing
+* - check settings fit requirement
+* - and more
 
 ### SLA document related tools
 
@@ -106,6 +110,9 @@ sourcespattern=2
 
 Page number specifications can also be embeded in this source spec. See above in dedicated part of this readme.
 
+You can specify which document should be used as master for styles, masterpage or color synchronisation :
+syncmaster="master_chap"
+
 ## Configuration data
 
 Configuration is a set of values for **page sizes**, **bleeds**, **marks**, **color profiles** and all other book creation issues that are required for your book or magazine etc... None of this is require, it all depends of what you need to check and ensure.
@@ -147,7 +154,7 @@ The `makbook` script does run `slacheck` on each file of the source and performs
 
 * with `-set` option, it edits the SLA so it conforms to the specified config. When doing so, it doesn not update the PDFs. A later call without `-set` option will produce the updated PDFs.
 
-* Other options ... provide more options ! just ask with `-?`
+* Other options ... provide more options ! just ask with `-?` or `-h`
 
 ## Page numbering : set and check consistency ##
 
@@ -188,7 +195,7 @@ An option also exists also to use vectorized versions of the PDFs
 You can either look for a string in the document's textframes or for a string appearing in the SLA document's XML.
 
 * `-find "a string"` searches string in textes of all chapters
-- `-xmlfind "CNAME='mystyle'"` searches string in the whole XML of all chapters (technical uses only)
+- `-xmlfind "CNAME='mystyle'"` searches string in the wholocal le XML of all chapters (technical uses only)
 
 The example makbook script takes care of deleting all conditional hyphens before performing the search (and also the xmlsearch)
 Results are displayed and also stored in the .found.tmp file
@@ -209,9 +216,21 @@ The project manager provides a way of doing so and being automaticaly reminded o
 - OR create a dedicated small textframe and type your note along with AAA, XXX or PPP prefix
 - when project's manager `makbook` is called, it reminds you of all such notes it finds in the chapters of your book
 
-## NEW : update chapters with master
+## NEW : update and harmonise styles, colors or masterpages 
 
-Choose a document and use it as master document for styles, colors and masterpages
+### for the whole book 
+
+Choose a document, eg `masterchap.sla` and use it as a master document for styles, colors and masterpages.
+Add `syncmaster="masterchap"` in your book's config file.
+
+Then use various options :
+`makbook -sync -s` : sync all chapter files styles with master's styles
+`makbook -sync -ps` : sync all chapter files paragraph styles with master's paragraph styles
+`makbook -sync -cs` : sync all chapter files character styles with master's character styles
+`makbook -sync -c` : sync all chapter files colors with master's colors
+`makbook -sync -m` : sync all chapter files masterpages with master's masterpage
+
+### for a specific chapter and master file
 
 `slasync` command enables to update chapters accordingly to master document. 
 
@@ -221,22 +240,25 @@ Example :
 - `slasync -s masterdoc chapter2` : updates defined styles
 - `slasync -ps masterdoc chapter2` : updates defined paragraph styles only
 - `slasync -c masterdoc chapter2` : updates defined colors
-- `slasync -a masterdoc chapter2` : updates both styles, masterpages and colors
-- `slasync -keeps loc -cs masterdoc chapter2` : updates styles but keeps all styles whose name contains 'loc' 
-- `-ns` option : replaces notes styles
 - `-m` option : replaces masterpages    DOES NOT WORK : masterpage names are imported but not their definition
+
+More options for chapters :
+- `slasync -keeps loc -cs masterdoc chapter2` : updates styles but keeps all styles whose name contains 'loc' 
+- `slasync -a masterdoc chapter2` : updates both styles, masterpages and colors
+
+- `-ns` option : replaces notes styles
 - `-nodes <node1|node2|node3>` : replaces all SLA (XML) nodes specified in pipe separated list
 
 See -h option for more
 
+## Produce personal printing version
+
+`mak -nobleeds` will produce a PDF without cropmarks and with document's settings 0 bleeds.
+
+
 ## Other options
 
 Try `-?` option for each tool so as to see main options. Mainly makbook example  (to be split in 2 files : makbook and project.config)
-
-## Warning : Work in Progress : 
-- slasync has not yet been thoroughfully tested and more features have to be coded
-- as for now, slasync doesnt change the chapter document at all : it produces a result.sla file out of the synced chapter
-- todo : call slasync from within mak script so as to apply to all chapters of a book project
 
 #Other
 
