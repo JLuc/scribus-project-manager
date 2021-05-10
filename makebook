@@ -3,7 +3,9 @@
 
 # set -x # trace shell
 
-
+# load book config = set of chapter sources + sync master document + PDF output name 
+# todo : option to choose book or book's chapter'set version
+. ./book.config
 
 # Paramétrages
 sources="p_1 coverstart n_3 p_4 amour n_1 remerciements apropostitre sommaire firstchapter second" 
