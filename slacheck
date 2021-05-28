@@ -181,6 +181,9 @@ slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
 
+slacheckattr $alloptions "$1" DOCUMENT 	AUTOMATIC	"0"			"Doc pref / hyphen"
+slacheckattr $alloptions "$1" DOCUMENT 	AUTOCHECK	"1"			"Doc pref / hyphen"
+
 slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
 slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
 
