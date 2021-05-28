@@ -205,6 +205,7 @@ then
 fi
 
 # other PDF output checks
+slacheckattr $alloptions "$1" PDF		Bookmarks	"1"		"Exporter les bookmarks définis (outlines PDF)"
 
 slacheckattr $alloptions "$1" PDF		PicRes		"$resolution"	"Résolution des images"
 slacheckattr $alloptions "$1" PDF		Resolution	"$resolution"	"Résolution des EPS"
