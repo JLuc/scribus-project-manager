@@ -1,39 +1,13 @@
 #!/bin/bash
-# version 1.0.0
-
 # set -x # trace shell
 
-# load book config = set of chapter sources + sync master document + PDF output name 
-# todo : option to choose book or book's chapter'set version
 . ./book.config
 
-# Paramétrages
-sources="p_1 coverstart n_3 p_4 amour n_1 remerciements apropostitre sommaire firstchapter second" 
-output="thebook"
-
-# possible values for sourcespattern
-# 0 : no change to filename in sources + you MUST specify a value for "images_parent_folder in case you intend to use -noimages option
-# 1 : sources names stand for filename/filename(.sla)
-# 2 : sources names stand for filename/PAO/filename(.sla)
-# 3 (TODO) : smart detect 2 or 1 or 0
-
-sourcespattern=1
-
-if  [ "$1" = '-alt' ] ||  [ "$1" = '-ALT' ]
-then 
-	# config for alternative sources and output (sub-part)
-	shift
-	sources=""
-	output="alt"
-	sourcespattern=1
-fi
-
 ####################################################################"
-# (now managed inside config file)
+# now managed inside book.config file
 # warning illogic SLA logic	
 # FontEmbedding=0	# PDF with embeded or subset fonts
 # FontEmbedding=1	# vectorized fonts (no font embeded)
-#
 ####################################################################"
 
 #
@@ -53,7 +27,6 @@ pdfsuffix=""
 # 'PDF' : PDF goes to 'PDF' subfolder
 pdfsubfolder='' # unused yet
 
-#checkpagenum=''
 checkpagenum='check'
 
 # Rq : Nb d'éléments d'un array : ${#array[@]}    ou     ${#array[*]}
@@ -71,28 +44,13 @@ checkcolorall=''
 pdfignore=''
 getfonts=''
 nofontcheck=''
+nocomment=''
 
 forcepdfopt=''
 vectoopt=''
 syncopt=''
 
 ####################################################################
-
-# init PATH to execs
-if [[ $PATH == */home/$USER/bin* ]] # ~/bin isnt ok for `which slatopdf.py`
-then
-	echo "path OK"
-else
-	export PATH="$PATH:/home/$USER/bin"
-	if [[ $PATH == */home/$USER/bin* ]]
-	then
-		echo "PATH OK now" 
-	else
-		echo $PATH
-		echo "PATH not ok yet" 
-		exit
-	fi
-fi
 
 reset
 . shellcolors
@@ -110,10 +68,12 @@ do
 		echo "Options :"
 		echo "-? or -h : get this help"
 		echo "-set : set value to correct value"
+		echo "-addbookmarks or -ab : add bookmarks (specify used style with $pdf_bookmark_style variable in local book.config file)
 		echo "-pagenum : also checks the first page number  of each doc"
 		echo "-nopagenum : dont check the first page number of each doc"
 		echo "-nocheck : dont check anything, just merge all chapter's pdfs"
 		echo '-nofontcheck : dont check fonts'
+		echo '-nocomment : dont display comments (user can set comments using AAA, XXX or PPP keywords in texts)'
 		echo "-pdfignore : dont create chapters PDFs nor merge them (only checks SLA)"
 		echo "-forcepdf : force all pdf (re)creation, even when it exists allready"
 		echo "-vconfig : verbose output about config files"
@@ -164,7 +124,7 @@ do
 		check=''
 		echo "Chapter PDFs will be merged. No check will happen"
 		stopoptions=''
-		break
+		continue
 	fi
 
 	if [ "$1" = "-nofontcheck" ]
@@ -173,7 +133,18 @@ do
 		nofontcheck="-nofontcheck"
 		echo "No font embeding or subseting check will happen"
 		stopoptions=''
-		break
+		continue
+	fi
+
+	if [ "$1" = "-nocomment" ] || [ "$1" = "-nocomments" ]
+	then
+		shift
+		nocomment="-nocomment"
+		echo "Dont display comments"
+		stopoptions=''
+		continue
+	else
+		echo "" > book.comments
 	fi
 
 	if [ -f .found.tmp ]
@@ -267,12 +238,28 @@ do
 	if [ "$1" = "-set" ]
 	then
 		shift
-		setopt="$setopt -set"
+		setopt="-set"
 		stopoptions=''
 		pdfignore='-pdfignore'
 		continue
 	fi
 
+	if [ "$1" == '-addbookmarks' ] || [ "$1" == '-ab' ]
+	then
+		shift
+		setopt="-ab"
+		stopoptions=''
+		pdfignore='-pdfignore'
+		
+		if [ "$pdf_bookmark_style" == "" ]
+		then 
+			echo -e "${ESC_error}pdf_bookmark_style variable must be defined in config file so as to use -addbookmarks option$ESC_normal"
+			exit
+		fi
+
+		continue
+	fi
+	
 	if [ "$1" = "-pdfignore" ]
 	then
 		shift
@@ -333,10 +320,18 @@ do
 			echo -e "${ESC_error}-sync option must have additionnal parameter : -c, -s, -m, -ps or -cs to sync colors, styles, masterpages, paragraph styles or character styles $ESC_normal"
 			exit
 		fi
+		if [ "$syncmaster" == "" ] || [ ! -f "$syncmaster.sla" ]
+		then 
+			echo -e "${ESC_error}syncmaster variable must be defined in config file and its value must be an existing sla file (without .sla ext)$ESC_normal"
+			exit
+		fi
 		syncopt="$1"
+		echo "sync ($syncopt) all chapters with '$syncmaster.sla'"
+		nocomment="-nocomment"
 		stopoptions=''
 		shift
 	fi
+
 done
 
 ####################################################################"
@@ -345,6 +340,8 @@ verboseopt="$vconfig $vcheck"
 listepdf=""
 pagenumopt=''
 num_page=1	 # start page
+
+echo '' > bookmarks
 
 for fic in $sources
 # fic = scribus filename or page declaration
@@ -370,16 +367,18 @@ do
 
 	# Appears after filename in $sources :
 	# pagenum for last chapter declaration - let's check
-	if [ "${fic#n_}" != "$fic" ] && [ $checkpagenum = 'check' ]
+	if [ "${fic#n_}" != "$fic" ] && [ "$checkpagenum" = 'check' ]
 	then
-		if [ "$pagecount" = "" ]
+		if [ "$check" != '' ] # eg when -find
+		then
+			continue
+		elif [ "$pagecount" = "" ]
 		then
 			echo -e "$ESC_error Missing filename before pagecount in source variable - STOP $EXC_normal"
 			exit
 		elif [ "$pagecount" != ${fic#n_} ]
 		then
-			echo -e "$ESC_error with ${fic#n_} declared pagecount - Found $pagecount - STOP $ESC_normal"
-			exit
+			echo -e "$ESC_error $pagecount_fic has $pagecount pages but the book declares ${fic#n_} pages$ESC_normal"
 		fi
 		continue
 	fi
@@ -406,11 +405,13 @@ do
 	then 
 		echo -e "$ESC-error Error : missing $fic.sla file $ESC_normal"
 		# NO exit for mult-mixed component file
+		exit
 	fi
 
 	# $fic.sla is an existing scribus file whose chapter name is $short_fic
 	
 	let pagecount=`grep -c "\s<PAGE\s[^>]*PAGEXPOS\s*=\s*\"" "$fic.sla"`
+	pagecount_fic="$fic"
 	pagemsg="$ESC_info $short_fic pagecount is $pagecount and begins at page $num_page $ESC_normal"
 	pagenumopt="-pagenum $num_page"
 	num_page=$(( $num_page+$pagecount ))
@@ -509,8 +510,8 @@ do
 
 	if [ "$check" = "oui" ] 
 	then
-		echo "slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $pdfignore $verboseopt $fic"
-		slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $pdfignore $verboseopt $fic
+		echo "slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $pdfignore $verboseopt $fic"
+		slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $pdfignore $verboseopt $fic
 		echo "slacheck done"
 	fi
 
@@ -541,7 +542,7 @@ do
 		echo "pdffonts $fic.pdf"
 		pdffonts "$fic.pdf"
 	fi
-
+	
 	listepdf="$listepdf $fic$pdfsuffix.pdf"
 done
 
@@ -609,3 +610,4 @@ then
 	pdffonts $output$pdfsuffix.pdf
 fi
 
+cat bookmarks
