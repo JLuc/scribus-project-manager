@@ -217,7 +217,7 @@ fi
 # -v : élimine les lignes vérifiant le pattern
 # -P : perl regexp
 # \K : dans une perl regexp, ne retient pas le résultat plus à gauche. Seulement ce qui suit. Requis ici car les expression lookbehind ne peuvent pas etre de longueur variable.
-grep -i '<ITEXT CH\s*=\s*".*"\s*\/>' "$1.sla" | grep -oP 'CH\s*=\s*"\K.*(AAA|BBB|CCC|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' > .slacheck.comments
+grep -i '<ITEXT CH\s*=\s*".*"\s*\/>' "$1.sla" | grep -oP 'CH\s*=\s*"\K.*(AAA|BBB|CCC|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' | sed 's/\(.*\)/    \1/' > .slacheck.comments
 
 sizecomments=$(stat -c%s .slacheck.comments)
 if [ sizecomments != 0 ] 	# pas ">" (car ça crée un fichier "0") mais peut etre gt
