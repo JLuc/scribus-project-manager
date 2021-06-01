@@ -208,13 +208,16 @@ then
 fi
 
 # *****************************
+# Collect comments
+#
 # -H : affiche le nom de fichier
 # -o : n'affiche que la partie matchant le pattern et non toute la ligne
 # -i : case insensitif
 # -E : c'est une regexp (permettrait d'extraire plus de caractères environnants par ex)
 # -v : élimine les lignes vérifiant le pattern
-# collect comments
-grep -i "<ITEXT CH=" "$1.sla" | grep '"[^"]*(AAA\|BBB\|CCC\|PPP\|QQQ\|RRR\|SSS\|WWW\|XXX\|YYY\|ZZZ)[^"]*"'  > .slacheck.comments
+# -P : perl regexp
+# \K : dans une perl regexp, ne retient pas le résultat plus à gauche. Seulement ce qui suit. Requis ici car les expression lookbehind ne peuvent pas etre de longueur variable.
+grep -i '<ITEXT CH\s*=\s*".*"\s*\/>' "$1.sla" | grep -oP 'CH\s*=\s*"\K.*(AAA|BBB|CCC|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' > .slacheck.comments
 
 sizecomments=$(stat -c%s .slacheck.comments)
 if [ sizecomments != 0 ] 	# pas ">" (car ça crée un fichier "0") mais peut etre gt
@@ -229,7 +232,7 @@ then
 		echo -ne $ESC_normal
 	fi
 		
-	echo -ne "\n$1.sla\n" >> book.comments
+	echo -ne "\n## $1.sla\n" >> book.comments
 	cat .slacheck.comments >> book.comments
 	echo -ne "\n" >> book.comments
 fi
