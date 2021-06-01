@@ -1,19 +1,20 @@
 #!/bin/bash
 
+# set -x
+
 # shell memos :
-# 	set -x  # for a detailed trace
 # 	${parameter=default}, ${parameter:=default} # If parameter not set, set it to default.
 
 . shellcolors
 
 # *****************************
 # SHELL configs for defaults features
-# values can be overwritten in slacheck.defaultconfig + in slacheck.config or ../slacheck.config or ../../slacheck.config
-scribuscommand="scribus" # default an be changed for some of the files configs so as to avoid scribus crashes
+scribuscommand="scribus" # can be changed for some of the files configs so as to avoid scribus crashes
 
 checkimg='check'		# check that used images are in images subfolder
 
 checkfonts='check'		# check that used fonts are either embeded or subset
+comment='comment'		# display XXX, YYY, PPP, QQQ, RRR, SSS or AAA, BBB,  comments
 vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
 checkpagenums='check'	# do check startpage num
 dopdf='create' 		 	# dopdf = create : checks pdf exists and is recent and recreate it when not 
@@ -21,7 +22,7 @@ dopdf='create' 		 	# dopdf = create : checks pdf exists and is recent and recrea
 						# dopdf = ignore : neither checks nor (re)creates pdf
 						# dopdf = force : (re)create all pdf whether existing or recent or not
 
-actionoption='' 	# default : dont change SLAs
+sla_actionoption='' 	# default : dont change SLAs
 					# "-set" edit sla so it checks config specs
 
 verboseoption=''	# default : not verbose
@@ -31,7 +32,7 @@ verboseoption=''	# default : not verbose
 vcheck=''
 vconfig=''
 setrequested=''
-actionoption=''
+sla_actionoption=''
 pagenumval=''
 
 # *****************************
@@ -60,6 +61,7 @@ do
 		echo "-pdfignore : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
 		echo "-pdfcheck : check pdf, but dont re-create it in case required"
 		echo "-nofontcheck : doesnt check fonts"
+		echo "-nocomment : dont display comments (user can mark comments with XXX, YYY, PPP, QQQ, RRR, SSS, AAA or BBB keyword)"
 		echo "-forcepdf : (re)create pdf even when it exists allready"
 		echo "-notimg : dont check for correct included image files"
 		echo "-set : change the SLA so it conforms to project standards (save in .bak)"
@@ -92,14 +94,26 @@ do
 		shift
 		checkimg='dontcheck'
 		stopoptions=''
-	elif [ "$1" = "-set" ]; then
+	elif [ "$1" = "-set" ]; then	# il faut max 1 set : -set ou -ab
 		shift
-		actionoption="$actionoption -set"
+		sla_actionoption="-set"
 		setrequested="-set"
 		stopoptions=''
+	elif [ "$1" = '-addbookmarks' ] || [ "$1" = '-ab' ]; then
+		shift
+		# option gérée dnas slacheck, on ne la passe pas à slacheckattr
+		setrequested="-ab"
+		stopoptions=''
+			echo "Cette option n'est pas au point : selon l'étape de dev, elle crée une sauvagarde mais vide ensuite le fichier SLA donc faut y aller mollo"
+			exit	
+		continue
 	elif [ "$1" = "-nofontcheck" ]; then
 		shift
 		checkfonts=''
+		stopoptions=''
+	elif [ "$1" = "-nocomment" ]; then
+		shift
+		comment=''
 		stopoptions=''
 	elif [ "$1" = "-vecto" ];	then
 		shift
@@ -147,28 +161,80 @@ then
 	checkfonts=''
 fi
 
+if [ "$pdf_bookmark_style" != "" ]
+then 
+	echo -ne "$1 : " >> bookmarks
+	# xmlstarlet
+	# -t -v pour récupérer la valeur du contenu de la balise ciblée ; -t -c pour récupérer le tag entier <tag>contenu</tag>
+
+	# dernière ligne du grand titre :
+	# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/para [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$1.sla"`
+	# ou
+	# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/trail [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$1.sla"`
+
+	# première ligne du grand titre :
+	bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [para/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$1.sla"`
+	if [ "$bookmarklabel" != "" ]
+	then
+		bookmarktag='para '
+	else
+		bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [trail/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$1.sla"`
+		bookmarktag='trail'
+	fi
+
+	if [ "$bookmarklabel" != "" ]
+	then
+		echo -ne " ($bookmarktag) $bookmarklabel\n" >> bookmarks
+		if [ "$setrequested" == '-ab' ]
+		then
+			dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$1.sla"`
+			if [ "$dejabookmark" == '' ]
+			then
+				# Let's add BOOKMARK="1" on PAGEOBJECT
+				cp "$1.sla" "$1.savb4bookmarks.sla"
+				xmlstarlet ed -i "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/para[@PARENT='$pdf_bookmark_style']]" -t attr -n BOOKMARK -v "1" "$1.sla" > "$1.sla"
+				echo -ne "$ESC_info Bookmark set : $bookmarklabel\n"
+			else
+				echo -ne "$ESC_info Allready a bookmark : '$bookmarklabel'\n" 
+			fi
+		fi
+	else
+		echo -ne "$ESC_warning Paragraph with '$pdf_bookmark_style' style not found\n"
+	fi
+	echo -ne $ESC_normal
+	# echo "=== ça donne ==="
+	# xmlstarlet sel -t -c "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]" "$1.sla"
+
+fi
+
 # *****************************
 # -H : affiche le nom de fichier
 # -o : n'affiche que la partie matchant le pattern et non toute la ligne
 # -i : case insensitif
 # -E : c'est une regexp (permettrait d'extraire plus de caractères environnants par ex)
 # -v : élimine les lignes vérifiant le pattern
-grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*aaa[^"]*"'  > .slacheck.comments
-grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*ppp[^"]*"'  >> .slacheck.comments
-grep -i "<ITEXT CH=" "$1.sla" | grep -i '"[^"]*xxx[^"]*"'  >> .slacheck.comments
+# collect comments
+grep -i "<ITEXT CH=" "$1.sla" | grep '"[^"]*(AAA\|BBB\|CCC\|PPP\|QQQ\|RRR\|SSS\|WWW\|XXX\|YYY\|ZZZ)[^"]*"'  > .slacheck.comments
 
 sizecomments=$(stat -c%s .slacheck.comments)
-if [ sizecomments != 0 ] 	# pas ">" car ça crée un fichier "0" !
+if [ sizecomments != 0 ] 	# pas ">" (car ça crée un fichier "0") mais peut etre gt
 then
-	# -n : no newline at EOL
-	# -e : manage escape
-	echo -ne $ESC_blue 
-	cat .slacheck.comments
-	rm .slacheck.comments
-	echo -ne $ESC_normal
+	if [ "$comment" != "" ]
+	then
+		# -n : no newline at EOL
+		# -e : manage escape
+		echo -ne $ESC_notice
+		cat .slacheck.comments
+		rm .slacheck.comments
+		echo -ne $ESC_normal
+	fi
+		
+	echo -ne "\n$1.sla\n" >> book.comments
+	cat .slacheck.comments >> book.comments
+	echo -ne "\n" >> book.comments
 fi
 
-alloptions="$vcheck $actionoption"
+alloptions="$vcheck $sla_actionoption"
 
 # As for color profiles, the correct values to be checked are :
 # <DOCUMENT ... DPMo="sRGB" DPPr="ISO Coated v2 300% (ECI)" DPIn="sRGB" DPInCMYK="ISO Coated v2 300% (ECI)" DPIn2="sRGB" DPIn3="ISO Coated v2 300% (ECI)" ...>
@@ -181,8 +247,9 @@ slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
 
-slacheckattr $alloptions "$1" DOCUMENT 	AUTOMATIC	"0"			"Doc pref / hyphen"
-slacheckattr $alloptions "$1" DOCUMENT 	AUTOCHECK	"1"			"Doc pref / hyphen"
+slacheckattr $alloptions "$1" DOCUMENT 	AUTOMATIC	"0"				"Doc pref / hyphen"
+slacheckattr $alloptions "$1" DOCUMENT 	AUTOCHECK	"1"				"Doc pref /	hyphen"
+
 
 slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
 slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
@@ -205,7 +272,7 @@ then
 fi
 
 # other PDF output checks
-slacheckattr $alloptions "$1" PDF		Bookmarks	"1"		"Exporter les bookmarks définis (outlines PDF)"
+slacheckattr $alloptions "$1" PDF		Bookmarks	"1"				"Exporter les bookmarks définis (outlines PDF)"
 
 slacheckattr $alloptions "$1" PDF		PicRes		"$resolution"	"Résolution des images"
 slacheckattr $alloptions "$1" PDF		Resolution	"$resolution"	"Résolution des EPS"
@@ -247,7 +314,7 @@ then
 	slacheckattr $alloptions "$1" Section	Start 	$pagenumval		"La première page doit être la $pagenumval"
 fi
 
-if [ "$setrequested" = "-set" ]
+if [ "$setrequested" != "" ]
 then
 	exit;
 # else
