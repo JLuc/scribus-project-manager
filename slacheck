@@ -216,8 +216,8 @@ fi
 # -E : c'est une regexp (permettrait d'extraire plus de caractères environnants par ex)
 # -v : élimine les lignes vérifiant le pattern
 # -P : perl regexp
-# \K : dans une perl regexp, ne retient pas le résultat plus à gauche. Seulement ce qui suit. Requis ici car les expression lookbehind ne peuvent pas etre de longueur variable.
-grep -i '<ITEXT CH\s*=\s*".*"\s*\/>' "$1.sla" | grep -oP 'CH\s*=\s*"\K.*(AAA|BBB|CCC|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' | sed 's/\(.*\)/    \1/' > .slacheck.comments
+# \K : dans une perl regexp, permet d'oublier la partie du m à gauche. Ne retourne donc que ce qui suit. Requis ici car les expression lookbehind ne peuvent pas etre de longueur variable.
+grep -oP '<ITEXT\s+CH\s*=\s*"\K.*(AAA|BBB|CCC|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' "$1.sla" | sed 's/^\(.*\(AAA\|BBB\|CCC\|PPP\|QQQ\|RRR\|SSS\|WWW\|XXX\|YYY\|ZZZ\).*\)$/    \2 « \1 »/' > .slacheck.comments
 
 sizecomments=$(stat -c%s .slacheck.comments)
 if [ sizecomments != 0 ] 	# pas ">" (car ça crée un fichier "0") mais peut etre gt
@@ -228,13 +228,12 @@ then
 		# -e : manage escape
 		echo -ne $ESC_notice
 		cat .slacheck.comments
-		rm .slacheck.comments
 		echo -ne $ESC_normal
 	fi
 		
-	echo -ne "\n## $1.sla\n" >> book.comments
+	echo -ne "## $1.sla\n" >> book.comments
 	cat .slacheck.comments >> book.comments
-	echo -ne "\n" >> book.comments
+	echo -ne "\n\n" >> book.comments
 fi
 
 alloptions="$vcheck $sla_actionoption"
