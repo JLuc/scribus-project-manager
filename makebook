@@ -143,8 +143,6 @@ do
 		echo "Dont display comments"
 		stopoptions=''
 		continue
-	else
-		echo "" > book.comments
 	fi
 
 	if [ -f .found.tmp ]
@@ -341,7 +339,11 @@ listepdf=""
 pagenumopt=''
 num_page=1	 # start page
 
-echo '' > bookmarks
+if [ "$searched" == "" ] && [ "$xmlsearched" == "" ]
+then
+	echo '' > book.comments
+	echo '' > book.bookmarks
+fi
 
 for fic in $sources
 # fic = scribus filename or page declaration
@@ -610,4 +612,4 @@ then
 	pdffonts $output$pdfsuffix.pdf
 fi
 
-cat bookmarks
+cat book.bookmarks
