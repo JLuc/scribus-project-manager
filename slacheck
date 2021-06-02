@@ -163,7 +163,7 @@ fi
 
 if [ "$pdf_bookmark_style" != "" ]
 then 
-	echo -ne "$1 : " >> bookmarks
+	echo -ne "$1 : " >> book.bookmarks
 	# xmlstarlet
 	# -t -v pour récupérer la valeur du contenu de la balise ciblée ; -t -c pour récupérer le tag entier <tag>contenu</tag>
 
@@ -184,7 +184,7 @@ then
 
 	if [ "$bookmarklabel" != "" ]
 	then
-		echo -ne " ($bookmarktag) $bookmarklabel\n" >> bookmarks
+		echo -ne " ($bookmarktag) $bookmarklabel\n" >> book.bookmarks
 		if [ "$setrequested" == '-ab' ]
 		then
 			dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$1.sla"`
