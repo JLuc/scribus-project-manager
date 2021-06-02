@@ -14,7 +14,7 @@ scribuscommand="scribus" # can be changed for some of the files configs so as to
 checkimg='check'		# check that used images are in images subfolder
 
 checkfonts='check'		# check that used fonts are either embeded or subset
-comment='comment'		# display XXX, YYY, PPP, QQQ, RRR, SSS or AAA, BBB,  comments
+comment='comment'		# display  AAA, BBB, CCC, DDD ; WWW, XXX, YYY, ZZZ or PPP, QQQ, RRR, SSS comments
 vecto=''				# leave fonts as declared in sla = dont force all fonts vectorization 
 checkpagenums='check'	# do check startpage num
 dopdf='create' 		 	# dopdf = create : checks pdf exists and is recent and recreate it when not 
@@ -61,7 +61,7 @@ do
 		echo "-pdfignore : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
 		echo "-pdfcheck : check pdf, but dont re-create it in case required"
 		echo "-nofontcheck : doesnt check fonts"
-		echo "-nocomment : dont display comments (user can mark comments with XXX, YYY, PPP, QQQ, RRR, SSS, AAA or BBB keyword)"
+		echo "-nocomment : dont display comments (user can mark comments with AAA, BBB, CCC, DDD ; WWW, XXX, YYY, ZZZ or PPP, QQQ, RRR, SSS keyword)"
 		echo "-forcepdf : (re)create pdf even when it exists allready"
 		echo "-notimg : dont check for correct included image files"
 		echo "-set : change the SLA so it conforms to project standards (save in .bak)"
@@ -217,7 +217,7 @@ fi
 # -v : élimine les lignes vérifiant le pattern
 # -P : perl regexp
 # \K : dans une perl regexp, permet d'oublier la partie du m à gauche. Ne retourne donc que ce qui suit. Requis ici car les expression lookbehind ne peuvent pas etre de longueur variable.
-grep -oP '<ITEXT\s+CH\s*=\s*"\K.*(AAA|BBB|CCC|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' "$1.sla" | sed 's/^\(.*\(AAA\|BBB\|CCC\|PPP\|QQQ\|RRR\|SSS\|WWW\|XXX\|YYY\|ZZZ\).*\)$/    \2 « \1 »/' > .slacheck.comments
+grep -oP '<ITEXT\s+CH\s*=\s*"\K.*(AAA|BBB|CCC|DDD|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' "$1.sla" | sed 's/^\(.*\(AAA\|BBB\|CCC\|DDD\|PPP\|QQQ\|RRR\|SSS\|WWW\|XXX\|YYY\|ZZZ\).*\)$/    \2 « \1 »/' > .slacheck.comments
 
 sizecomments=$(stat -c%s .slacheck.comments)
 if [ sizecomments != 0 ] 	# pas ">" (car ça crée un fichier "0") mais peut etre gt
@@ -249,8 +249,8 @@ slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
 
-slacheckattr $alloptions "$1" DOCUMENT 	AUTOMATIC	"0"				"Doc pref / hyphen"
-slacheckattr $alloptions "$1" DOCUMENT 	AUTOCHECK	"1"				"Doc pref /	hyphen"
+slacheckattr $alloptions "$1" DOCUMENT 	AUTOMATIC	"1"				"Doc pref / hyphen"
+slacheckattr $alloptions "$1" DOCUMENT 	AUTOCHECK	"1"				"Suggest and ask to confirm hyphens"
 
 
 slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
@@ -334,7 +334,7 @@ then
 	then
 		datesla=`stat -c %y "$1.sla"`
 		datepdf=`stat -c %y "$1.pdf"`
-		echo -e "${ESC_warning}${ESC_normal} $1.sla has been edited and saved later than last PDF output : $1.sla = ${datesla%:*} ; $1.pdf = ${datepdf%:*}"
+		echo -e "${ESC_warning}${ESC_normal} $1.sla has been edited and saved later (${datesla%:*}) than last PDF output (${datepdf%:*})"
 	fi
 
 	if [ ! -f "$1.pdf" ] || [ "$1.sla" -nt "$1.pdf" ] || [ "$dopdf" = 'force' ]
