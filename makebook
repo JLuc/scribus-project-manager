@@ -56,11 +56,11 @@ reset
 . shellcolors
 echo -e "${ESC_info}PATH=$PATH$ESC_normal"
 
-while [ "$stopoptions" = "" ]
+while [ "$stopoptions" = "" ] && [ "$1" != "" ]
 do
 	stopoptions=true
 
-	if  [ "$1" = '-?' ] || [ "$1" = '-h' ]
+	if  [ "$1" = '-?' ] || [ "$1" = '-h' ] || [ "$1" = '--help' ] 
 	then
 		echo "mak makes the global PDF"
 		echo "Due to inline config, name of produced PDF is $output.pdf, $output-vecto.pdf or $output-noimages.pdf"
@@ -74,7 +74,7 @@ do
 		echo "-nocheck : dont check anything, just merge all chapter\'s pdfs"
 		echo '-nofontcheck : dont check fonts'
 		echo '-nocomment : dont display comments (user can set comments using AAA, XXX or PPP keywords in texts)'
-		echo '-pdfignore : dont create chapters PDFs nor merge them (only checks SLA)'
+		echo '-nopdf : dont create chapters PDFs nor merge them (only checks SLA)'
 		echo '-forcepdf : force all pdf (re)creation, even when it exists allready'
 		echo '-vconfig : verbose output about config files'
 		echo '-vcheck : very verbose output about check'
@@ -192,7 +192,7 @@ do
 		continue
 	fi
 	
-	if [ "$1" = "-nobleeds" ]
+	if [ "$1" = "-nobleeds" ] ||  [ "$1" = "-nobleed" ]
 	then
 		pdfsuffix=$1
 		shift
@@ -217,13 +217,13 @@ do
 	then
 		if [ "$xmlsearched" = "" ] && [ "$searched" = "" ]
 		then 
-			echo -e "${ESC_error}-replace option must follow some -xmlfind or -find option. No such options found here.$ESC_normal"
+			echo -e "${ESC_error}-replace option must follow some -xmlfind option. No such options found here.$ESC_normal"
 			exit
 		fi
 		shift
 		if [ "$1" = "" ]
 		then
-			echo -e "${ESC_error}-replace option must have additionnal parameter$ESC_normal"
+			echo -e "${ESC_error}-replace option must have additionnal parameter = replacement string$ESC_normal"
 			exit
 		fi
 		replaced="$1"
@@ -242,7 +242,7 @@ do
 		continue
 	fi
 
-	if [ "$1" == '-addbookmarks' ] || [ "$1" == '-ab' ]
+	if [ "$1" = "-addbookmarks" ] || [ "$1" = "-ab" ]
 	then
 		shift
 		setopt="-ab"
@@ -258,7 +258,7 @@ do
 		continue
 	fi
 	
-	if [ "$1" = "-pdfignore" ]
+	if [ "$1" = "-pdfignore" ] || [ "$1" = "-nopdf" ]
 	then
 		shift
 		pdfignore='-pdfignore'
@@ -292,7 +292,7 @@ do
 		continue
 	fi
 	
-	if [ "$1" = "-noimages" ]
+	if [ "$1" = "-noimages" ] ||  [ "$1" = "-noimage" ]
 	then
 		pdfsuffix=$1
 		shift
@@ -339,10 +339,10 @@ listepdf=""
 pagenumopt=''
 num_page=1	 # start page
 
-if [ "$searched" == "" ] && [ "$xmlsearched" == "" ]
+if [ "$searched" = "" ] && [ "$xmlsearched" = "" ]
 then
-	echo '' > book.comments
-	echo '' > book.bookmarks
+	echo -ne "## $output chapters\n# Inline comments\n\n" > book_comments.md
+	echo -ne "## $output chapters\n# Bookmarks with '$pdf_bookmark_style' style\n\n" > book_bookmarks.md
 fi
 
 for fic in $sources
@@ -414,8 +414,9 @@ do
 	
 	let pagecount=`grep -c "\s<PAGE\s[^>]*PAGEXPOS\s*=\s*\"" "$fic.sla"`
 	pagecount_fic="$fic"
-	pagemsg="$ESC_info $short_fic pagecount is $pagecount and begins at page $num_page $ESC_normal"
+	pagemsg="$ESC_info\n$short_fic pagecount is $pagecount and begins at page $num_page $ESC_normal"
 	pagenumopt="-pagenum $num_page"
+	start_page=$num_page
 	num_page=$(( $num_page+$pagecount ))
 
 	if [ "$searched" != '' ] || [ "$xmlsearched" != '' ]
@@ -480,8 +481,14 @@ do
 				cp "$fic.sla" "$fic.before_replace.sla"
 				echo $fic.sla is saved into $fic.before_replace.sla
 				echo $xmlsearched is replaced with $replaced in $fic.sla 
-				echo sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
-				sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
+				# avant : ça plantait
+				# avant : echo sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
+				# avant : sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
+
+				# -i = update file ! ("inplace")
+				# /gI = global (all occurences) + case insensitive
+				echo sed -i "s/$xmlsearched/$replaced/gI" "$fic.sla"
+				sed -i "s/$xmlsearched/$replaced/gI" "$fic.sla"
 			fi
 		fi
 		rm $cleansla
@@ -545,6 +552,60 @@ do
 		pdffonts "$fic.pdf"
 	fi
 	
+	if [ "$pdf_bookmark_style" != "" ]
+	then 
+		chapter_summary="$start_page.           "	
+		chapter_summary="${chapter_summary:0:5} $fic                                                                                                     " 
+		echo -ne "${chapter_summary:0:50}"  >> book_bookmarks.md
+		# echo -ne "- p.$start_page	$fic	" >> book_bookmarks.md
+		# xmlstarlet
+		# -t -v pour récupérer la valeur du contenu de la balise ciblée ; -t -c pour récupérer le tag entier <tag>contenu</tag>
+
+		# dernière ligne du grand titre :
+		# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/para [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$fic.sla"`
+		# ou
+		# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/trail [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$fic.sla"`
+
+		# première ligne du grand titre :
+		bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [para/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$fic.sla"`
+		if [ "$bookmarklabel" != "" ]
+		then
+			bookmarktag='para '
+		else
+			bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [trail/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$fic.sla"`
+			bookmarktag='trail'
+		fi
+
+		bookmarklabel=`echo $bookmarklabel | xargs`
+
+		if [ "$bookmarklabel" != "" ]
+		then # ${fic#p_}
+			echo -ne "($bookmarktag)    ${bookmarklabel#\s*}\n" >> book_bookmarks.md
+			if [ "$setopt" == '-ab' ]
+			then
+				dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$fic.sla"`
+				if [ "$dejabookmark" == '' ]
+				then
+					# Let's add BOOKMARK="1" on PAGEOBJECT
+					cp "$fic.sla" "$fic.savb4bookmarks.sla"
+					xmlstarlet ed -i "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/para[@PARENT='$pdf_bookmark_style']]" -t attr -n BOOKMARK -v "1" "$fic.sla" > "$fic.sla"
+					echo -ne "$ESC_info Bookmark set : $bookmarklabel\n"
+				else
+					echo -ne "$ESC_info Allready a bookmark : '$bookmarklabel'\n" 
+				fi
+			fi
+		else
+			echo -ne "$ESC_warning Paragraph with '$pdf_bookmark_style' style not found\n"
+			echo -ne "(none)\n" >> book_bookmarks.md
+		fi
+		echo -ne $ESC_normal
+		# echo "=== ça donne ==="
+		# xmlstarlet sel -t -c "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]" "$fic.sla"
+	else
+		echo "bookmarks : pdf_bookmark_style is not defined"
+		exit
+	fi
+
 	listepdf="$listepdf $fic$pdfsuffix.pdf"
 done
 
@@ -612,4 +673,4 @@ then
 	pdffonts $output$pdfsuffix.pdf
 fi
 
-cat book.bookmarks
+cat book_bookmarks.md
