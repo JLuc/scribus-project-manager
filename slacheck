@@ -99,13 +99,11 @@ do
 		sla_actionoption="-set"
 		setrequested="-set"
 		stopoptions=''
-	elif [ "$1" = '-addbookmarks' ] || [ "$1" = '-ab' ]; then
+	elif [ "$1" = '-ab' ]; then
 		shift
-		# option gérée dnas slacheck, on ne la passe pas à slacheckattr
+		# option gérée dans makebook
 		setrequested="-ab"
 		stopoptions=''
-			echo "Cette option n'est pas au point : selon l'étape de dev, elle crée une sauvagarde mais vide ensuite le fichier SLA donc faut y aller mollo"
-			exit	
 		continue
 	elif [ "$1" = "-nofontcheck" ]; then
 		shift
@@ -161,52 +159,6 @@ then
 	checkfonts=''
 fi
 
-if [ "$pdf_bookmark_style" != "" ]
-then 
-	echo -ne "$1 : " >> book.bookmarks
-	# xmlstarlet
-	# -t -v pour récupérer la valeur du contenu de la balise ciblée ; -t -c pour récupérer le tag entier <tag>contenu</tag>
-
-	# dernière ligne du grand titre :
-	# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/para [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$1.sla"`
-	# ou
-	# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/trail [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$1.sla"`
-
-	# première ligne du grand titre :
-	bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [para/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$1.sla"`
-	if [ "$bookmarklabel" != "" ]
-	then
-		bookmarktag='para '
-	else
-		bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [trail/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$1.sla"`
-		bookmarktag='trail'
-	fi
-
-	if [ "$bookmarklabel" != "" ]
-	then
-		echo -ne " ($bookmarktag) $bookmarklabel\n" >> book.bookmarks
-		if [ "$setrequested" == '-ab' ]
-		then
-			dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$1.sla"`
-			if [ "$dejabookmark" == '' ]
-			then
-				# Let's add BOOKMARK="1" on PAGEOBJECT
-				cp "$1.sla" "$1.savb4bookmarks.sla"
-				xmlstarlet ed -i "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/para[@PARENT='$pdf_bookmark_style']]" -t attr -n BOOKMARK -v "1" "$1.sla" > "$1.sla"
-				echo -ne "$ESC_info Bookmark set : $bookmarklabel\n"
-			else
-				echo -ne "$ESC_info Allready a bookmark : '$bookmarklabel'\n" 
-			fi
-		fi
-	else
-		echo -ne "$ESC_warning Paragraph with '$pdf_bookmark_style' style not found\n"
-	fi
-	echo -ne $ESC_normal
-	# echo "=== ça donne ==="
-	# xmlstarlet sel -t -c "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]" "$1.sla"
-
-fi
-
 # *****************************
 # Collect comments
 #
@@ -231,9 +183,9 @@ then
 		echo -ne $ESC_normal
 	fi
 		
-	echo -ne "## $1.sla\n" >> book.comments
-	cat .slacheck.comments >> book.comments
-	echo -ne "\n\n" >> book.comments
+	echo -ne "## $1.sla\n" >> book_comments.md
+	cat .slacheck.comments >> book_comments.md
+	echo -ne "\n\n" >> book_comments.md
 fi
 
 alloptions="$vcheck $sla_actionoption"
@@ -354,6 +306,7 @@ then
 			path_to_here=`pwd`			# appimages require an absolute path to SLA
 			if [ "$vcheck" = '' ]
 			then 
+				# -g : no gui, -ns : no splash screen, but a window still opens...
 				$scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla" 2> /dev/null
 			else
 				echo $scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla"
