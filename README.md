@@ -27,6 +27,11 @@ Particularly it helps
 * produce the concatenated updated PDF
 * looking for strings in the text or in the XML structure and replace them with some other text
 * synchronise chapter's styles, masterpages or color definitions with those of a master document
+* automaticaly create PDF bookmarks for each paragraph of a user-specified style, and produce .md file of the table of content of these bookmarks
+* manage editor's comments of several types and produce .md file summary of these bookmarks, chapter by chapter
+* optionnaly enables to produce bleeds-free or image-free local-printer-friendly PDFs as an alternative to the main with-bleeds and with-image version
+* optionnaly enables to produce searchable font-embeded or non-searchable vectorized versions of the PDF
+* proposes to check or set all SLA possible options
 
 And more.
 
