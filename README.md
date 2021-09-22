@@ -42,7 +42,7 @@ After creating dedicated config files, the scripts can be used for other project
 
 ### Book related tools
 
-* **mak book script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  
+* **makebook script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  
 * - apply master styles or masterpage or color to all chapters
 * - create text only version (no images) or no-bleeds version for personal printing
 * - check settings fit requirement
