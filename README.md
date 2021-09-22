@@ -37,7 +37,7 @@ And more.
 
 ## What is this repository
 
-This repo contains the scripts I use to create the quaterly [Passerelle Eco](http://www.passerelleco.info/) magazine. This magazine is made of 8 to 20 parts with same page size, sharing lots of common styles, but some parts being very differents. 
+This repo contains the scripts I use to create the quaterly [Passerelle Eco](http://www.passerelleco.info/) magazine and books. This magazine  is made of 8 to 20 parts with same page size, sharing lots of common styles, but some parts being very differents. 
 After creating dedicated config files, the scripts can be used for other projects having differents characteristics.
 
 ### Book related tools
