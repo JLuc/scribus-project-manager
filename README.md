@@ -219,7 +219,26 @@ Example :
 The project manager provides a way of doing so and being automaticaly reminded of these notes :
 - in the book text of an existing textframe, use "AAA" or "XXX" next to the text of your note (avoid this with long texts)
 - OR create a dedicated small textframe and type your note along with AAA, XXX or PPP prefix
-- when project's manager `makbook` is called, it reminds you of all such notes it finds in the chapters of your book
+
+When project's manager `makbook` is called,
+- it reminds you of all such notes it finds in the chapters of your book
+- it creates a `book_comments.md` summary of notes for all chapters
+
+Example of such a produced comment's summary, for `N77` book :
+```
+## N77 chapters
+# Inline comments
+
+## 10.helene/10.helene.sla
+    AAA « I totaly rewrote this part. Can you check ? »
+    RRR « Please give more detailed example »
+
+## 20.forêts/20.forêts.sla
+    AAA « Check photo's licence »
+
+## 35.creerforet/35.creerforet.sla
+    RRR « New version »
+```
 
 ## Generate table of content
 
