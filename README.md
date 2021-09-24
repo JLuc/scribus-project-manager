@@ -221,6 +221,25 @@ The project manager provides a way of doing so and being automaticaly reminded o
 - OR create a dedicated small textframe and type your note along with AAA, XXX or PPP prefix
 - when project's manager `makbook` is called, it reminds you of all such notes it finds in the chapters of your book
 
+## Generate table of content
+
+Set the `pdf_bookmark_style` variable in your book config file to one of defined styles 
+and `makebook` will
+- create a PDF bookmark for each paragraph using this style. Example : `pdf_bookmark_style="Titre Principal Grand"`
+- list all such bookmarks in a separate book_bookmarks.md file 
+
+Example of created TOC :
+```
+## N77 chapters
+# Bookmarks with 'Titre Principal Grand' style
+
+Page  File                      Title  
+1.    100.haies/100.haies       Les haies fruitières
+11.   110.leterme/110.leterme   Haies à haute biodiversité
+14.   120.helene/120.helene     Le­ ver­ger de Hélène
+17.   130.forêts/130.forêts     Forêt frui­tiè­re
+```
+
 ## NEW : update and harmonise styles, colors or masterpages 
 
 ### for the whole book 
@@ -229,11 +248,11 @@ Choose a document, eg `masterchap.sla` and use it as a master document for style
 Add `syncmaster="masterchap"` in your book's config file.
 
 Then use various options :
-- `makbook -sync -s` : sync all chapter files styles with master's styles
-- `makbook -sync -ps` : sync all chapter files paragraph styles with master's paragraph styles
-- `makbook -sync -cs` : sync all chapter files character styles with master's character styles
-- `makbook -sync -c` : sync all chapter files colors with master's colors
-- `makbook -sync -m` : sync all chapter files masterpages with master's masterpage
+- `makebook -sync -s` : sync all chapter files styles with master's styles
+- `makebook -sync -ps` : sync all chapter files paragraph styles with master's paragraph styles
+- `makebook -sync -cs` : sync all chapter files character styles with master's character styles
+- `makebook -sync -c` : sync all chapter files colors with master's colors
+- `makebook -sync -m` : sync all chapter files masterpages with master's masterpage
 
 ### for a specific chapter and master file
 
