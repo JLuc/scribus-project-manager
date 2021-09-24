@@ -225,9 +225,10 @@ The project manager provides a way of doing so and being automaticaly reminded o
 
 Set the `pdf_bookmark_style` variable in your book config file to one of defined styles 
 and `makebook` will
-- create a PDF bookmark for each paragraph using this style. Example : `pdf_bookmark_style="Titre Principal Grand"`
+- create a PDF bookmark for each paragraph using this style. 
 - list all such bookmarks in a separate book_bookmarks.md file 
 
+Example config : `pdf_bookmark_style="Titre Principal Grand"`
 Example of created TOC :
 ```
 ## N77 chapters
@@ -261,7 +262,7 @@ Then use various options :
 Some paragraph and character styles can be preserved as is. These "localy defined" styles should be named with a specific prefix or suffix.
 
 Example : 
-- `slasync -s masterdoc chapter2` : updates defined styles
+- `slasync -sur spip.nets masterdoc chapter2` : updates defined styles
 - `slasync -ps masterdoc chapter2` : updates defined paragraph styles only
 - `slasync -c masterdoc chapter2` : updates defined colors
 - `-m` option : replaces masterpages    DOES NOT WORK : masterpage names are imported but not their definition
