@@ -42,7 +42,7 @@ After creating dedicated config files, the scripts can be used for other project
 
 ### Book related tools
 
-* **makebook script** : call relevant tools on relevant files and create final PDF (no generic makbook is published yet, but an example makbook file is available).  
+* **makebook script** : call relevant tools on relevant files and create final PDF (no generic makebook is published, but an example makebook file is available).  
 * - apply master styles or masterpage or color to all chapters
 * - create text only version (no images) or no-bleeds version for personal printing
 * - check settings fit requirement
@@ -149,7 +149,7 @@ In case an error is detected, you can fix it and set the the SLA parameters to t
 
 # Running
 
-The `makbook` script does run `slacheck` on each file of the source and performs various tests and actions, depending on the command line or config files options.
+The `makebook` script does run `slacheck` on each file of the source and performs various tests and actions, depending on the command line or config files options.
 
 * Default : 
   - it does test whether files and project conforms to the standards described in the config files : color management, image file storage, etc
@@ -177,7 +177,7 @@ Examples :
 * ```sources="n_2 CoverBegin		Summary  n_8 InsidePages	n_5	Notes  p_20 CoverEnd"``` 
 
 So as to take effect into the PDF created files, these pagestart have to be recorded inside each SLA file.
-So as to do so : call `makbook` with the `-set` option. It will set all chapter's starting page according to "p_xxx" declarations OR (when there is no such declaration) so it follows previous chapter's last page. As for now, "n_xx" declarations cannot force pagecounts (in case you want some part of your document to be not exported in the book, place it outside of viewport)
+So as to do so : call `makebook` with the `-set` option. It will set all chapter's starting page according to "p_xxx" declarations OR (when there is no such declaration) so it follows previous chapter's last page. As for now, "n_xx" declarations cannot force pagecounts (in case you want some part of your document to be not exported in the book, place it outside of viewport)
 
 ## Checking PDF files validity ##
 
@@ -202,7 +202,7 @@ You can either look for a string in the document's textframes or for a string ap
 * `-find "a string"` searches string in textes of all chapters
 - `-xmlfind "CNAME='mystyle'"` searches string in the wholocal le XML of all chapters (technical uses only)
 
-The example makbook script takes care of deleting all conditional hyphens before performing the search (and also the xmlsearch)
+The example makebook script takes care of deleting all conditional hyphens before performing the search (and also the xmlsearch)
 Results are displayed and also stored in the .found.tmp file
 
 There is also a `-replace` option
@@ -220,7 +220,7 @@ The project manager provides a way of doing so and being automaticaly reminded o
 - in the book text of an existing textframe, use "AAA" or "XXX" next to the text of your note (avoid this with long texts)
 - OR create a dedicated small textframe and type your note along with AAA, XXX or PPP prefix
 
-When project's manager `makbook` is called,
+When project's manager `makebook` is called,
 - it reminds you of all such notes it finds in the chapters of your book
 - it creates a `book_comments.md` summary of notes for all chapters
 
@@ -302,7 +302,7 @@ See -h option for more
 
 ## Other options
 
-Try `-?` option for each tool so as to see main options. Mainly makbook example  (to be split in 2 files : makbook and project.config)
+Try `-?` option for each tool so as to see main options. Mainly makebook example  (to be split in 2 files : makebook and project.config)
 
 #Other
 
