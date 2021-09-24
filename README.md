@@ -287,21 +287,11 @@ Try `-?` option for each tool so as to see main options. Mainly makbook example 
 
 #Other
 
-## could be done
+## TODO
 
-Next steps :
-* Create separated config files for the list of files included in the project so as to release a generic makebook script
-* Create as a dedicated C++ app
+* ¿ Optionnaly state that some attribut should remain unchanged when using `-set` option ?
+* Create as a dedicated C++ app !
 
-Other usefull features :
-* import or overwrite some specific style in all parts of the project
-* use one of the document as the `masterdocument` and use it for smart synchronization for
-   * masterdocuments 
-   * styles (optionnaly state which styles should NOT be synced)
-* optionnaly state that some attribut should remain unchanged when using -set option
-
-Other not so usefull features :
-* smart merge of SLAs (manage styles, masterpages and other conflicts) (usefull since merge of SLA is one of scribus Most Annoying Bug, but complex and not so usefull with the help of this project manager)
 
 ## Rules when proposing a script or push request for this repo
 * name of the script should be self-understandable and should give hints as what the script does
