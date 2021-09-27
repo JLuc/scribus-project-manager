@@ -271,8 +271,6 @@ Example of created `book_imagelist.md` :
 ## N77 chapters
 # Bookmarks with 'Titre Principal Grand' style
 
-
-```
 ## 100.haies/100.haies.sla
         images/biodiv_gouv W1.png
         images/elagage-haie.jpeg
