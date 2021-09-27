@@ -213,11 +213,9 @@ fi
 grep -oP '<PAGEOBJECT.*PFILE="\K[^"]*' "$1.sla"  | sed 's/^\(.*\)$/        \1/' >  .slacheck.imagelist
 grep -oP '<FRAMEOBJECT.*PFILE="\K[^"]*' "$1.sla" | sed 's/^\(.*\)$/inline  \1/' >> .slacheck.imagelist
 
-cat .slacheck.imagelist
 sizeimagelist=$(stat -c%s .slacheck.imagelist)
 if [ sizeimagelist != 0 ] 	# pas ">" (car ça crée un fichier "0") mais peut etre gt
 then
-	echo Il y a des images ! ~$sizeimagelist~
 	if [ "$imagelist" != "" ]
 	then
 		# -n : no newline at EOL
