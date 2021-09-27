@@ -29,6 +29,7 @@ Particularly it helps
 * synchronise chapter's styles, masterpages or color definitions with those of a master document
 * automaticaly create PDF bookmarks for each paragraph of a user-specified style, and produce .md file of the table of content of these bookmarks
 * manage editor's comments of several types and produce .md file summary of these bookmarks, chapter by chapter
+* produces a list of used image files and states when inlined
 * optionnaly enables to produce bleeds-free or image-free local-printer-friendly PDFs as an alternative to the main with-bleeds and with-image version
 * optionnaly enables to produce searchable font-embeded or non-searchable vectorized versions of the PDF
 * proposes to check or set all SLA possible options
@@ -258,6 +259,33 @@ Page  File                      Title
 11.   110.leterme/110.leterme   Haies à haute biodiversité
 14.   120.helene/120.helene     Le­ ver­ger de Hélène
 17.   130.forêts/130.forêts     Forêt frui­tiè­re
+```
+## Generate image list
+
+Unless the -noimagelist option is provided, `makebook` script creates an .md file detailing used images for each chapter.
+Inlined images are listed apart.
+
+Example of created `book_imagelist.md` :
+```
+## N77 chapters
+# Bookmarks with 'Titre Principal Grand' style
+
+
+```
+## 100.haies/100.haies.sla
+        images/biodiv_gouv W1.png
+        images/petition-elagage-haie.jpeg
+
+## 120.helene/120.helene.sla
+        images/CouvN34.jpg
+        images/SAM_5431_JOLI.JPG
+        images/SAM_5446_bouteille-serre.JPG
+        images/SAM_5451_BRF.JPG
+inline  images/international-food.png
+
+## 130.forêts/130.forêts.sla
+        images/strate basse couvre sol CCBYSA A. Talin.jpg
+        images/fig2-17.jpg
 ```
 
 ## NEW : update and harmonise styles, colors or masterpages 
