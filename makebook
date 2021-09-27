@@ -62,6 +62,7 @@ pdfignore=''
 getfonts=''
 nofontcheck=''
 nocomment=''
+noimagelist=''
 
 forcepdfopt=''
 vectoopt=''
@@ -91,6 +92,7 @@ do
 		echo "-nocheck : dont check anything, just merge all chapter\'s pdfs"
 		echo '-nofontcheck : dont check fonts'
 		echo '-nocomment : dont display comments (user can set comments using AAA, XXX or PPP keywords in texts)'
+		echo '-noimagelist : dont create used image list'
 		echo '-nopdf : dont create chapters PDFs nor merge them (only checks SLA)'
 		echo '-forcepdf : force all pdf (re)creation, even when it exists allready'
 		echo '-vconfig : verbose output about config files'
@@ -158,6 +160,15 @@ do
 		shift
 		nocomment="-nocomment"
 		echo "Dont display comments"
+		stopoptions=''
+		continue
+	fi
+
+	if [ "$1" = "-noimagelist" ] || [ "$1" = "-noimagelists" ]
+	then
+		shift
+		nocomment="-noimagelist"
+		echo "Dont create image list .md"
 		stopoptions=''
 		continue
 	fi
@@ -343,6 +354,7 @@ do
 		syncopt="$1"
 		echo "sync ($syncopt) all chapters with '$syncmaster.sla'"
 		nocomment="-nocomment"
+		noimagelist="-noimagelist"
 		stopoptions=''
 		shift
 	fi
@@ -360,6 +372,8 @@ if [ "$searched" = "" ] && [ "$xmlsearched" = "" ]
 then
 	echo -ne "## $output chapters\n# Inline comments\n\n" > book_comments.md
 	echo -ne "## $output chapters\n# Bookmarks with '$pdf_bookmark_style' style\n\n" > book_bookmarks.md
+	echo -ne "## $output chapters\n# Used images\n\n" > book_imagelist.md
+
 fi
 
 for fic in $sources
@@ -536,8 +550,8 @@ do
 
 	if [ "$check" = "oui" ] 
 	then
-		echo "slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $pdfignore $verboseopt $fic"
-		slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $pdfignore $verboseopt $fic
+		echo "slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $noimagelist $pdfignore $verboseopt $fic"
+		slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $noimagelist $pdfignore $verboseopt $fic
 		echo "slacheck done"
 	fi
 
