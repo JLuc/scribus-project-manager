@@ -249,6 +249,7 @@ and `makebook` will
 - list all such bookmarks in a separate book_bookmarks.md file 
 
 Example config : `pdf_bookmark_style="Titre Principal Grand"`
+
 Example of created TOC :
 ```
 ## N77 chapters
@@ -262,7 +263,7 @@ Page  File                      Title
 ```
 ## Generate image list
 
-Unless the -noimagelist option is provided, `makebook` script creates an .md file detailing used images for each chapter.
+Unless the `-noimagelist` option is provided, `makebook` script creates an .md file detailing used images for each chapter.
 Inlined images are listed apart.
 
 Example of created `book_imagelist.md` :
@@ -274,17 +275,15 @@ Example of created `book_imagelist.md` :
 ```
 ## 100.haies/100.haies.sla
         images/biodiv_gouv W1.png
-        images/petition-elagage-haie.jpeg
+        images/elagage-haie.jpeg
 
 ## 120.helene/120.helene.sla
         images/CouvN34.jpg
-        images/SAM_5431_JOLI.JPG
-        images/SAM_5446_bouteille-serre.JPG
         images/SAM_5451_BRF.JPG
-inline  images/international-food.png
+inline  images/planet-food.png
 
 ## 130.forêts/130.forêts.sla
-        images/strate basse couvre sol CCBYSA A. Talin.jpg
+        images/couvresol CCBYSA A. Talin.jpg
         images/fig2-17.jpg
 ```
 
