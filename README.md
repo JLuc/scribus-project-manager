@@ -77,9 +77,14 @@ These scripts can be made callable via nautilus action's menus.
 Also :
 * **shellcolors** : create variables to easily bring colors to console output using escape sequences. it is used to issue error or warning messages, and search result or such.
 
+# Setup for the project manager
+
+You ought to describe your project and how you want to manage it.
+
 ## Set of files composing the project ##
 
-The set of files is described in a string made out of all filenames in their appearing order.  
+The set of files is described in a string made out of all filenames in their book order.  
+Each file is sometime refered as a chapter but it can be a single page or a whole section of the project.
 
 As easy as :
 `sources = "filename1 filename2 ... lastfilename"`
@@ -88,7 +93,7 @@ Rq : The `.sla` extension, being a constant of a scribus filename, must be omite
 
 Since each chapter SLA file is usually the end result of a work requiring more documents, images, files, it may requires a whole folder to store these documents, and the SLA file is only one of them.
 
-So as to accomodate this, 3 possible standard organisation of files in the project folder are proposed and make project description more easy :
+So as to accomodate this, 3 possible standard organisations of files in the project folder are proposed and make project description more easy :
 * 0 : no change to filename in sources
 * 1 : filename stands for filename/filename(.sla)
 * 2 : filename stands for filename/PAO/filename(.sla)
@@ -107,7 +112,7 @@ sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
 sourcespattern=1
 ```
 
-Example where all SLA files are stored in filename/PAO/filename.sla, so other subfolders exist in filename/ :
+Example where all SLA files are stored in filename/PAO/filename.sla, so other subfolders as `recordings`, `data` or `notes` can also exist in `filename/`  :
 ```
 # more complex store pattern where SLA files are in PAO subfolder of each chapter folder
 sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
@@ -116,14 +121,14 @@ sourcespattern=2
 
 Page number specifications can also be embeded in this source spec. See above in dedicated part of this readme.
 
-You can specify which document should be used as master for styles, masterpage or color synchronisation :
-syncmaster="master_chap"
+You can specify which document should be used as master for styles, masterpage or color synchronisation : `syncmaster="master_chap"`
+This masterdocument is only used when `makebook -sync` is called (for the whole book) or when `slasync` is called (for a single chapter).
 
-## Configuration data
+## `makebook` configuration and use
 
-Configuration is a set of values for **page sizes**, **bleeds**, **marks**, **color profiles** and all other book creation issues that are required for your book or magazine etc... None of this is require, it all depends of what you need to check and ensure.
+Configuration is a set of values for **page sizes**, **bleeds**, **marks**, **color profiles** and all other book creation characteristics of your book or magazine... Specifying those enable the project manager to check that the provided documents fit these requirement. None is compulsory.
 
-These config are attributes of the SLA XML file tags.
+Each of these configs is an attribute of the SLA XML file tags.
 Config files are shell scripts that set variables : usualy there is one variable for each XML attribute you need to check/set.
 
 The configuration values are parameters for slacheck script and can be set
@@ -133,20 +138,17 @@ The configuration values are parameters for slacheck script and can be set
 
 So as to create a config file from scratch you'll have to
 - open an SLA with a text editor and understand its structure. 
-- findout which attributes you need.
+- findout the relevant tags and attributes you need.
 - findout their correct values
 - create a config file composed with all "attribute=value" settings.
 
-The default config file has done all this tedious job and you can also simply look at it and edit a copy in you work space so as to make it fit your need. It will be rather simple.
+The provided default config file has done all this tedious job and you can also simply look at it and edit a copy in you work space so as to make it fit your need. It will be rather simple.
 
-In case some of the file of your project requires different settings, then you have to create the required file-related restricted settings.
-Doing this requires 
-- edit a correct SLA that fit your standards, 
-- look for all the attributes names and values there 
-- and set them as the goal for your project or file in the corresponding config file
+In case some of the chapters require different settings than the rest of the book, then you have to create the required file-related restricted settings.
 
-So as to check whether the SLA document have the correct settings, just launch the script.
-In case an error is detected, you can fix it and set the the SLA parameters to the correct (project or document specific) specified values, use the `-set` option.
+So as to check whether the project's SLA documents have the correct settings, just launch `makebook`. It will warn in case a chapter doesnt verify the required values, but it wont edit the document.
+
+In case an error is detected, you can launch a new run with the `-set` option : it will  fix the bad SLA parameters to their correct value.
 
 # Running
 
@@ -155,10 +157,13 @@ The `makebook` script does run `slacheck` on each file of the source and perform
 * Default : 
   - it does test whether files and project conforms to the standards described in the config files : color management, image file storage, etc
   - when page numbers are specified in the source, it tests whether the globaly produced PDF conforms with these pages specs.
-  - it updates the PDF when they are out of dates compared to their SLA origin. This ensure the produced concatenated PDF is up to date.
+  - it updates the PDF when they are out of dates compared to their SLA origin. This ensure the produced concatenated PDF is up to date. The previous PDF version is archived as a `.bak`
   - it concatenates all chapter's PDF into a big PDF.
+  - it creates 3 md files for 1) user comments, 2) images, 3) PDF bookmarks (read above)
 
-* with `-set` option, it edits the SLA so it conforms to the specified config. When doing so, it doesn not update the PDFs. A later call without `-set` option will produce the updated PDFs.
+* with `-set` option, it edits the SLA so it conforms to the specified config. 
+   * The previous .SLA version is archived as a `.bak`. 
+   * `-set` doesn't update the PDFs. A later call without `-set` option will produce the updated PDFs.
 
 * Other options ... provide more options ! just ask with `-?` or `-h`
 
@@ -182,11 +187,11 @@ So as to do so : call `makebook` with the `-set` option. It will set all chapter
 
 ## Checking PDF files validity ##
 
-slacheck checks that the previously created PDF are uptodate. 
-When the PDF is older than the SLA, then it creates a newer PDF (saving the previously existing one as .bak)
-It's possible to avoid this automatic behaviour using -pdfignore or -pdfcheck options :
-- -pdfignore : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
-- -pdfcheck : check pdf, but dont re-create it in case required"
+`makebook` and `slacheck` checks that the previously created PDF are uptodate. 
+When the PDF is older than the SLA, it creates a newer PDF (saving the previously existing one as .bak)
+It's possible to avoid this automatic behaviour using `-pdfignore` or `-pdfcheck` options :
+- `-pdfignore` : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
+- `-pdfcheck` : check PDF, but dont re-create it in case it is older than .SLA
 
 ## Ensuring project long term safety and portability ##
 
@@ -285,7 +290,7 @@ inline  images/planet-food.png
         images/fig2-17.jpg
 ```
 
-## NEW : update and harmonise styles, colors or masterpages 
+## Sync : update and harmonise styles, colors or masterpages 
 
 ### for the whole book 
 
@@ -320,16 +325,21 @@ More options for chapters :
 
 See -h option for more
 
-## Produce personal printing version
+## Produce PDF version for personal printer 
 
-`mak -nobleeds` will produce a PDF without cropmarks and with document's settings 0 bleeds.
+A deskjet printer version doesnt require bleeds. 
+`makebook -nobleeds` will produce a PDF without cropmarks and with document's settings 0 bleeds.
+This option produces a PDF with a `-nobleeds` suffix.
 
+It's also possible to produce an ink-thrifty and focus-friendly version without images, that will be perfect for proofreading : 
+`makebook -noimagess`
+This option produces a PDF with a `-noimages` suffix.
 
 ## Other options
 
 Try `-?` option for each tool so as to see main options. Mainly makebook example  (to be split in 2 files : makebook and project.config)
 
-#Other
+# Other
 
 ## TODO
 
