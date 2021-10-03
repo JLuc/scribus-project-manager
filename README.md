@@ -119,7 +119,7 @@ sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
 sourcespattern=2
 ```
 
-Page number specifications can also be embeded in this source spec. See above in dedicated part of this readme.
+Page numbers specifications can also be embeded in this source spec. See above in dedicated part of this readme.
 
 You can specify which document should be used as master for styles, masterpage or color synchronisation : `syncmaster="master_chap"`
 This masterdocument is only used when `makebook -sync` is called (for the whole book) or when `slasync` is called (for a single chapter).
@@ -156,14 +156,15 @@ The `makebook` script does run `slacheck` on each file of the source and perform
 
 * Default : 
   - it does test whether files and project conforms to the standards described in the config files : color management, image file storage, etc
-  - when page numbers are specified in the source, it tests whether the globaly produced PDF conforms with these pages specs.
+  - when page numbers are specified in the source, it tests whether the globaly produced PDF conforms with these pages specs and warns in case it doesnt (use `-set` option so as to force page numbers) 
   - it updates the PDF when they are out of dates compared to their SLA origin. This ensure the produced concatenated PDF is up to date. The previous PDF version is archived as a `.bak`
   - it concatenates all chapter's PDF into a big PDF.
   - it creates 3 md files for 1) user comments, 2) images, 3) PDF bookmarks (read above)
 
-* with `-set` option, it edits the SLA so it conforms to the specified config. 
+* with `-set` option, it edits the SLA so it conforms to the specified config.
+   * the starting page of each chapter is set to conform with the sources declaration or to the page number of the preceding chapter (see later).
    * The previous .SLA version is archived as a `.bak`. 
-   * `-set` doesn't update the PDFs. A later call without `-set` option will produce the updated PDFs.
+   * `-set` doesn't update the PDFs. A later call without `-set` option is required tp produce the updated PDFs.
 
 * Other options ... provide more options ! just ask with `-?` or `-h`
 
@@ -182,8 +183,8 @@ Examples :
 * ```sources="p_1 CoverBegin		p_3 Summary  p_7 InsidePages	p_15	Notes  p_20 CoverEnd"```
 * ```sources="n_2 CoverBegin		Summary  n_8 InsidePages	n_5	Notes  p_20 CoverEnd"``` 
 
-So as to take effect into the PDF created files, these pagestart have to be recorded inside each SLA file.
-So as to do so : call `makebook` with the `-set` option. It will set all chapter's starting page according to "p_xxx" declarations OR (when there is no such declaration) so it follows previous chapter's last page. As for now, "n_xx" declarations cannot force pagecounts (in case you want some part of your document to be not exported in the book, place it outside of viewport)
+So as to take effect into the PDF created files, these pagestart have to be recorded inside each SLA file. So as to do so : call `makebook` with the `-set` option. It will set all chapter's starting page according to `p_xxx` and `n_xxx` declarations. When there is no such declaration, `makebook` counts the pages and ensure the next chapteur begins so it follows previous chapter's last page. 
+NB : All pages of all chapters are included in the produced PDF. There is no way to exclude some pages. In case you want some part of your document to be not exported in the book, place it outside of the existing pages !
 
 ## Checking PDF files validity ##
 
