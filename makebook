@@ -588,18 +588,16 @@ do
 	if [ "$pdf_bookmark_style" != "" ]
 	then 
 		chapter_summary="$start_page.           "	
-		chapter_summary="${chapter_summary:0:5} $fic                                                                                                     " 
+		chapter_summary="${chapter_summary:0:5} $fic    "
 		echo -ne "${chapter_summary:0:50}"  >> book_bookmarks.md
+		
 		# echo -ne "- p.$start_page	$fic	" >> book_bookmarks.md
-		# xmlstarlet
+		# xmlstarlet : xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html
 		# -t -v pour récupérer la valeur du contenu de la balise ciblée ; -t -c pour récupérer le tag entier <tag>contenu</tag>
 
-		# dernière ligne du grand titre :
+		# bookmark style : either as para or as trail paragraph
 		# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/para [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$fic.sla"`
-		# ou
 		# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/trail [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$fic.sla"`
-
-		# première ligne du grand titre :
 		bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [para/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$fic.sla"`
 		if [ "$bookmarklabel" != "" ]
 		then
@@ -609,7 +607,8 @@ do
 			bookmarktag='trail'
 		fi
 
-		bookmarklabel=`echo $bookmarklabel | xargs`
+		# clean bookmark
+		bookmarklabel=`echo $bookmarklabel | tr "'" _ | tr -d "­"`  # conditionnal hyphen glyph in ""
 
 		if [ "$bookmarklabel" != "" ]
 		then # ${fic#p_}
@@ -617,21 +616,24 @@ do
 			if [ "$setopt" == '-ab' ]
 			then
 				dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$fic.sla"`
+				echo "dejabookmark:$dejabookmark"
 				if [ "$dejabookmark" == '' ]
 				then
 					# Let's add BOOKMARK="1" on PAGEOBJECT
-					cp "$fic.sla" "$fic.savb4bookmarks.sla"
-					xmlstarlet ed -i "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/para[@PARENT='$pdf_bookmark_style']]" -t attr -n BOOKMARK -v "1" "$fic.sla" > "$fic.sla"
-					echo -ne "$ESC_info Bookmark set : $bookmarklabel\n"
+					xmlstarlet ed -i "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]" -t attr -n BOOKMARK -v "1" "$fic.sla" > "$fic.with_bookmark.sla"
+#					wc "$fic.sla" "$fic.with_bookmark.sla"
+					mv "$fic.sla" "$fic.no_bookmark.sla"
+					mv "$fic.with_bookmark.sla" "$fic.sla"
+					echo -ne "$ESC_info New bookmark set : $bookmarklabel"
 				else
-					echo -ne "$ESC_info Allready a bookmark : '$bookmarklabel'\n" 
+					echo -ne "$ESC_info Allready a bookmark : '$bookmarklabel'" 
 				fi
 			fi
 		else
-			echo -ne "$ESC_warning Paragraph with '$pdf_bookmark_style' style not found\n"
+			echo -ne "$ESC_warning Paragraph with '$pdf_bookmark_style' style not found"
 			echo -ne "(none)\n" >> book_bookmarks.md
 		fi
-		echo -ne $ESC_normal
+		echo -ne "\n$ESC_normal"
 		# echo "=== ça donne ==="
 		# xmlstarlet sel -t -c "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]" "$fic.sla"
 	else
