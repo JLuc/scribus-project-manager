@@ -442,10 +442,12 @@ do
 	fi
 
 	# $fic.sla is an existing scribus file whose chapter name is $short_fic
+	echo "
+"
 	
 	let pagecount=`grep -c "\s<PAGE\s[^>]*PAGEXPOS\s*=\s*\"" "$fic.sla"`
 	pagecount_fic="$fic"
-	pagemsg="$ESC_info\n$short_fic pagecount is $pagecount and begins at page $num_page $ESC_normal"
+	pagemsg="$short_fic : startpage=$num_page ; pagecount = $pagecount"
 	pagenumopt="-pagenum $num_page"
 	start_page=$num_page
 	num_page=$(( $num_page+$pagecount ))
