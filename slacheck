@@ -181,7 +181,7 @@ fi
 grep -oP '<ITEXT\s+CH\s*=\s*"\K.*(AAA|BBB|CCC|DDD|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' "$1.sla" | sed 's/^\(.*\(AAA\|BBB\|CCC\|DDD\|PPP\|QQQ\|RRR\|SSS\|WWW\|XXX\|YYY\|ZZZ\).*\)$/    \2 « \1 »/' > .slacheck.comments
 
 sizecomments=$(stat -c%s .slacheck.comments)
-if [ -f .slacheck.comments  ] && [ sizecomments != 0 ] 
+if [ -f .slacheck.comments  ] && [ sizecomments != 0 ] 	# pas ">" (car ça crée un fichier "0") mais peut etre gt
 then
 	if [ "$comment" != "" ]
 	then
@@ -300,8 +300,6 @@ slacheckattr $alloptions -all "$1" PAGE 		PAGEWIDTH	"$PAGEWIDTH"	"Largeur de pag
 slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEWIDTH	"$PAGEWIDTH"	"Largeur de page A5=420.944881889764"
 slacheckattr $alloptions -all "$1" PAGE 		PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
 slacheckattr $alloptions -all "$1" MASTERPAGE 	PAGEHEIGHT	"$PAGEHEIGHT"	"Hauteur de page A5=595.275590551181"
-
-ls -ltr "$1.sla"
 
 if [ "$checkpagenums" = 'check' ] && [ "$pagenumval" != '' ]
 then
