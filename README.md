@@ -247,12 +247,10 @@ Example of such a produced comment's summary, for `N77` book :
     RRR « New version »
 ```
 
-## Generate table of content
+## Generate table of content and PDF Bookmarks
 
 Set the `pdf_bookmark_style` variable in your book config file to one of defined styles 
-and `makebook` will
-- create a PDF bookmark for each paragraph using this style. 
-- list all such bookmarks in a separate book_bookmarks.md file 
+and `makebook` will list all such bookmarks in a separate book_bookmarks.md file 
 
 Example config : `pdf_bookmark_style="Titre Principal Grand"`
 
@@ -267,6 +265,10 @@ Page  File                      Title
 14.   120.helene/120.helene     Le­ ver­ger de Hélène
 17.   130.forêts/130.forêts     Forêt frui­tiè­re
 ```
+
+In case you wish to get a bookmark for all of these, you ought to call makebook with `-ab` version ('-ab' stands for `add bookmarks`).
+`makebook -ab` will create a PDF bookmark for all table of content entry (= paragraphs with `pdf_bookmark_style` style), when it has no PDF bookmark allready.
+
 ## Generate image list
 
 Unless the `-noimagelist` option is provided, `makebook` script creates an .md file detailing used images for each chapter.
