@@ -592,12 +592,16 @@ do
 		echo -ne "${chapter_summary:0:50}"  >> book_bookmarks.md
 		
 		# echo -ne "- p.$start_page	$fic	" >> book_bookmarks.md
-		# xmlstarlet : xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html
-		# -t -v pour récupérer la valeur du contenu de la balise ciblée ; -t -c pour récupérer le tag entier <tag>contenu</tag>
+		# xmlstarlet : http://xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html
+		# el -a pour lister tous les xpath contenus
+		# sel -t -v pour récupérer la valeur du contenu de la balise ciblée 
+		# sel -t -c pour récupérer le tag entier <tag>contenu</tag>
+		# ed -i pour insérer avant : '-t attr' un attribut / '-t elem' un élément=tag / de nom -n et de valeur -v
+		# Rq : pour un élément, le nom est le contenu du tag, sans < ni />, avec les attributs, 
+		# et si on en veut un, -v est le contenu du tag avant une balise fermant
+		# ed -s pour créer un sous-noeud
 
 		# bookmark style : either as para or as trail paragraph
-		# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/para [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$fic.sla"`
-		# bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText/trail [@PARENT='$pdf_bookmark_style']/preceding-sibling::ITEXT[1]/@CH" "$fic.sla"`
 		bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [para/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$fic.sla"`
 		if [ "$bookmarklabel" != "" ]
 		then
@@ -612,18 +616,27 @@ do
 
 		if [ "$bookmarklabel" != "" ]
 		then # ${fic#p_}
-			echo -ne "($bookmarktag)    ${bookmarklabel#\s*}\n" >> book_bookmarks.md
+			echo -ne "Bookmark style found ($bookmarktag) :   ${bookmarklabel#\s*}\n" >> book_bookmarks.md
+			echo -ne "Bookmark style found ($bookmarktag) :   ${bookmarklabel#\s*}\n"
 			if [ "$setopt" == '-ab' ]
 			then
 				dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$fic.sla"`
-				echo "dejabookmark:$dejabookmark"
+				echo "dejabookmark ? $dejabookmark"
 				if [ "$dejabookmark" == '' ]
 				then
-					# Let's add BOOKMARK="1" on PAGEOBJECT
-					xmlstarlet ed -i "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]" -t attr -n BOOKMARK -v "1" "$fic.sla" > "$fic.with_bookmark.sla"
-#					wc "$fic.sla" "$fic.with_bookmark.sla"
+					# Add BOOKMARK="1" on PAGEOBJECT
+					xmlstarlet ed -i "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]" -t attr -n BOOKMARK -v "1" "$fic.sla" > "$fic.tmp_with_bookmark_1.sla"
+
+					# Insert a <Bookmark ... /> element in the <DOCUMENT>. 
+					# eg : <Bookmark Title="A title" Text="A Title" Aktion="" ItemNr="1" Element="1491231114" First="0" Last="0" Prev="0" Next="0" Parent="0"/>
+					# Should be first, OK when last + OK without ItemNr, First, Last, Prev and Next
+					bookmark_itemid=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@ItemID" "$fic.tmp_with_bookmark_1.sla"`
+					xmlstarlet ed -s "SCRIBUSUTF8NEW/DOCUMENT" -t elem -n "Bookmark Title=\"$bookmarklabel\" Text=\"$bookmarklabel\" Aktion=\"\" Element=\"$bookmark_itemid\" Parent=\"0\"" "$fic.tmp_with_bookmark_1.sla" > "$fic.tmp_with_bookmark_2.sla"
+
+#					wc "$fic.sla" "$fic.tmp_with_bookmark_1.sla" "$fic.tmp_with_bookmark_2.sla"
+
 					mv "$fic.sla" "$fic.no_bookmark.sla"
-					mv "$fic.with_bookmark.sla" "$fic.sla"
+					mv "$fic.tmp_with_bookmark_2.sla" "$fic.sla"
 					echo -ne "$ESC_info New bookmark set : $bookmarklabel"
 				else
 					echo -ne "$ESC_info Allready a bookmark : '$bookmarklabel'" 
