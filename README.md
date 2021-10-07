@@ -254,6 +254,8 @@ and `makebook` will list all such bookmarks in a separate book_bookmarks.md file
 
 Example config : `pdf_bookmark_style="Titre Principal Grand"`
 
+For better rendering, conditional hyphens and end of lines are deleted out of the TOC entry.
+
 Example of created TOC :
 ```
 ## N77 chapters
@@ -262,17 +264,16 @@ Example of created TOC :
 Page  File                      Title  
 1.    100.haies/100.haies       Les haies fruitières
 11.   110.leterme/110.leterme   Haies à haute biodiversité
-14.   120.helene/120.helene     Le­ ver­ger de Hélène
-17.   130.forêts/130.forêts     Forêt frui­tiè­re
+14.   120.helene/120.helene     Le verger de Hélène
+17.   130.forêts/130.forêts     Forêt fruitière
 ```
-
-For better rendering, conditional hyphens are deleted out of the TOC entry.
 
 In case a chapter has no paragraph with `pdf_bookmark_style` style, but you wish it to be part of the TOC, then you can create a dedicated text frame in some hidden place, with a paragraph of this style to record the TOC entry and bookmark name
 
 If you wish to get a PDF bookmark for all of these TOC entry, makebook can create them : call it with `-ab` option ('-ab' stands for `add bookmarks`).
 `makebook -ab` will create a PDF bookmark for all TOC entry (= paragraphs with `pdf_bookmark_style` style) that do not have a PDF bookmark yet.
 
+This is only possible for one such bookmark in each chapter.
 
 ## Generate image list
 
