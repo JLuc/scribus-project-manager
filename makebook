@@ -616,12 +616,11 @@ do
 
 		if [ "$bookmarklabel" != "" ]
 		then # ${fic#p_}
-			echo -ne "Bookmark style found ($bookmarktag) :   ${bookmarklabel#\s*}\n" >> book_bookmarks.md
-			echo -ne "Bookmark style found ($bookmarktag) :   ${bookmarklabel#\s*}\n"
+			echo -ne "Bookmark style found as $bookmarktag :   ${bookmarklabel#\s*}\n" >> book_bookmarks.md
+			echo -ne "Bookmark style found as $bookmarktag :   ${bookmarklabel#\s*}\n"
 			if [ "$setopt" == '-ab' ]
 			then
 				dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$fic.sla"`
-				echo "dejabookmark ? $dejabookmark"
 				if [ "$dejabookmark" == '' ]
 				then
 					# Add BOOKMARK="1" on PAGEOBJECT
