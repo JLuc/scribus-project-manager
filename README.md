@@ -247,7 +247,7 @@ Example of such a produced comment's summary, for `N77` book :
     RRR « New version »
 ```
 
-## Generate table of content and PDF Bookmarks
+## Generate table of content and create PDF Bookmarks accordingly
 
 Set the `pdf_bookmark_style` variable in your book config file to one of defined styles 
 and `makebook` will list all such bookmarks in a separate book_bookmarks.md file 
@@ -266,8 +266,13 @@ Page  File                      Title
 17.   130.forêts/130.forêts     Forêt frui­tiè­re
 ```
 
-In case you wish to get a bookmark for all of these, you ought to call makebook with `-ab` version ('-ab' stands for `add bookmarks`).
-`makebook -ab` will create a PDF bookmark for all table of content entry (= paragraphs with `pdf_bookmark_style` style), when it has no PDF bookmark allready.
+For better rendering, conditional hyphens are deleted out of the TOC entry.
+
+In case a chapter has no paragraph with `pdf_bookmark_style` style, but you wish it to be part of the TOC, then you can create a dedicated text frame outside of the viewport, with a paragraph of this style to record the TOC entry and bookmark name
+
+If you wish to get a PDF bookmark for all of these TOC entry, makebook can create them : call it with `-ab` option ('-ab' stands for `add bookmarks`).
+`makebook -ab` will create a PDF bookmark for all TOC entry (= paragraphs with `pdf_bookmark_style` style) that do not have a PDF bookmark yet.
+
 
 ## Generate image list
 
