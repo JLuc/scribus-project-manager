@@ -187,7 +187,7 @@ then
 	then
 		# -n : no newline at EOL
 		# -e : manage escape
-		echo -ne $ESC_notice size=$sizecomments
+		echo -ne $ESC_notice
 		cat .slacheck.comments
 		echo -ne $ESC_normal
 	fi
@@ -220,7 +220,7 @@ then
 	then
 		# -n : no newline at EOL
 		# -e : manage escape
-		echo -ne $ESC_notice =images
+		echo -ne $ESC_notice
 		cat .slacheck.imagelist
 		echo -ne $ESC_normal
 	fi
