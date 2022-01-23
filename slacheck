@@ -181,13 +181,13 @@ fi
 grep -oP '<ITEXT\s+CH\s*=\s*"\K.*(AAA|BBB|CCC|DDD|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' "$1.sla" | sed 's/^\(.*\(AAA\|BBB\|CCC\|DDD\|PPP\|QQQ\|RRR\|SSS\|WWW\|XXX\|YYY\|ZZZ\).*\)$/    \2 « \1 »/' > .slacheck.comments
 
 sizecomments=$(stat -c%s .slacheck.comments)
-if [ -f .slacheck.comments  ] && [ sizecomments != 0 ] 	# pas ">" (car ça crée un fichier "0") mais peut etre gt
+if [ -f .slacheck.comments  ] && [ $sizecomments -gt 0 ] 	# pas ">" (car ça crée un fichier "0" !) mais peut etre gt
 then
 	if [ "$comment" != "" ]
 	then
 		# -n : no newline at EOL
 		# -e : manage escape
-		echo -ne $ESC_notice
+		echo -ne $ESC_notice size=$sizecomments
 		cat .slacheck.comments
 		echo -ne $ESC_normal
 	fi
@@ -220,7 +220,7 @@ then
 	then
 		# -n : no newline at EOL
 		# -e : manage escape
-		echo -ne $ESC_notice
+		echo -ne $ESC_notice =images
 		cat .slacheck.imagelist
 		echo -ne $ESC_normal
 	fi
@@ -242,13 +242,14 @@ slacheckattr $alloptions "$1" DOCUMENT 	DPIn2		"$RGBprof"		"RGB color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
+slacheckattr $alloptions "$1" DOCUMENT 	DPSFo		"$DPSFo"		"Convert colors to printer's CMYK colorspace"
+slacheckattr $alloptions "$1" DOCUMENT 	DPSo		"$DPSo"			"Fake printer's rendering on screen"
+slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
+slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
 
 slacheckattr $alloptions "$1" DOCUMENT 	AUTOMATIC	"1"				"Doc pref / hyphen"
 slacheckattr $alloptions "$1" DOCUMENT 	AUTOCHECK	"1"				"Suggest and ask to confirm hyphens"
 
-
-slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
-slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
 
 slacheckattr $alloptions "$1" PDF 		rangeSel 	"$rangeSel"		"PDF selected pages : 1 for a selection of pages / 0 for all pages"
 # In case rangeSel is "1", rangeTxt has to be specified in each document's file config
