@@ -588,7 +588,7 @@ do
 	if [ "$pdf_bookmark_style" != "" ]
 	then 
 		chapter_summary="$start_page.           "	
-		chapter_summary="${chapter_summary:0:5} $fic    "
+		chapter_summary="${chapter_summary:0:5} $fic                                                                                          " # many spaces for right strpad 
 		echo -ne "${chapter_summary:0:50}"  >> book_bookmarks.md
 		
 		# echo -ne "- p.$start_page	$fic	" >> book_bookmarks.md
@@ -612,12 +612,17 @@ do
 		fi
 
 		# clean bookmark
-		bookmarklabel=`echo $bookmarklabel | tr "'" _ | tr -d "­"`  # conditionnal hyphen glyph in ""
-
+		bookmarklabel=`echo $bookmarklabel | tr -d "­"`  # conditionnal hyphen glyph in ""
+		bookmarklabel=${bookmarklabel#\s*}
+		
 		if [ "$bookmarklabel" != "" ]
 		then # ${fic#p_}
-			echo -ne "Bookmark style found as $bookmarktag :   ${bookmarklabel#\s*}\n" >> book_bookmarks.md
-			echo -ne "Bookmark style found as $bookmarktag :   ${bookmarklabel#\s*}\n"
+			# TODO strpad 
+			# echo len=${#bookmarklabel}
+			# perl -e '$str="123";$pad="#";$len=3;print (($pad x $len) . $str)'
+
+			echo -ne "$bookmarklabel\n" >> book_bookmarks.md
+			echo -ne "Bookmark found as $bookmarktag :   $bookmarklabel\n"
 			if [ "$setopt" == '-ab' ]
 			then
 				dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$fic.sla"`
@@ -643,7 +648,7 @@ do
 			fi
 		else
 			echo -ne "$ESC_warning Paragraph with '$pdf_bookmark_style' style not found"
-			echo -ne "(none)\n" >> book_bookmarks.md
+			echo -ne "\n" >> book_bookmarks.md
 		fi
 		echo -ne "\n$ESC_normal"
 		# echo "=== ça donne ==="
