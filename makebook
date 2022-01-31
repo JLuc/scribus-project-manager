@@ -249,7 +249,7 @@ do
 			exit
 		fi
 		shift
-		if [ "$1" = "" ]
+		if [ -z ${1+x} ] # only verified when $1 is unset, not verified when $1 is empty string
 		then
 			echo -e "${ESC_error}-replace option must have additionnal parameter = replacement string$ESC_normal"
 			exit
