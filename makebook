@@ -507,7 +507,6 @@ do
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
 			grep -ni "$xmlsearched" "$cleansla" /dev/null >> .found.tmp
 
-			echo "Avant test pour '$short_fic' : doreplace='$doreplace' replaced='$replaced'" # DEBUG
 			if [ -n $doreplace ]
 			then
 				echo "Après test pour '$short_fic' : doreplace='$doreplace' replaced='$replaced'" # DEBUG
