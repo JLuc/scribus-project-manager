@@ -18,8 +18,8 @@
 # 	  example :  output="PA72/PA72" + sourcespattern=0 + sources="p_32 PA72/PA72_1 n_8 PA72/PA72_2 n_6 PA72/PA72_3 n_8 p_54" + images_parent_folder="PA72"
 # 1 : sources names stand for filename/filename(.sla)
 # 2 : sources names stand for filename/PAO/filename(.sla)
-# 3 (TODO) : all sources in PAO/. Sources names stand for PAO/filename(.sla)
-# 4 (TODO) : smart detect 2 or 1 or 0
+# 3 (TODO ?) : all sources in PAO/. Sources names stand for PAO/filename(.sla)
+# 4 (TODO ?) : smart detect 2 or 1 or 0
 #
 # now also managed inside book.config file (warning : illogic naming) :
 # FontEmbedding=0	# PDF with embeded or subset fonts
@@ -56,6 +56,7 @@ searched=''	 	# searched string
 xmlsearched=''	# xml searched string
 nbfound=0
 displayfindresult="yes"
+doreplace=''	# used as a boolean
 
 checkcolorall=''
 pdfignore=''
@@ -255,6 +256,7 @@ do
 			exit
 		fi
 		replaced="$1"
+		doreplace="doreplace"
 		shift
 		echo "Replace all found strings with '$replaced'"
 		stopoptions=''
@@ -491,6 +493,8 @@ do
 	then
 		count=`grep -c -o -i "$xmlsearched" "$cleansla"`
 		echo XmlSearch in $short_fic : $count results
+
+		# tests : != for string / ne for numerics
 		if [ "$count" != "0" ] && [ "$displayfindresult" != "" ]
 		then
 			nbfound=$(( $nbfound+$count ))
@@ -502,10 +506,11 @@ do
 			# -n : line number
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
 			grep -ni "$xmlsearched" "$cleansla" /dev/null >> .found.tmp
-			
-			if [ "$replaced" != '' ]
+
+			echo "Avant test pour '$short_fic' : doreplace='$doreplace' replaced='$replaced'" # DEBUG
+			if [ -n $doreplace ]
 			then
-				echo "replaced=$replaced"
+				echo "Après test pour '$short_fic' : doreplace='$doreplace' replaced='$replaced'" # DEBUG
 				if [ -f "$fic.before_replace.sla" ]
 				then
 					echo "$fic.before_replace.sla allready exists : moved as .bak"
@@ -520,8 +525,10 @@ do
 
 				# -i = update file ! ("inplace")
 				# /gI = global (all occurences) + case insensitive
-				echo sed -i "s/$xmlsearched/$replaced/gI" "$fic.sla"
-				sed -i "s/$xmlsearched/$replaced/gI" "$fic.sla"
+				escapedsearch=$(LC_ALL=C sed 's/["/]/\\&/g' <<<"$xmlsearched")
+				escapedreplace=$(LC_ALL=C sed 's/["/]/\\&/g' <<<"$replaced")
+				echo sed -i "s/$escapedsearch/$escapedreplace/gI" "$fic.sla"
+				sed -i "s/$escapedsearch/$escapedreplace/gI" "$fic.sla" # / delimiter but any other is possible. Has to be escaped in searched and replaced strings
 			fi
 		fi
 		rm $cleansla
