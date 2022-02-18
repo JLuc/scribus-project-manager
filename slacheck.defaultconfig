@@ -2,9 +2,14 @@
 
 # configs relating SLA file attributes
 
-RGBprof=sRGB		# RGB color profile
-CMYKprof='ISO Coated v2 300% (ECI)'		# CMYK color profile
-resolution=300		# resolution pour attributs PicRes ET Resolution (de <PDF...>)
+RGBprof=sRGB								# RGB color profile
+#CMYKprof='ISO Coated v2 300% (ECI)'		# CMYK color profile
+CMYKprof='PSO Uncoated v3 (FOGRA52)'		# CMYK color profile
+DPSFo="1" 									# Do convert colors to printer's color space
+DPSo="1"									# Do fake printer's rendering on screen
+
+Resolution=300		# resolution for EPS graphics pour attributs PicRes ET Resolution (de <PDF...>)
+PicRes=300			# max resolution for images
 RecalcPic=1			# limite vraiment les images à la résolution max
 Compress=1 			# compresser vectoriel
 CMethod=1 			# compresser images avec perte
@@ -13,6 +18,8 @@ EmbedPDF=1			# 1 : embed pdf ("expérimental")
 PDFversion=15		# PDF output version	
 Grayscale=0			# No greyscale PDF	
 RGBMode=0			# PDF for printers rather than screen
+FontEmbedding=0		# 0 : Embeds full or subset fonts. 1 : outlines=vectorize"
+# FontEmbedding=1		# 0 : Embeds full or subset fonts. 1 : outlines=vectorize"
 
 rangeSel=0 			# Export to PDF : only some pages (1) or all pages (0)
 # In case rangeSel is "1", rangeTxt has to be specified in the specific file config
@@ -37,7 +44,9 @@ docInfoMarks=0
 # All pages should be :
 PAGEWIDTH="420.944881889764"
 PAGEHEIGHT="595.275590551181"
-DFONT="Liberation Sans Regular" # no font is 100% perfect default DFONT, but this is better than none
+DFONT="Liberation Sans Regular" # there is no 100% good default font choice...
+DPSFo="1"	# convert colors to printer's profile
+scribus_printer_profile="PSO Uncoated v3 (FOGRA52)"
 
 # config for preflight checker
 # NOT OK - not used
