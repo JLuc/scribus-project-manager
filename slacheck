@@ -252,7 +252,7 @@ slacheckattr $alloptions "$1" DOCUMENT 	AUTOCHECK	"1"				"Suggest and ask to con
 
 
 slacheckattr $alloptions "$1" PDF 		rangeSel 	"$rangeSel"		"PDF selected pages : 1 for a selection of pages / 0 for all pages"
-# In case rangeSel is "1", rangeTxt has to be specified in each document's file config
+# In case rangeSel is "1", rangeTxt has to be specified in each document's file config :
 # slacheckattr $alloptions "$1" PDF 	rangeTxt 	"$rangeSel"		"PDF for a selection of pages (or for all pages) ?"
 
 slacheckattr $alloptions "$1" PDF		SolidP 		"$RGBprof"		"RGBcolor profile"
@@ -271,8 +271,9 @@ fi
 # other PDF output checks
 slacheckattr $alloptions "$1" PDF		Bookmarks	"1"				"Exporter les bookmarks définis (outlines PDF)"
 
-slacheckattr $alloptions "$1" PDF		PicRes		"$resolution"	"Résolution des images"
-slacheckattr $alloptions "$1" PDF		Resolution	"$resolution"	"Résolution des EPS"
+slacheckattr $alloptions "$1" PDF		PicRes 		"$PicRes"		"Max images resolution"
+slacheckattr $alloptions "$1" PDF		Resolution	"$Resolution"	"EPS graphics resolution"
+
 slacheckattr $alloptions "$1" PDF		Compress	"$Compress"		"Compression des images"
 slacheckattr $alloptions "$1" PDF		RecalcPic	"$RecalcPic"	"Limiter la résolution des images"
 slacheckattr $alloptions "$1" PDF		CMethod		"$CMethod"		"Méthode de compression des images"
