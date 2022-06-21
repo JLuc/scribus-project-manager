@@ -178,7 +178,7 @@ fi
 # \K : dans une perl regexp, permet d'oublier la partie du m à gauche. Ne retourne donc que ce qui suit. Requis ici car les expression lookbehind ne peuvent pas etre de longueur variable.
 #
 # Il faut '(' dans grep mais '\(' dans sed
-grep -oP '<ITEXT\s+CH\s*=\s*"\K.*(AAA|BBB|CCC|DDD|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' "$1.sla" | sed 's/^\(.*\(AAA\|BBB\|CCC\|DDD\|PPP\|QQQ\|RRR\|SSS\|WWW\|XXX\|YYY\|ZZZ\).*\)$/    \2 « \1 »/' > .slacheck.comments
+grep -oP '<ITEXT [^>]*CH\s*=\s*"\K.*(AAA|BBB|CCC|DDD|PPP|QQQ|RRR|SSS|WWW|XXX|YYY|ZZZ).*(?="\s*\/>)' "$1.sla" | sed 's/^\(.*\(AAA\|BBB\|CCC\|DDD\|PPP\|QQQ\|RRR\|SSS\|WWW\|XXX\|YYY\|ZZZ\).*\)$/    \2 « \1 »/' > .slacheck.comments
 
 sizecomments=$(stat -c%s .slacheck.comments)
 if [ -f .slacheck.comments  ] && [ $sizecomments -gt 0 ] 	# pas ">" (car ça crée un fichier "0" !) mais peut etre gt
@@ -239,6 +239,9 @@ alloptions="$vcheck $sla_actionoption"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn 		"$RGBprof" 		"RGB color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn2		"$RGBprof"		"RGB color profile"
 
+slacheckattr $alloptions "$1" DOCUMENT 	HCMS 		"1"				"Color management ?"
+slacheckattr $alloptions "$1" DOCUMENT 	DPuse 		"1"				"Color management ?"
+
 slacheckattr $alloptions "$1" DOCUMENT 	DPPr 		"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPInCMYK	"$CMYKprof"		"CMYK color profile"
 slacheckattr $alloptions "$1" DOCUMENT 	DPIn3		"$CMYKprof"		"CMYK color profile"
@@ -246,6 +249,8 @@ slacheckattr $alloptions "$1" DOCUMENT 	DPSFo		"$DPSFo"		"Convert colors to prin
 slacheckattr $alloptions "$1" DOCUMENT 	DPSo		"$DPSo"			"Fake printer's rendering on screen"
 slacheckattr $alloptions "$1" PDF 		Grayscale	"$Grayscale" 	"PDF output to grayscale"
 slacheckattr $alloptions "$1" PDF 		RGBMode 	"$RGBMode" 		"PDF output RGB for screen (rather than CMYK for printer)"
+slacheckattr $alloptions "$1" PDF 		UseProfiles		"0" 		""
+slacheckattr $alloptions "$1" PDF 		UseProfiles2	"1" 		""
 
 slacheckattr $alloptions "$1" DOCUMENT 	AUTOMATIC	"1"				"Doc pref / hyphen"
 slacheckattr $alloptions "$1" DOCUMENT 	AUTOCHECK	"1"				"Suggest and ask to confirm hyphens"
@@ -347,6 +352,7 @@ then
 			if [ "$vcheck" = '' ]
 			then 
 				# -g : no gui, -ns : no splash screen, but a window still opens...
+				echo $scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla" 2> /dev/null
 				$scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla" 2> /dev/null
 			else
 				echo $scribuscommand -g -ns -py `which slatopdf.py` -- "$path_to_here/$1.sla"
