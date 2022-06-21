@@ -92,23 +92,23 @@ do
 		echo "-nopagenum : dont check the first page number of each doc"
 		echo "-nocheck : dont check anything, just merge all chapter\'s pdfs"
 		echo '-nofontcheck : dont check fonts'
+		echo '-checkcolorall : check for (bad) uses of "All" named color'
 		echo '-nocomment : dont display comments (user can set comments using AAA, XXX or PPP keywords in texts)'
 		echo '-noimagelist : dont create used image list'
+		echo '-noimages : dont include images in created PDF (-forcepdf is implied)'
+		echo '-nobleeds : create chapters and PDF having -nobleeds suffix, using documents bleeds & having no cropmarks.'
+		echo '-nodisplay : dont open produced PDF'
 		echo '-nopdf : dont create chapters PDFs nor merge them (only checks SLA)'
 		echo '-forcepdf : force all pdf (re)creation, even when it exists allready'
 		echo '-vconfig : verbose output about config files'
 		echo '-vcheck : very verbose output about check'
 		echo '-find "word1 or phrase1" : find occurences in all chapters text'
 		echo '-xmlfind "string1" : find occurences of string in all chapters SLA file (text + xml tags)'
-		echo '-nores : do not list search results details (used with -find or -xmlfind)'
 		echo '-replace "string2" : replace found occurences with specified string2. (with -xmlfind only. with -find still to do)'
-		echo '-checkcolorall : check for (bad) uses of "All" named color'
+		echo '-nores : do not list search results details (used with -find or -xmlfind)'
 		echo '-getfonts : display embeded fonts'
 		echo '-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto'
-		echo '-noimages : dont include images in created PDF (souvent à combiner avec -forcepdf)'
-		echo '-nodisplay : dont open produced PDF'
 		echo '-sync opt : sync sla-declared styles, masterpages OR colors (depending on opt) of all chapters with project-declared syncmaster. opt=-c : sync colors, -s:styles, -cs:character styles, -ps:paragraph styles, -m:masterpages'
-		echo '-nobleeds : create chapters and PDF having -nobleeds suffix, using documents bleeds & having no cropmarks.'
 		echo
 		exit
 	fi
