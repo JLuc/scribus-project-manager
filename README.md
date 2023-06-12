@@ -14,7 +14,7 @@ All share some common properties like size of pages, styles or color profiles, b
 ## What does a scribus-project-manager *manage* ?
 A Scribus project manager is a tool that help manage multiple scribus files that are parts of a same project.
 
-Particularly it helps
+Particularly so as to
 * check scribus produced files and PDFs before sending them to the printer.
   - ensure that used fonts are embeded or subset or vectorized
   - ensure that PDF format related constraints are satisfied (PDF version, color profiles, etc)
@@ -25,14 +25,14 @@ Particularly it helps
   - ensure backups are created before altering files
 * edit SLAs so they conform to the project standard or to the chapter specifics.
 * produce the concatenated updated PDF
-* looking for strings in the text or in the XML structure and replace them with some other text
+* look for strings in the text OR in the XML structure and replace them with some other text
 * synchronise chapter's styles, masterpages or color definitions with those of a master document
 * automaticaly create PDF bookmarks for each paragraph of a user-specified style, and produce .md file of the table of content of these bookmarks
 * manage editor's comments of several types and produce .md file summary of these bookmarks, chapter by chapter
-* produces a list of used image files and states when inlined
-* optionnaly enables to produce bleeds-free or image-free local-printer-friendly PDFs as an alternative to the main with-bleeds and with-image version
-* optionnaly enables to produce searchable font-embeded or non-searchable vectorized versions of the PDF
-* proposes to check or set all SLA possible options
+* produce a list of used image files, stating when inlined or out of local image folder
+* optionnaly produce bleeds-free or image-free local-printer-friendly PDFs as an alternative to the main with-bleeds and with-image version
+* optionnaly produce searchable font-embeded or non-searchable vectorized versions of the PDF
+* possibly check or set all SLA possible options depending on your needs
 
 And more.
 
@@ -66,7 +66,7 @@ After creating dedicated config files, the scripts can be used for other project
 * **strtrim** : basic string trim
 
 ### Environnement tools
-This project has been created and used on Ubuntu 14.04, 16.04, 17.10, 18.04
+This project has been created and used on Ubuntu 14.04, 16.04, 17.10, 18.04, 22.04 using `bash` and `zbash`
 
 It includes the following tools, that might depend on the OS :
 * **sla_icon** : adds specific icon on SLA file(s) for nautilus view  
@@ -75,7 +75,7 @@ It includes the following tools, that might depend on the OS :
 These scripts can be made callable via nautilus action's menus.
 
 Also :
-* **shellcolors** : create variables to easily bring colors to console output using escape sequences. it is used to issue error or warning messages, and search result or such.
+* **shellcolors** : create variables to easily bring colors to console output using escape sequences. It's used to issue error or warning messages, and search result or such.
 
 # Setup for the project manager
 
