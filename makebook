@@ -1,6 +1,6 @@
 #!/bin/bash
 # set -x # trace shell
-
+reset
 . ./book.config
 
 ####################################################################
@@ -71,7 +71,6 @@ syncopt=''
 
 ####################################################################
 
-reset
 . shellcolors
 echo -e "${ESC_info}PATH=$PATH$ESC_normal"
 
@@ -82,14 +81,13 @@ do
 	if  [ "$1" = '-?' ] || [ "$1" = '-h' ] || [ "$1" = '--help' ] 
 	then
 		echo "mak makes the global PDF"
-		echo "Due to inline config, name of produced PDF is $output.pdf, $output-vecto.pdf or $output-noimages.pdf"
+		echo "Depending on config, name of produced PDF is $output.pdf, $output-vecto.pdf or $output-noimages.pdf"
 		echo 
 		echo "Options :"
 		echo "-? or -h : get this help"
 		echo "-set : set value to correct value"
-		echo "-addbookmarks or -ab : add bookmarks (specify used style with $pdf_bookmark_style variable in local book.config file)"
-		echo "-pagenum : also checks the first page number  of each doc"
-		echo "-nopagenum : dont check the first page number of each doc"
+		echo "-addbookmarks or -ab : add bookmarks. Bookmarks have '$pdf_bookmark_style' style, as specified with 'pdf_bookmark_style' variable in local book.config file)"
+		echo "-nopagenum : dont check the first page number of each doc (default : check)"
 		echo "-nocheck : dont check anything, just merge all chapter\'s pdfs"
 		echo '-nofontcheck : dont check fonts'
 		echo '-checkcolorall : check for (bad) uses of "All" named color'
@@ -548,6 +546,10 @@ do
 		ls $images_parent_folder
 	fi
 
+	#====================
+	# On n'appelle pas ". slacheck" sinon les arguments se mélangent / s'ajoutent - à creuser
+	# Du coup obligé de distinguer la config pour makebook et la config pour slacheck
+
 	if [ "$pdfwithbleeds" = "no" ]
 	then
 		# save withbleeds version 
@@ -555,13 +557,13 @@ do
 		cp -p -f "$fic".pdf "$fic"-withbleeds.pdf
 		slacheck -nobleeds -set -pdfignore -nofontcheck $verboseopt $fic
 	fi
-
 	if [ "$check" = "oui" ] 
 	then
 		echo "slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $noimagelist $pdfignore $verboseopt $fic"
 		slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $noimagelist $pdfignore $verboseopt $fic
 		echo "slacheck done"
 	fi
+	#====================
 
 	if [ "$pdfwithimages" = "no" ]
 	then
