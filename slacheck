@@ -103,7 +103,7 @@ do
 		stopoptions=''
 	elif [ "$1" = '-ab' ]; then
 		shift
-		# option gérée dans makebook
+		# option "add bookmark" gérée dans makebook
 		setrequested="-ab"
 		stopoptions=''
 		continue
