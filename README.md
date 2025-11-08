@@ -66,9 +66,9 @@ After creating dedicated config files, the scripts can be used for other project
 * **strtrim** : basic string trim
 
 ### Environnement tools
-This project has been created and used on Ubuntu 14.04, 16.04, 17.10, 18.04, 22.04 using `bash` and `zbash`
+This project has been created and used on Ubuntu 14.04, 16.04, 17.10, 18.04, 22.04 and 24.04 using `bash` and `zbash`
 
-It includes the following tools, that might depend on the OS :
+It includes the following tools, that might work or not depending on your OS :
 * **sla_icon** : adds specific icon on SLA file(s) for nautilus view  
 * **clean_icon** : removes user-added icon on file or folder
 
