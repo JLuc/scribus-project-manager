@@ -18,7 +18,7 @@ Particularly so as to
 * check scribus produced files and PDFs before sending them to the printer.
   - ensure that used fonts are embeded or subset or vectorized
   - ensure that PDF format related constraints are satisfied (PDF version, color profiles, etc)
-  - ensure that used images are stored in the local `images` file so the project can be safely saved
+  - ensure that used images are stored in the local `images` folder so the project can be safely saved
   - ensure all page dimensions and properties are conform to some project or chapter related settings
   - ensure that page numbers follow each other depending on the page number in each chapter
   - ensure PDF is updated when sla has been edited
@@ -28,11 +28,11 @@ Particularly so as to
 * look for strings in the text OR in the XML structure and replace them with some other text
 * synchronise chapter's styles, masterpages or color definitions with those of a master document
 * automaticaly create PDF bookmarks for each paragraph of a user-specified style, and produce .md file of the table of content of these bookmarks
-* manage editor's comments of several types and produce .md file summary of these bookmarks, chapter by chapter
+* manage editor's comments of several types and produce .md file summary of these comments, chapter by chapter
 * produce a list of used image files, stating when inlined or out of local image folder
 * optionnaly produce bleeds-free or image-free local-printer-friendly PDFs as an alternative to the main with-bleeds and with-image version
 * optionnaly produce searchable font-embeded or non-searchable vectorized versions of the PDF
-* possibly check or set all SLA possible options depending on your needs
+* possibly check or set any SLA possible options depending on your needs
 
 And more.
 
@@ -43,10 +43,10 @@ After creating dedicated config files, the scripts can be used for other project
 
 ### Book related tools
 
-* **makebook script** : call relevant tools on relevant files and create final PDF (no generic makebook is published, but an example makebook file is available).  
-* - apply master styles or masterpage or color to all chapters
-* - create text only version (no images) or no-bleeds version for personal printing
-* - check settings fit requirement
+* **makebook script** : calls relevant tools on relevant files and create final PDF (no generic makebook is published, but an example makebook file is available).  
+* - applies master styles or masterpage or color to all chapters
+* - creates text only version (no images) or no-bleeds version for personal printing
+* - checks settings fit requirement
 * - and more
 
 ### SLA document related tools
@@ -91,8 +91,8 @@ As easy as :
 
 Rq : The `.sla` extension, being a constant of a scribus filename, must be omited.
 
+## Sourcs pattern ##
 Since each chapter SLA file is usually the end result of a work requiring more documents, images, files, it may requires a whole folder to store these documents, and the SLA file is only one of them.
-
 So as to accomodate this, 3 possible standard organisations of files in the project folder are proposed and make project description more easy :
 * 0 : no change to filename in sources
 * 1 : filename stands for filename/filename(.sla)
@@ -120,6 +120,8 @@ sourcespattern=2
 ```
 
 Page numbers specifications can also be embeded in this source spec. See above in dedicated part of this readme.
+
+## Styles, colors and masterpages
 
 You can specify which document should be used as master for styles, masterpage or color synchronisation : `syncmaster="master_chap"`
 This masterdocument is only used when `makebook -sync` is called (for the whole book) or when `slasync` is called (for a single chapter).
