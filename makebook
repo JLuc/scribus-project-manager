@@ -72,46 +72,55 @@ syncopt=''
 ####################################################################
 
 . shellcolors
-echo -e "${ESC_info}PATH=$PATH$ESC_normal"
+echo -e "${ESC_info}PATH=${PATH}${ESC_normal}"
 
-while [ "$stopoptions" = "" ] && [ "$1" != "" ]
+while [[ "$stopoptions" = "" ]] && [[ "$1" != "" ]]
 do
 	stopoptions=true
 
-	if  [ "$1" = '-?' ] || [ "$1" = '-h' ] || [ "$1" = '--help' ] 
+	if  [[ "$1" = '-?' ]] || [[ "$1" = '-h' ]] || [[ "$1" = '--help' ]]
 	then
 		echo "mak makes the global PDF"
 		echo "Depending on config, name of produced PDF is $output.pdf, $output-vecto.pdf or $output-noimages.pdf"
 		echo 
 		echo "Options :"
 		echo "-? or -h : get this help"
+		echo "-list : list folders, ready to paste in book.config file"
 		echo "-set : set value to correct value"
 		echo "-addbookmarks or -ab : add bookmarks. Bookmarks have '$pdf_bookmark_style' style, as specified with 'pdf_bookmark_style' variable in local book.config file)"
 		echo "-nopagenum : dont check the first page number of each doc (default : check)"
 		echo "-nocheck : dont check anything, just merge all chapter\'s pdfs"
-		echo '-nofontcheck : dont check fonts'
-		echo '-checkcolorall : check for (bad) uses of "All" named color'
-		echo '-nocomment : dont display comments (user can set comments using AAA, XXX or PPP keywords in texts)'
-		echo '-noimagelist : dont create used image list'
-		echo '-noimages : dont include images in created PDF (-forcepdf is implied)'
-		echo '-nobleeds : create chapters and PDF having -nobleeds suffix, using documents bleeds & having no cropmarks.'
-		echo '-nodisplay : dont open produced PDF'
-		echo '-nopdf : dont create chapters PDFs nor merge them (only checks SLA)'
-		echo '-forcepdf : force all pdf (re)creation, even when it exists allready'
-		echo '-vconfig : verbose output about config files'
-		echo '-vcheck : very verbose output about check'
-		echo '-find "word1 or phrase1" : find occurences in all chapters text'
-		echo '-xmlfind "string1" : find occurences of string in all chapters SLA file (text + xml tags)'
-		echo '-replace "string2" : replace found occurences with specified string2. (with -xmlfind only. with -find still to do)'
-		echo '-nores : do not list search results details (used with -find or -xmlfind)'
-		echo '-getfonts : display embeded fonts'
-		echo '-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto'
-		echo '-sync opt : sync sla-declared styles, masterpages OR colors (depending on opt) of all chapters with project-declared syncmaster. opt=-c : sync colors, -s:styles, -cs:character styles, -ps:paragraph styles, -m:masterpages'
+		echo "-nofontcheck : dont check fonts"
+		echo "-checkcolorall : check for (bad) uses of "All" named color"
+		echo "-nocomment : dont display comments (user can set comments using AAA, XXX or PPP keywords in texts)"
+		echo "-noimagelist : dont create used image list"
+		echo "-noimages : dont include images in created PDF (-forcepdf is implied)"
+		echo "-nobleeds : create chapters and PDF having -nobleeds suffix, using documents bleeds & having no cropmarks."
+		echo "-nodisplay : dont open produced PDF"
+		echo "-nopdf : dont create chapters PDFs nor merge them (only checks SLA)"
+		echo "-forcepdf : force all pdf (re)creation, even when it exists allready"
+		echo "-vconfig : verbose output about config files"
+		echo "-vcheck : very verbose output about check"
+		echo "-find \"word1 or phrase1\" : find occurences in all chapters text"
+		echo "-xmlfind \"string1\" : find occurences of string in all chapters SLA file (text + xml tags)"
+		echo "-replace \"string2\" : replace found occurences with specified string2. (with -xmlfind only. with -find still to do)"
+		echo "-nores : do not list search results details (used with -find or -xmlfind)"
+		echo "-getfonts : display embeded fonts"
+		echo "-vecto : output to vectorised $output-vecto.pdf - BETA - use twice in a row : mak -vecto -set;mak -vecto"
+		echo "-sync opt : sync sla-declared styles, masterpages OR colors (depending on opt) of all chapters with project-declared syncmaster. opt=-c : sync colors, -s:styles, -cs:character styles, -ps:paragraph styles, -m:masterpages"
 		echo
 		exit
 	fi
 
-	if [ "$1" = "-vconfig" ]
+
+	if [[ "$1" = "-list" ]]
+	then
+		find . -mindepth 1 -maxdepth 1 -type d -printf "%f\n"
+		exit
+		break
+	fi
+
+	if [[ "$1" = "-vconfig" ]]
 	then
 		vconfig=$1
 		stopoptions=''
@@ -119,7 +128,7 @@ do
 		break
 	fi
 
-	if [ "$1" = "-vcheck" ]
+	if [[ "$1" = "-vcheck" ]]
 	then
 		vcheck=$1
 		stopoptions=''
@@ -127,16 +136,16 @@ do
 		break
 	fi
 
-	if [ "$1" = "-getfonts" ]
+	if [[ "$1" = "-getfonts" ]]
 	then
 		getfonts=$1
-		echo "will output embeded fonts for each .pdf"
+		echo "Will output embeded fonts for each .pdf"
 		stopoptions=''
 		shift
 		break
 	fi
 
-	if [ "$1" = "-nocheck" ]
+	if [[ "$1" = "-nocheck" ]]
 	then
 		shift
 		check=''
@@ -145,7 +154,7 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-nofontcheck" ]
+	if [[ "$1" = "-nofontcheck" ]]
 	then
 		shift
 		nofontcheck="-nofontcheck"
@@ -154,7 +163,7 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-nocomment" ] || [ "$1" = "-nocomments" ]
+	if [[ "$1" = "-nocomment" ]] || [[ "$1" = "-nocomments" ]]
 	then
 		shift
 		nocomment="-nocomment"
@@ -163,7 +172,7 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-noimagelist" ] || [ "$1" = "-noimagelists" ]
+	if [[ "$1" = "-noimagelist" ]] || [[ "$1" = "-noimagelists" ]]
 	then
 		shift
 		nocomment="-noimagelist"
@@ -172,15 +181,15 @@ do
 		continue
 	fi
 
-	if [ -f .found.tmp ]
+	if [[ -f .found.tmp ]]
 	then
 		rm .found.tmp
 	fi
 
-	if [ "$1" = "-find" ]
+	if [[ "$1" = "-find" ]]
 	then
 		shift
-		if [ "$1" = "" ]
+		if [[ "$1" = "" ]]
 		then
 			echo -e "${ESC_error}-find option must have additionnal parameter$ESC_normal"
 			exit
@@ -193,10 +202,10 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-xmlfind" ]
+	if [[ "$1" = "-xmlfind" ]]
 	then
 		shift
-		if [ "$1" = "" ]
+		if [[ "$1" = "" ]]
 		then
 			echo -e "${ESC_error}-xmlfind option must have additionnal parameter$ESC_normal"
 			exit
@@ -210,7 +219,7 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-nores" ]	
+	if [[ "$1" = "-nores" ]]
 	then
 		shift
 		displayfindresult=""	
@@ -219,7 +228,7 @@ do
 		continue
 	fi
 	
-	if [ "$1" = "-nobleeds" ] ||  [ "$1" = "-nobleed" ]
+	if [[ "$1" = "-nobleeds" ]] ||  [[ "$1" = "-nobleed" ]]
 	then
 		pdfsuffix=$1
 		shift
@@ -229,7 +238,7 @@ do
 		continue
 	fi	
 	
-	if [ "$1" = '-checkcolorall' ]
+	if [[ "$1" = '-checkcolorall' ]]
 	then
 		checkcolorall='yes'
 		xmlsearched="COLOR=\"All\""
@@ -240,15 +249,15 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-replace" ]
+	if [[ "$1" = "-replace" ]]
 	then
-		if [ "$xmlsearched" = "" ] && [ "$searched" = "" ]
+		if [[ "$xmlsearched" = "" ]] && [[ "$searched" = "" ]]
 		then 
 			echo -e "${ESC_error}-replace option must follow some -xmlfind option. No such options found here.$ESC_normal"
 			exit
 		fi
 		shift
-		if [ -z ${1+x} ] # only verified when $1 is unset, not verified when $1 is empty string
+		if [[ -z ${1+x} ]] # only verified when $1 is unset, not verified when $1 is empty string
 		then
 			echo -e "${ESC_error}-replace option must have additionnal parameter = replacement string$ESC_normal"
 			exit
@@ -261,7 +270,7 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-set" ]
+	if [[ "$1" = "-set" ]]
 	then
 		shift
 		setopt="-set"
@@ -270,14 +279,14 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-addbookmarks" ] || [ "$1" = "-ab" ]
+	if [[ "$1" = "-addbookmarks" ]] || [[ "$1" = "-ab" ]]
 	then
 		shift
 		setopt="-ab"
 		stopoptions=''
 		pdfignore='-pdfignore'
 		
-		if [ "$pdf_bookmark_style" == "" ]
+		if [[ "$pdf_bookmark_style" = "" ]]
 		then 
 			echo -e "${ESC_error}pdf_bookmark_style variable must be defined in config file so as to use -addbookmarks option$ESC_normal"
 			exit
@@ -286,7 +295,7 @@ do
 		continue
 	fi
 	
-	if [ "$1" = "-pdfignore" ] || [ "$1" = "-nopdf" ]
+	if [[ "$1" = "-pdfignore" ]] || [[ "$1" = "-nopdf" ]]
 	then
 		shift
 		pdfignore='-pdfignore'
@@ -294,7 +303,7 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-forcepdf" ]
+	if [[ "$1" = "-forcepdf" ]]
 	then
 		shift
 		pdfignore=''
@@ -303,7 +312,7 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-vecto" ]
+	if [[ "$1" = "-vecto" ]]
 	then
 		shift
 		vectoopt='-vecto'	# pour slacheck et en suffixe de output
@@ -312,7 +321,7 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-nopagenum" ]
+	if [[ "$1" = "-nopagenum" ]]
 	then
 		shift
 		checkpagenum=''
@@ -320,7 +329,7 @@ do
 		continue
 	fi
 	
-	if [ "$1" = "-noimages" ] ||  [ "$1" = "-noimage" ]
+	if [[ "$1" = "-noimages" ]] ||  [[ "$1" = "-noimage" ]]
 	then
 		pdfsuffix=$1
 		shift
@@ -330,7 +339,7 @@ do
 		continue
 	fi
 	
-	if [ "$1" = "-nodisplay" ]
+	if [[ "$1" = "-nodisplay" ]]
 	then
 		shift
 		displaypdf=''
@@ -338,15 +347,15 @@ do
 		continue
 	fi
 
-	if [ "$1" = "-sync" ]
+	if [[ "$1" = "-sync" ]]
 	then
 		shift
-		if [ "$1" = "" ]
+		if [[ "$1" = "" ]]
 		then
 			echo -e "${ESC_error}-sync option must have additionnal parameter : -c, -s, -m, -ps or -cs to sync colors, styles, masterpages, paragraph styles or character styles $ESC_normal"
 			exit
 		fi
-		if [ "$syncmaster" == "" ] || [ ! -f "$syncmaster.sla" ]
+		if [[ "$syncmaster" == "" ]] || [[ ! -f "$syncmaster.sla" ]]
 		then 
 			echo -e "${ESC_error}syncmaster variable must be defined in config file and its value must be an existing sla file (without .sla ext)$ESC_normal"
 			exit
@@ -368,12 +377,14 @@ listepdf=""
 pagenumopt=''
 num_page=1	 # start page
 
-if [ "$searched" = "" ] && [ "$xmlsearched" = "" ]
+if [[ "$searched" = "" ]] && [[ "$xmlsearched" = "" ]]
 then
 	echo -ne "## $output chapters\n# Inline comments\n\n" > book_comments.md
-	echo -ne "## $output chapters\n# Bookmarks with '$pdf_bookmark_style' style\n\n" > book_bookmarks.md
 	echo -ne "## $output chapters\n# Used images\n\n" > book_imagelist.md
-
+	if [[ "$pdf_bookmark_style" != "" ]]
+	then 
+		echo -ne "## $output chapters\n# Bookmarks with '$pdf_bookmark_style' style\n\n" > book_bookmarks.md
+	fi
 fi
 
 for fic in $sources
@@ -381,17 +392,17 @@ for fic in $sources
 do 
 	# Appears before filename in $sources :
 	# Start page of next chapter declaration - let's check
-	if [ "${fic#p_}" != "$fic" ] && [ $checkpagenum = 'check' ]
+	if [[ "${fic#p_}" != "$fic" ]] && [[ $checkpagenum = 'check' ]]
 	then
 		num_page_set=${fic#p_}
-		if [ "$num_page_set" != "$num_page" ]	
+		if [[ "$num_page_set" != "$num_page" ]]
 		then	# page jump could be intended
 			echo -e "${ESC_warning} or error : After adding pages, page num should be $num_page, but is declared to be $num_page_set"
 			echo -e "Continuing.$ESC_normal"
 		fi
 		num_page=$num_page_set
 		pagenumopt="-pagenum $num_page"
-		if [ "$searched" = '' ] && [ "$xmlsearched" = '' ] && [ "$syncopt" = '' ]
+		if [[ "$searched" = '' ]] && [[ "$xmlsearched" = '' ]] && [[ "$syncopt" = '' ]]
 		then
 			echo "Declared start page $num_page"
 		fi
@@ -400,18 +411,18 @@ do
 
 	# Appears after filename in $sources :
 	# pagenum for last chapter declaration - let's check
-	if [ "${fic#n_}" != "$fic" ] && [ "$checkpagenum" = 'check' ]
+	if [[ "${fic#n_}" != "$fic" ]] && [[ "$checkpagenum" = 'check' ]]
 	then
-		if [ "$check" != '' ] # eg when -find
+		if [[ "$check" != '' ]] # eg when -find
 		then
 			continue
-		elif [ "$pagecount" = "" ]
+		elif [[ "$pagecount" = "" ]]
 		then
-			echo -e "$ESC_error Missing filename before pagecount in source variable - STOP $EXC_normal"
+			echo -e "$ESC_error Missing filename before pagecount in source variable - STOP $ESC_normal"
 			exit
-		elif [ "$pagecount" != ${fic#n_} ]
+		elif [[ "$pagecount" != "${fic#n_}" ]]
 		then
-			echo -e "$ESC_error $pagecount_fic has $pagecount pages but the book declares ${fic#n_} pages$ESC_normal"
+			echo -e "$ESC_error $pagecount_fic has $pagecount pages but the book declares ${fic#n_} pages $ESC_normal"
 		fi
 		continue
 	fi
@@ -420,23 +431,23 @@ do
 
 	short_fic="$fic" # for echo only
 
-	if [ "$sourcespattern" = 1 ]
+	if [[ "$sourcespattern" = 1 ]]
 	then
 		# images_parent_folder : sla folder, without ending slash
 		images_parent_folder="$fic"
 		fic="$fic/$fic"
-	elif [ "$sourcespattern" = 2 ]
+	elif [[ "$sourcespattern" = 2 ]]
 	then 
 		images_parent_folder="$fic/PAO"
 		fic="$fic/PAO/$fic"
-	elif [ "$images_parent_folder" = "" ]
+	elif [[ "$images_parent_folder" = "" ]]
 	then 
 		images_parent_folder="."
 	fi
 
-	if [ ! -f "$fic.sla" ] 
+	if [[ ! -f "$fic.sla" ]]
 	then 
-		echo -e "$ESC-error Error : missing $fic.sla file $ESC_normal"
+		echo -e "$ESC_error Error : missing $fic.sla file $ESC_normal"
 		# NO exit for mult-mixed component file
 		exit
 	fi
@@ -452,7 +463,7 @@ do
 	start_page=$num_page
 	num_page=$(( $num_page+$pagecount ))
 
-	if [ "$searched" != '' ] || [ "$xmlsearched" != '' ]
+	if [[ "$searched" != '' ]] || [[ "$xmlsearched" != '' ]]
 	then
 		# Enlever d'abord les césures avant de chercher $searched, et même $xmlsearched
 		# césures conditionnelles = caractère Unicode U+00AD
@@ -461,39 +472,39 @@ do
 		cleansla="$fic.clean.sla"
 		sed -e 's/\xc2\xad//g' "$fic.sla" > "$cleansla"
 	else
-		if [ "$syncopt" = '' ]
+		if [[ "$syncopt" = '' ]]
 		then		
 			echo -e $pagemsg
 		fi
 	fi
 
-	if [ "$searched" != '' ]
+	if [[ "$searched" != '' ]]
 	then
-		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*$searched[^\"]*\""` 
+		count=`grep -i "<ITEXT[^>]*CH=" "$cleansla" | grep -c -o -i "\"[^\"]*${searched}[^\"]*\""` 
 		echo Search in $short_fic : $count results
-		if [ "$count" != "0" ] && [ "$displayfindresult" != "" ]
+		if [[ "$count" != "0" ]] && [[ "$displayfindresult" != "" ]]
 		then
 			nbfound=$(( $nbfound+$count ))
 
 			echo -e $ESC_yellow
-			grep -ni "<ITEXT[^>]*CH=" "$cleansla" | grep -i "\"[^\"]*$searched[^\"]*\"" | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//'
+			grep -ni "<ITEXT[^>]*CH=" "$cleansla" | grep -i "\"[^\"]*${searched}[^\"]*\"" | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//'
 			echo -e $ESC_normal
 			
 			# -n : line number
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
-			grep -ni "<ITEXT[^>]*CH=\"[^\"]*$searched[^\"]*\"" "$cleansla" /dev/null | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//' >> .found.tmp
+			grep -ni "<ITEXT[^>]*CH=\"[^\"]*${searched}[^\"]*\"" "$cleansla" /dev/null | sed -e 's/<ITEXT[^>]*CH="//' | sed -e 's/"\/>//' >> .found.tmp
 		fi
 		rm $cleansla
 		continue
 	fi
 	
-	if [ "$xmlsearched" != '' ]
+	if [[ "$xmlsearched" != '' ]]
 	then
 		count=`grep -c -o -i "$xmlsearched" "$cleansla"`
 		echo XmlSearch in $short_fic : $count results
 
 		# tests : != for string / ne for numerics
-		if [ "$count" != "0" ] && [ "$displayfindresult" != "" ]
+		if [[ "$count" != "0" ]] && [[ "$displayfindresult" != "" ]]
 		then
 			nbfound=$(( $nbfound+$count ))
 
@@ -505,17 +516,18 @@ do
 			# /dev/null is added so grep believes there is more than one file and outputs the filename
 			grep -ni "$xmlsearched" "$cleansla" /dev/null >> .found.tmp
 
-			if [ -n $doreplace ]
+			echo "Avant test pour '$short_fic' : doreplace='$doreplace' replaced='$replaced'" # DEBUG
+			if [[ -n $doreplace ]]
 			then
 				echo "Après test pour '$short_fic' : doreplace='$doreplace' replaced='$replaced'" # DEBUG
-				if [ -f "$fic.before_replace.sla" ]
+				if [[ -f "$fic.before_replace.sla" ]]
 				then
 					echo "$fic.before_replace.sla allready exists : moved as .bak"
 					mv "$fic.before_replace.sla" "$fic.before_replace.sla.bak"
 				fi
-				cp "$fic.sla" "$fic.before_replace.sla"
-				echo $fic.sla is saved into $fic.before_replace.sla
-				echo $xmlsearched is replaced with $replaced in $fic.sla 
+				cp "${fic}.sla" "${fic}.before_replace.sla"
+				echo "${fic}.sla is saved into ${fic}.before_replace.sla"
+				echo "${xmlsearched} is replaced with ${replaced} in ${fic}.sla" 
 				# avant : ça plantait
 				# avant : echo sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
 				# avant : sed -i -- \""s/$xmlsearched/$replaced/g"\" "$fic.sla"
@@ -532,14 +544,14 @@ do
 		continue
 	fi
 	
-	if [ "$syncopt" != '' ]
+	if [[ "$syncopt" != '' ]]
 	then
 		echo "slasync $syncopt $syncmaster $fic"
 		slasync $syncopt $syncmaster $fic
 		continue
 	fi
 
-	if [ "$pdfwithimages" = "no" ]
+	if [[ "$pdfwithimages" = "no" ]]
 	then
 		mv -b "$images_parent_folder/images" "$images_parent_folder/images.bak"
 		mv -b $fic.pdf "$fic"-withimages.pdf
@@ -550,14 +562,14 @@ do
 	# On n'appelle pas ". slacheck" sinon les arguments se mélangent / s'ajoutent - à creuser
 	# Du coup obligé de distinguer la config pour makebook et la config pour slacheck
 
-	if [ "$pdfwithbleeds" = "no" ]
+	if [[ "$pdfwithbleeds" = "no" ]]
 	then
 		# save withbleeds version 
 		cp -p -f "$fic".sla "$fic"-withbleeds.sla	# -p preserves timestamp
 		cp -p -f "$fic".pdf "$fic"-withbleeds.pdf
 		slacheck -nobleeds -set -pdfignore -nofontcheck $verboseopt $fic
 	fi
-	if [ "$check" = "oui" ] 
+	if [[ "$check" = "oui" ]]
 	then
 		echo "slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $noimagelist $pdfignore $verboseopt $fic"
 		slacheck $vectoopt $setopt $pagenumopt $forcepdfopt $nofontcheck $nocomment $noimagelist $pdfignore $verboseopt $fic
@@ -565,7 +577,7 @@ do
 	fi
 	#====================
 
-	if [ "$pdfwithimages" = "no" ]
+	if [[ "$pdfwithimages" = "no" ]]
 	then
 		# on restaure le dossier image
 		mv -b "$images_parent_folder/images.bak" "$images_parent_folder/images"
@@ -575,7 +587,7 @@ do
 		mv -b "$fic"-withimages.pdf "$fic".pdf
 	fi
 
-	if [ "$pdfwithbleeds" = "no" ]
+	if [[ "$pdfwithbleeds" = "no" ]]
 	then
 		# save sla without bleeds and restore sla with bleeds
 		mv -b "$fic".sla "$fic"-nobleeds.sla
@@ -586,14 +598,14 @@ do
 		cp -p -f "$fic"-withbleeds.pdf "$fic".pdf
 	fi
 
-	if [ "$getfonts" != '' ]
+	if [[ "$getfonts" != '' ]]
 	then
 		# alternative : `strings yourPDFfilepath.pdf | grep FontName`
 		echo "pdffonts $fic.pdf"
 		pdffonts "$fic.pdf"
 	fi
 	
-	if [ "$pdf_bookmark_style" != "" ]
+	if [[ "$pdf_bookmark_style" != "" ]]
 	then 
 		chapter_summary="$start_page.           "	
 		chapter_summary="${chapter_summary:0:5} $fic                                                                                          " # many spaces for right strpad 
@@ -610,20 +622,24 @@ do
 		# ed -s pour créer un sous-noeud
 
 		# bookmark style : either as para or as trail paragraph
+		
+		# warning : returns the first ITEXT or the frame, but it might use another para style
 		bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [para/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$fic.sla"`
-		if [ "$bookmarklabel" != "" ]
+
+		if [[ "$bookmarklabel" != "" ]]
 		then
 			bookmarktag='para '
 		else
 			bookmarklabel=`xmlstarlet sel -t -v  "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT/StoryText [trail/@PARENT='$pdf_bookmark_style']/ITEXT[1]/@CH" "$fic.sla"`
 			bookmarktag='trail'
+			echo TRAIL!
 		fi
 
 		# clean bookmark
 		bookmarklabel=`echo $bookmarklabel | tr -d "­"`  # conditionnal hyphen glyph in ""
 		bookmarklabel=${bookmarklabel#\s*}
 		
-		if [ "$bookmarklabel" != "" ]
+		if [[ "$bookmarklabel" != "" ]]
 		then # ${fic#p_}
 			# TODO strpad 
 			# echo len=${#bookmarklabel}
@@ -631,18 +647,18 @@ do
 
 			echo -ne "$bookmarklabel\n" >> book_bookmarks.md
 			echo -ne "Bookmark found as $bookmarktag :   $bookmarklabel\n"
-			if [ "$setopt" == '-ab' ]
+			if [[ "$setopt" == '-ab' ]]
 			then
-				dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$fic.sla"`
-				if [ "$dejabookmark" == '' ]
+				dejabookmark=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/${bookmarktag}[@PARENT='$pdf_bookmark_style']]/@BOOKMARK" "$fic.sla"`
+				if [[ "$dejabookmark" == '' ]]
 				then
 					# Add BOOKMARK="1" on PAGEOBJECT
-					xmlstarlet ed -i "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]" -t attr -n BOOKMARK -v "1" "$fic.sla" > "$fic.tmp_with_bookmark_1.sla"
+					xmlstarlet ed -i "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/${bookmarktag}[@PARENT='$pdf_bookmark_style']]" -t attr -n BOOKMARK -v "1" "$fic.sla" > "$fic.tmp_with_bookmark_1.sla"
 
 					# Insert a <Bookmark ... /> element in the <DOCUMENT>. 
 					# eg : <Bookmark Title="A title" Text="A Title" Aktion="" ItemNr="1" Element="1491231114" First="0" Last="0" Prev="0" Next="0" Parent="0"/>
 					# Should be first, OK when last + OK without ItemNr, First, Last, Prev and Next
-					bookmark_itemid=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]/@ItemID" "$fic.tmp_with_bookmark_1.sla"`
+					bookmark_itemid=`xmlstarlet sel -t -v "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/${bookmarktag}[@PARENT='$pdf_bookmark_style']]/@ItemID" "$fic.tmp_with_bookmark_1.sla"`
 					xmlstarlet ed -s "SCRIBUSUTF8NEW/DOCUMENT" -t elem -n "Bookmark Title=\"$bookmarklabel\" Text=\"$bookmarklabel\" Aktion=\"\" Element=\"$bookmark_itemid\" Parent=\"0\"" "$fic.tmp_with_bookmark_1.sla" > "$fic.tmp_with_bookmark_2.sla"
 
 #					wc "$fic.sla" "$fic.tmp_with_bookmark_1.sla" "$fic.tmp_with_bookmark_2.sla"
@@ -660,7 +676,7 @@ do
 		fi
 		echo -ne "\n$ESC_normal"
 		# echo "=== ça donne ==="
-		# xmlstarlet sel -t -c "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/$bookmarktag[@PARENT='$pdf_bookmark_style']]" "$fic.sla"
+		# xmlstarlet sel -t -c "SCRIBUSUTF8NEW/DOCUMENT/PAGEOBJECT[StoryText/${bookmarktag}[@PARENT='$pdf_bookmark_style']]" "$fic.sla"
 	else
 		echo "bookmarks : pdf_bookmark_style is not defined"
 		exit
@@ -669,16 +685,16 @@ do
 	listepdf="$listepdf $fic$pdfsuffix.pdf"
 done
 
-if [ "$pdfignore" = "-pdfignore" ] || [ "$pdfignore" = "pdfignore" ] || [ "$searched" != '' ] || [ "$xmlsearched" != '' ] || [ "$syncopt" != '' ]
+if [[ "$pdfignore" = "-pdfignore" ]] || [[ "$pdfignore" = "pdfignore" ]] || [[ "$searched" != '' ]] || [[ "$xmlsearched" != '' ]] || [[ "$syncopt" != '' ]]
 then
 	echo "Done"
 	exit
 fi
 
 
-if [ "$pdfignore" = "" ]
+if [[ "$pdfignore" = "" ]]
 then
-	if [ -f $output$pdfsuffix.pdf ]
+	if [[ -f $output$pdfsuffix.pdf ]]
 	then
 		mv $output$pdfsuffix.pdf $output$pdfsuffix.pdf.bak
 	fi
@@ -697,13 +713,14 @@ then
 	# echo "Avec sejda-console (http://sejda.org/)"
 	# sejda-console merge -f $listepdf -o $output$pdfsuffix.pdf
 
-	if [ -f $output$pdfsuffix.pdf  ] 
+	if [[ -f $output$pdfsuffix.pdf  ]]
 	then
 		ls -ltr $output$pdfsuffix.pdf 
 		echo $output$pdfsuffix.pdf created OK  
-		if [ "$displaypdf" != '' ]
+		if [[ "$displaypdf" != '' ]]
 		then
-			evince $output$pdfsuffix.pdf &
+			# evince $output$pdfsuffix.pdf &
+			okular $output$pdfsuffix.pdf &
 		fi	
 	fi
 fi
@@ -713,22 +730,22 @@ fi
 # pdfcrop --margins '-25 -25 -25 -25' $output.pdf normargin_$output.pdf
 # [ -f normargin_$output.pdf  ] && evince normargin_$output.pdf & ls -ltr normargin_$output.pdf ; echo normargin_$output.pdf created OK
 
-if [ "$searched$xmlsearched" != '' ]
+if [[ "$searched$xmlsearched" != '' ]]
 then
 	echo Done
 	echo 
-	echo ${ESC_yellow}Searching \'$searched$xmlsearched\' : total $nbfound results found in whole book$ESC_normal
-	if [ $nbfound != 0 ]
+	echo "${ESC_yellow}Searching '${searched}${xmlsearched}' : total $nbfound results found in whole book $ESC_normal"
+	if [[ $nbfound != 0 ]]
 	then
-		if [ "$checkcolorall" != '' ]
+		if [[ "$checkcolorall" != '' ]]
 		then
-			echo -e "${ESC_error}Some (bad) uses of COLOR=\"All\" have been found !$ESC_normal"
+			echo -e "${ESC_error}Some (bad) uses of COLOR=\"All\" have been found ! $ESC_normal"
 		fi
 		cat .found.tmp
 	fi
 fi
 
-if [ "$getfonts" != '' ]
+if [[ "$getfonts" != '' ]]
 then
 	pdffonts $output$pdfsuffix.pdf
 fi
