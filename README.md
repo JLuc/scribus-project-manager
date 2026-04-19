@@ -119,7 +119,22 @@ sources="CoverBegin		Summary  InsidePages		Adverts  CoverEnd"
 sourcespattern=2
 ```
 
-Page numbers specifications can also be embeded in this source spec. See above in dedicated part of this readme.
+It's generaly more comfortable to edit the list on multiple lines :
+```
+# 5 files project, no sourcing pattern
+sources="
+  CoverBegin
+  Summary
+  CoverEnd
+"
+sourcespattern=1
+```
+
+Page numbers specifications can also be embeded in this source spec. See above in *Page numbering* part of this readme.
+
+## Helper to setup the chapter's list ## 
+
+When you choose to use sourcepattern 1 or 2, then `makebook -list` will display the list of existing folders. You can copy this list and paste it in the `book.config` script as a `sources` variable content.
 
 ## Styles, colors and masterpages
 
@@ -175,23 +190,34 @@ The `makebook` script does run `slacheck` on each file of the source and perform
 The project can check or/and set the correct numberging of pages in each file of the project.
 
 When no specific declaration is added to the "sources" variable, the first page of the created book is 1 and each chapter's page numbers follows.
+
 Using the "sources" variable, it's possible to create page numbers jumps and checks :
-- adding "n_6" after the name of a chapter enables to check that this chapter is realy 6 pages long as intended. In case of mismatch, an error is issued and the script stops.
-- adding "p_13" before the name of a chapter ensures that the starting page number for this chapter is 13. In case of mismatch, a warning (not an error) is issued and the script continues.
+- adding "n_6" *after* the name of a chapter enables to check that this chapter is realy 6 pages long as intended. In case of mismatch, an error is issued and the script stops.
+- adding "p_13" *before* the name of a chapter ensures that the starting page number for this chapter is 13. In case of mismatch, a warning (not an error) is issued and the script continues.
 
 Its possible to mix n_ and p_ data, and this makes it possible to do stronger page numbering checks
 
 Examples :
-* ```sources="p_1 CoverBegin		p_3 Summary  p_7 InsidePages	p_15	Notes  p_20 CoverEnd"```
-* ```sources="n_2 CoverBegin		Summary  n_8 InsidePages	n_5	Notes  p_20 CoverEnd"``` 
+```
+  sources="
+    p_1 CoverBegin
+    p_3 Summary
+    p_7 InsidePages n_13
+    p_20 CoverEnd"
+```
 
-So as to take effect into the PDF created files, these pagestart have to be recorded inside each SLA file. So as to do so : call `makebook` with the `-set` option. It will set all chapter's starting page according to `p_xxx` and `n_xxx` declarations. When there is no such declaration, `makebook` counts the pages and ensure the next chapteur begins so it follows previous chapter's last page. 
+So as to take effect into the PDF created files, these pagestarts have to be recorded inside each SLA file. So as to do so : call `makebook` with the `-set` option :
+- It will set all chapter's starting page according to `p_xxx` and `n_xxx` declarations.
+- When there is no such declaration, `makebook` counts the pages and ensure the next chapter begins so it follows previous chapter's last page. 
+
 NB : All pages of all chapters are included in the produced PDF. There is no way to exclude some pages. In case you want some part of your document to be not exported in the book, place it outside of the existing pages !
 
-## Checking PDF files validity ##
+## Checking PDF files are uptodate ##
 
 `makebook` and `slacheck` checks that the previously created PDF are uptodate. 
+
 When the PDF is older than the SLA, it creates a newer PDF (saving the previously existing one as .bak)
+
 It's possible to avoid this automatic behaviour using `-pdfignore` or `-pdfcheck` options :
 - `-pdfignore` : dont check whether pdf exists and dont compare PDF and SLA last edit dates"
 - `-pdfcheck` : check PDF, but dont re-create it in case it is older than .SLA
@@ -202,6 +228,7 @@ slacheck checks that the project has been correctly collected for output :
 it checks that all used images are stored into the local images/ folder
 
 slacheck checks that the fonts are either embeded or subset
+
 An option also exists also to use vectorized versions of the PDFs
 
 ## Searching text in whole book
@@ -280,6 +307,7 @@ This is only possible for one such bookmark in each chapter.
 ## Generate image list
 
 Unless the `-noimagelist` option is provided, `makebook` script creates an .md file detailing used images for each chapter.
+
 Inlined images are listed apart.
 
 Example of created `book_imagelist.md` :
