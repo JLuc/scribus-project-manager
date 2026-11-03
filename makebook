@@ -737,7 +737,7 @@ then
 	/usr/bin/pdftk $listepdf cat output $output$pdfsuffix.pdf
 	
 	echo "source=$sources" 
-	sla2txt.php $sources -o tous_les_textes.txt
+	sla2txt.php $sources -o book_txt.txt
 	
 	# sinon on peut le faire avec sejda
 	# echo "Avec sejda-console (http://sejda.org/)"
