@@ -3,6 +3,27 @@
 reset
 . ./book.config
 
+# if  [ "$Resolution" = '' ]; then
+#	echo "En sortant de book.config, Resolution non définie"
+# else
+#	echo "En sortant de book.config, Resolution vaut $Resolution"
+# fi
+
+# TODO pouvoir gérer des sous-projet avec source et output différents
+# makebook lps -> créée lps.pdf avec les chapitres définis par sources_lps
+# makebook couv_intro -bleeds -> crée couv_intro avec les chapitres définis par sources_couv_intro
+
+# FIXME pouvoir indiquer ces résolutions ici 
+# car actuellement il faut les mettre dans slacheck.config
+# ou alors peut être juste c'est prioritaire là bas
+# Resolution="200"
+# PicRes="200"
+#
+# Ou dans le cadre d'un sous projet
+# couv_intro_Resolution="100"
+# couv_intro_PicRes="200"
+
+
 ####################################################################
 #
 # book.config sets :
@@ -227,7 +248,12 @@ do
 		stopoptions=''
 		continue
 	fi
-	
+
+# if  [ "$Resolution" = '' ]; then
+#	echo "Avant nobleeds, Resolution non définie"
+# else
+#	echo "Avant nobleeds, Resolution vaut $Resolution"
+#fi
 	if [[ "$1" = "-nobleeds" ]] ||  [[ "$1" = "-nobleed" ]]
 	then
 		pdfsuffix=$1
@@ -560,14 +586,15 @@ do
 
 	#====================
 	# On n'appelle pas ". slacheck" sinon les arguments se mélangent / s'ajoutent - à creuser
-	# Du coup obligé de distinguer la config pour makebook et la config pour slacheck
+	# 	Du coup obligé de distinguer la config pour makebook et la config pour slacheck
+	# Euh ben si, le code appelle ". slacheck"...
 
 	if [[ "$pdfwithbleeds" = "no" ]]
 	then
 		# save withbleeds version 
 		cp -p -f "$fic".sla "$fic"-withbleeds.sla	# -p preserves timestamp
 		cp -p -f "$fic".pdf "$fic"-withbleeds.pdf
-		slacheck -nobleeds -set -pdfignore -nofontcheck $verboseopt $fic
+		. slacheck -nobleeds -set -pdfignore -nofontcheck $verboseopt $fic
 	fi
 	if [[ "$check" = "oui" ]]
 	then
@@ -708,7 +735,10 @@ then
 	# sudo ln -s /snap/pdftk/current/usr/bin/pdftk /usr/bin/pdftk
 	# à condition qu'on l'appelle en absolu :
 	/usr/bin/pdftk $listepdf cat output $output$pdfsuffix.pdf
-
+	
+	echo "source=$sources" 
+	sla2txt.php $sources -o tous_les_textes.txt
+	
 	# sinon on peut le faire avec sejda
 	# echo "Avec sejda-console (http://sejda.org/)"
 	# sejda-console merge -f $listepdf -o $output$pdfsuffix.pdf
@@ -751,3 +781,12 @@ then
 fi
 
 cat book_bookmarks.md
+
+LANG=fr_FR.UTF-8 date +"Time now is %H:%M"
+
+if [ "$PicRes" -lt 300 ]; 
+then 
+	echo -e  "${ESC_error}!!!";
+	echo -e  "${ESC_error}!!! ATTENTION PICRES INSUFFISANTE !!!";
+	echo -e  "${ESC_error}!!!";
+fi
